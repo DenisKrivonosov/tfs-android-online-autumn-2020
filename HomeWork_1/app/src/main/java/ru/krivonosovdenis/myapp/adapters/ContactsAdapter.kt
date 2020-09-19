@@ -5,14 +5,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.contact_layout.view.*
 import ru.krivonosovdenis.myapp.R
 import ru.krivonosovdenis.myapp.data_classes.ContactData
 
-class ContactsAdapter(private val mContacts: ArrayList<ContactData>) : RecyclerView.Adapter<ContactsAdapter.ViewHolder>() {
+class ContactsAdapter(private val contacts: ArrayList<ContactData>) : RecyclerView.Adapter<ContactsAdapter.ViewHolder>(){
 
-    inner class ViewHolder(listItemView: View) : RecyclerView.ViewHolder(listItemView) {
-        val nameTextView = itemView.findViewById<TextView>(R.id.contact_name)
-        val phoneTextView = itemView.findViewById<TextView>(R.id.contact_number)
+    inner class ViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+        val nameTextView = containerView.contact_name
+        val phoneTextView = containerView.contact_number
     }
 
 
@@ -25,7 +27,7 @@ class ContactsAdapter(private val mContacts: ArrayList<ContactData>) : RecyclerV
 
 
     override fun onBindViewHolder(viewHolder: ContactsAdapter.ViewHolder, position: Int) {
-        val contact: ContactData = mContacts.get(position)
+        val contact: ContactData = contacts.get(position)
         val nameTextView = viewHolder.nameTextView
         nameTextView.setText(contact.contactName)
 
@@ -35,6 +37,6 @@ class ContactsAdapter(private val mContacts: ArrayList<ContactData>) : RecyclerV
 
     // Returns the total count of items in the list
     override fun getItemCount(): Int {
-        return mContacts.size
+        return contacts.size
     }
 }
