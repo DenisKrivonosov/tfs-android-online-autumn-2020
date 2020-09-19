@@ -11,12 +11,8 @@ import ru.krivonosovdenis.myapp.R
 import ru.krivonosovdenis.myapp.data_classes.ContactData
 
 class ContactsAdapter(private val contacts: ArrayList<ContactData>) : RecyclerView.Adapter<ContactsAdapter.ViewHolder>(){
-
-    inner class ViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
-        val nameTextView = containerView.contact_name
-        val phoneTextView = containerView.contact_number
-    }
-
+    
+    class ViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactsAdapter.ViewHolder {
         val context = parent.context
@@ -28,10 +24,10 @@ class ContactsAdapter(private val contacts: ArrayList<ContactData>) : RecyclerVi
 
     override fun onBindViewHolder(viewHolder: ContactsAdapter.ViewHolder, position: Int) {
         val contact: ContactData = contacts.get(position)
-        val nameTextView = viewHolder.nameTextView
+        val nameTextView = viewHolder.containerView.contactName
         nameTextView.setText(contact.contactName)
 
-        val phoneTextView = viewHolder.phoneTextView
+        val phoneTextView = viewHolder.containerView.contactNumber
         phoneTextView.setText(contact.contactNumber)
     }
 
