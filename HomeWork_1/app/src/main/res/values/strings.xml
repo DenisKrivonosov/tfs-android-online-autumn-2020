@@ -1,7 +1,0 @@
-<resources>
-    <string name="app_name">My Application</string>
-    <string name="ok">Ok</string>
-    <string name="alert_error_title">Ошибка</string>
-    <string name="alert_error_desc">Так это работать не будет. Необходимо дать доступ к контактам
-    Перезапустите приложение и повторите попытку</string>
-</resources>
