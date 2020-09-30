@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Light theme colors-->
+    <color name="colorPrimaryLT">#4a86cc</color>
+    <color name="colorOnPrimaryLT">#ffffff</color>
+    <color name="colorPrimaryDarkLT">#3700B3</color>
+    <color name="colorBackgroundLT">#ffffff</color>
+    <color name="colorAccentLT">#adb6be</color>
+    <color name="titleTextColorLT">#343434</color>
+    <color name="subtitleTextColorLT">#8d9194</color>
+    <color name="textColorPrimaryLT">#000000</color>
+
+    <!--Dark theme colors-->
+    <color name="colorPrimaryDT">#191919</color>
+    <color name="colorOnPrimaryDT">#ffffff</color>
+    <color name="colorPrimaryDarkDT">#000000</color>
+    <color name="colorBackgroundDT">#191919</color>
+    <color name="colorAccentDT">#adb6be</color>
+    <color name="titleTextColorDT">#cecfd1</color>
+    <color name="subtitleTextColorDT">#7b7b7b</color>
+    <color name="textColorPrimaryDT">#dedee0</color>
+</resources>
