@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="10dp"
-    tools:parentTag="ru.krivonosovdenis.fintechapp.customViews.SocNetworkPostLayout">
+    tools:parentTag="ru.krivonosovdenis.fintechapp.customviews.SocNetworkPostWithPhotoLayout">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/posterAvatar"
@@ -55,16 +55,6 @@
         android:text="@string/tools_post_text"
         android:textSize="16sp"
         tools:text="@string/tools_post_text" />
-
-    <ImageView
-        android:id="@+id/postImage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
-        android:adjustViewBounds="true"
-        android:contentDescription="@string/post_image_description"
-        android:scaleType="fitXY"
-        android:src="@drawable/post_image_default" />
 
     <View
         android:id="@+id/postActionsDivider"

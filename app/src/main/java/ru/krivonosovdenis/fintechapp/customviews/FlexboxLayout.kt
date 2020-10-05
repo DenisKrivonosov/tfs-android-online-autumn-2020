@@ -1,17 +1,16 @@
-package ru.krivonosovdenis.fintechapp.customViews
+package ru.krivonosovdenis.fintechapp.customviews
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.core.view.children
+import androidx.core.view.isGone
 import kotlin.math.max
 
 //Немного модернизированная реализация кастомного флексбокса с семинара.
 // Дополнительно учел случай разных по размеру элементов и случай невидимых элементов
 //Случай, в котором размер ребенка больше размера родителя не был реализован.
-//Да и не совсем понятно что в таком случае делать (отрисовывать полностью но показывать только часть/
-// отрисовывать часть и стопать дальнейшую отрисовку/выкидывать исключение/etc?)
 class FlexboxLayout @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,
@@ -24,7 +23,7 @@ class FlexboxLayout @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val desiredWidth = MeasureSpec.getSize(widthMeasureSpec)
-        var height = 0
+        val height = 0
         var currentRowWidth = 0
         var currentRowHeight = 0
         var heightWithoutLastRow = 0
@@ -50,7 +49,7 @@ class FlexboxLayout @JvmOverloads constructor(
         var currentTop = paddingTop
         var currentRowHeight = 0
         children.forEach iterator@{ child ->
-            if (child.visibility == GONE) {
+            if (child.isGone) {
                 return@iterator
             }
             val currentRight = currentLeft + child.measuredWidth

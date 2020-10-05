@@ -29,8 +29,10 @@ ext {
     minSdkVersion = 21
     targetSdkVersion = 30
     compileSdkVersion = 30
-    coreKtxVersion = '1.3.1'
+    coreKtxVersion = '1.3.2'
     appCompatVersion = '1.2.0'
     materialVersion = '1.2.1'
     leakCanary = '2.4'
+    swipeRefreshLayout = '1.1.0'
+    glideVersion = "4.11.0"
 }
