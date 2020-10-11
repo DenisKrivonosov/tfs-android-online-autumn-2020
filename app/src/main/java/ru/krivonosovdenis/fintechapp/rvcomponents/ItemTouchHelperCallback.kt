@@ -10,10 +10,8 @@ interface ItemTouchHelperAdapter {
     fun onItemLiked(position: Int)
 }
 
-class ItemTouchHelperCallback(private val adapter: ItemTouchHelperAdapter) : ItemTouchHelper.SimpleCallback(
-    0,
-    START or END
-) {
+class ItemTouchHelperCallback(private val adapter: ItemTouchHelperAdapter) :
+    ItemTouchHelper.SimpleCallback(0, START or END) {
     override fun onMove(
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder,

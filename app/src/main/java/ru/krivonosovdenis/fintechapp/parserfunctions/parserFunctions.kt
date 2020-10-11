@@ -27,7 +27,10 @@ fun parsePostsResponse(data: String?): ArrayList<PostData> {
 fun parsePostObject(postObject: JSONObject): PostData {
     val sourceId = postObject.getInt("source_id")
     val postId = postObject.getInt("post_id")
-    val date = postObject.getLong("date")
+    //Апишка вк (ну как минимум ее файловая хардкод версия) отдает время в секундах
+    //joda time корректно работает с милисекундами. Для корректной работы преобразуем
+    //время в миллисекунды
+    val date = postObject.getLong("date") * 1000
     val text = postObject.getString("text")
     val photo = try {
         postObject.getJSONArray("attachments").getJSONObject(0)?.getJSONObject("photo")

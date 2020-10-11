@@ -9,5 +9,6 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context=".MainActivity" />
+        tools:context=".MainActivity"
+        tools:listitem="@layout/post_with_photo_wrapper"/>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

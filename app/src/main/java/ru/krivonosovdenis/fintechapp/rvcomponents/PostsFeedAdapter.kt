@@ -1,7 +1,5 @@
 package ru.krivonosovdenis.fintechapp.rvcomponents
 
-import android.graphics.Canvas
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,13 +14,15 @@ import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.postDa
 import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.postText
 import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.posterAvatar
 import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.posterName
+import org.joda.time.format.DateTimeFormat
 import ru.krivonosovdenis.fintechapp.R
 import ru.krivonosovdenis.fintechapp.dataclasses.PostRenderData
 import ru.krivonosovdenis.fintechapp.utils.humanizePostDate
 
 class PostsFeedAdapter :
     RecyclerView.Adapter<PostsFeedAdapter.BaseViewHolder>(), ItemTouchHelperAdapter,
-    CustomItemDecorationAdapter {
+    DecorationTypeProvider {
+
     companion object {
         private const val VIEWHOLDER_WITHOUT_PHOTO = 1
         private const val VIEWHOLDER_WITH_PHOTO = 2
@@ -36,38 +36,27 @@ class PostsFeedAdapter :
         }
         get() = differ.currentList
 
-    abstract class BaseViewHolder(override val containerView: View) :
-        RecyclerView.ViewHolder(containerView), LayoutContainer
-
-    class PostWithoutPhotoViewHolder(override val containerView: View) :
-        BaseViewHolder(containerView)
-
-    class PostWithPhotoViewHolder(override val containerView: View) : BaseViewHolder(containerView)
+    private val dateFormatWithYear = DateTimeFormat.forPattern("dd MMMM YYYY")
+    private val dateFormatWithoutYear = DateTimeFormat.forPattern("dd MMMM")
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
             VIEWHOLDER_WITHOUT_PHOTO -> PostWithoutPhotoViewHolder(
                 inflater.inflate(
-                    R.layout.post_without_photo_wraper,
+                    R.layout.post_without_photo_wrapper,
                     parent,
                     false
                 )
             )
             VIEWHOLDER_WITH_PHOTO -> PostWithPhotoViewHolder(
                 inflater.inflate(
-                    R.layout.post_with_photo_wraper,
+                    R.layout.post_with_photo_wrapper,
                     parent,
                     false
                 )
             )
-            else -> PostWithPhotoViewHolder(
-                inflater.inflate(
-                    R.layout.soc_network_post_with_photo,
-                    parent,
-                    false
-                )
-            )
+            else -> throw IllegalArgumentException("это какой-то неправильный тип поста")
         }
     }
 
@@ -81,7 +70,7 @@ class PostsFeedAdapter :
                     .centerCrop()
                     .into(viewHolder.containerView.posterAvatar)
                 viewHolder.containerView.posterName.text = post.groupName
-                viewHolder.containerView.postDate.text = humanizePostDate(post.date)
+                viewHolder.containerView.postDate.text = humanizePostDate(post.date.millis)
                 viewHolder.containerView.postText.text = post.text
                 viewHolder.containerView.postActionLike.background =
                     if (post.isLiked) {
@@ -104,7 +93,7 @@ class PostsFeedAdapter :
                     .centerCrop()
                     .into(viewHolder.containerView.posterAvatar)
                 viewHolder.containerView.posterName.text = post.groupName
-                viewHolder.containerView.postDate.text = humanizePostDate(post.date)
+                viewHolder.containerView.postDate.text = humanizePostDate(post.date.millis)
                 viewHolder.containerView.postText.text = post.text
                 Glide.with(context)
                     .load(post.photo)
@@ -135,25 +124,52 @@ class PostsFeedAdapter :
         if (posts[position].photo != null) VIEWHOLDER_WITH_PHOTO else VIEWHOLDER_WITHOUT_PHOTO
 
     override fun onItemDismiss(position: Int) {
-        Log.e("ogogogo", position.toString());
         val innerPosts = posts.toMutableList()
         innerPosts.removeAt(position)
         posts = innerPosts
     }
 
     override fun onItemLiked(position: Int) {
-        val posts = posts
         posts[position].isLiked = true
         notifyItemChanged(position)
     }
 
-    override fun drawCustomDivider(
-        position: Int,
-        canvas: Canvas,
-        parent: RecyclerView,
-        state: RecyclerView.State
-    ) {
-        //Скорее всего, реализация кастомного дивайдера должна быть здесь, но я не разобрался
-        //с ним.
+    override fun getDecorationType(position: Int): PostsFeedDecorationType {
+        if (position == RecyclerView.NO_POSITION) {
+            return PostsFeedDecorationType.Space
+        }
+        if (posts.isEmpty()) {
+            return PostsFeedDecorationType.Space
+        }
+        if (position == 0) {
+            return PostsFeedDecorationType.WithText(posts[0].date.toString(dateFormatWithoutYear))
+        }
+        val current = posts[position]
+        val previous = posts[position - 1]
+        return when {
+            current.date.dayOfYear().get() == previous.date.dayOfYear().get()
+                    && current.date.year().get() == previous.date.year()
+                .get() -> PostsFeedDecorationType.Space
+            current.date.year().get() != previous.date.year()
+                .get() -> PostsFeedDecorationType.WithText(
+                posts[position].date.toString(
+                    dateFormatWithYear
+                )
+            )
+            else -> PostsFeedDecorationType.WithText(
+                posts[position].date.toString(
+                    dateFormatWithoutYear
+                )
+            )
+        }
     }
+
+    abstract class BaseViewHolder(override val containerView: View) :
+        RecyclerView.ViewHolder(containerView), LayoutContainer
+
+    class PostWithoutPhotoViewHolder(override val containerView: View) :
+        BaseViewHolder(containerView)
+
+    class PostWithPhotoViewHolder(override val containerView: View) : BaseViewHolder(containerView)
+
 }
