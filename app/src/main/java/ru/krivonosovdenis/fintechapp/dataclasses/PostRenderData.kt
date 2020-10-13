@@ -12,6 +12,7 @@ data class PostRenderData(
     val date: DateTime,
     val text: String,
     val photo: String?,
+    var likesCount:Int,
     var isLiked: Boolean = false,
     var isCommented: Boolean = false,
     var isShared: Boolean = false,

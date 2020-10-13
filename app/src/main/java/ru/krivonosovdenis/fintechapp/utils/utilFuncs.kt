@@ -2,7 +2,6 @@ package ru.krivonosovdenis.fintechapp.utils
 
 import android.content.Context
 import android.util.TypedValue
-import kotlin.math.abs
 
 fun getCurrentDate(): Long {
     //Для нормально отображения постов и корректной работы примера pull to refresh
@@ -14,6 +13,7 @@ fun getCurrentDate(): Long {
     return 1601845596
 
 }
+
 fun Int.dpToPx(context: Context) = TypedValue.applyDimension(
     TypedValue.COMPLEX_UNIT_DIP,
     this.toFloat(),
@@ -21,7 +21,7 @@ fun Int.dpToPx(context: Context) = TypedValue.applyDimension(
 )
 
 fun humanizePostDate(postDate: Long): String {
-    var secondsDiff = getCurrentDate() - postDate/1000
+    var secondsDiff = getCurrentDate() - postDate / 1000
     if (secondsDiff < 0) {
         secondsDiff -= 1
     }

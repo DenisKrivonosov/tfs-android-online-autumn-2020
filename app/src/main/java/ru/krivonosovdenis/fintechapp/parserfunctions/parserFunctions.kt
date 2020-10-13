@@ -38,7 +38,8 @@ fun parsePostObject(postObject: JSONObject): PostData {
     } catch (e: JSONException) {
         null
     }
-    return PostData(sourceId, postId, date, text, photo)
+    val likesCount = postObject.getJSONObject("likes").getInt("count")
+    return PostData(sourceId, postId, date, text, photo, likesCount)
 }
 
 fun parseGroupsResponse(data: String?): ArrayList<GroupData> {

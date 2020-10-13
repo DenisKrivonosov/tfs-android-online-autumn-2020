@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.rv_items_date_divider.view.*
 import ru.krivonosovdenis.fintechapp.R
 import ru.krivonosovdenis.fintechapp.utils.dpToPx
 
-class PostsFeedItemDecoration :
+class PostsListItemDecoration :
     RecyclerView.ItemDecoration() {
 
     private companion object {
@@ -27,7 +27,10 @@ class PostsFeedItemDecoration :
                 val childPosition = parent.getChildAdapterPosition(child)
                 val decorationType = adapter.getDecorationType(childPosition)
 
-                if (decorationType is PostsFeedDecorationType.WithText) {
+                //По какой-то причине в списке лайкнутых постов не отрисовывается время в декораторе
+                // При этом текстовое значение сюда приходит корректно, но дата на канвасе не
+                //отображается
+                if (decorationType is PostsListDecorationType.WithText) {
                     val delimiterView = getDateDecor(parent)
                     delimiterView.dividerText.text = decorationType.text
                     canvas.save()
@@ -54,7 +57,7 @@ class PostsFeedItemDecoration :
         val adapter = parent.adapter
         if (adapter is DecorationTypeProvider) {
             val decorationType = adapter.getDecorationType(position)
-            outRect.top = if (decorationType is PostsFeedDecorationType.Space) {
+            outRect.top = if (decorationType is PostsListDecorationType.Space) {
                 OFFSET.dpToPx(view.context).toInt()
             } else {
                 getDateDecor(parent).height

@@ -6,5 +6,8 @@
     <string name="like_post_description">Поставить лайк посту</string>
     <string name="comment_post_description">Прокомментировать пост</string>
     <string name="share_post_description">Поделиться постом</string>
+    <string name="bottom_nav_news">News</string>
+    <string name="bottom_nav_news_liked">Liked</string>
     <string name="tools_post_text">Съешь ещё этих мягких французских булок, да выпей же чаю. Съешь ещё этих мягких французских булок, да выпей же чаю.  Съешь ещё этих мягких французских булок, да выпей же чаю. </string>
+    <string name="tools_post_likes_count">666</string>
 </resources>

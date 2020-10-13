@@ -36,4 +36,5 @@ ext {
     swipeRefreshLayout = '1.1.0'
     glideVersion = "4.11.0"
     jodaTime = "2.10.6.1"
+    constraintLayout = "2.0.2"
 }

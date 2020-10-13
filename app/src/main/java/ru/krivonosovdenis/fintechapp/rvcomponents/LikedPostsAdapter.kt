@@ -1,5 +1,6 @@
 package ru.krivonosovdenis.fintechapp.rvcomponents
 
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,8 +21,11 @@ import ru.krivonosovdenis.fintechapp.dataclasses.PostRenderData
 import ru.krivonosovdenis.fintechapp.interfaces.AllPostsActions
 import ru.krivonosovdenis.fintechapp.utils.humanizePostDate
 
-class PostsFeedAdapter(private val callbackInterface: AllPostsActions) :
-    RecyclerView.Adapter<PostsFeedAdapter.BaseViewHolder>(), ItemTouchHelperAdapter,
+//Добавил отдельный адаптер для понравившихся постов. В текущей реализации разница с адаптером
+//для всех постов не столь велика, но все же она есть и в дальнейшем эта разница может увеличиться
+//В текущей реализации адаптер, в отличие от PostsFeedAdapter, не имплементит ItemTouchHelperCallback
+class LikedPostsAdapter(private val callbackInterface: AllPostsActions) :
+    RecyclerView.Adapter<LikedPostsAdapter.BaseViewHolder>(),
     DecorationTypeProvider {
 
     companion object {
@@ -30,6 +34,8 @@ class PostsFeedAdapter(private val callbackInterface: AllPostsActions) :
     }
 
     private val differ = AsyncListDiffer(this, DiffCallback())
+
+
     var posts: MutableList<PostRenderData>
         set(value) {
             differ.submitList(value)
@@ -57,7 +63,9 @@ class PostsFeedAdapter(private val callbackInterface: AllPostsActions) :
             else -> throw IllegalArgumentException("это какой-то неправильный тип поста")
         }
         val viewHolder = when (viewType) {
-            VIEW_HOLDER_WITHOUT_PHOTO -> PostWithoutPhotoViewHolder(view)
+            VIEW_HOLDER_WITHOUT_PHOTO -> PostWithoutPhotoViewHolder(
+                view
+            )
             VIEW_HOLDER_WITH_PHOTO -> PostWithPhotoViewHolder(view)
             else -> throw IllegalArgumentException("это какой-то неправильный тип поста")
         }
@@ -130,18 +138,6 @@ class PostsFeedAdapter(private val callbackInterface: AllPostsActions) :
     override fun getItemViewType(position: Int) =
         if (posts[position].photo != null) VIEW_HOLDER_WITH_PHOTO else VIEW_HOLDER_WITHOUT_PHOTO
 
-    override fun onItemDismiss(position: Int) {
-        callbackInterface.onPostDismiss(posts[position].postId)
-        val innerPosts = posts.toMutableList()
-        innerPosts.removeAt(position)
-        posts = innerPosts
-    }
-
-    override fun onItemLiked(position: Int) {
-        callbackInterface.onPostLiked(posts[position].postId)
-        posts[position].isLiked = true
-        notifyItemChanged(position)
-    }
 
     override fun getDecorationType(position: Int): PostsListDecorationType {
         if (position == RecyclerView.NO_POSITION) {
