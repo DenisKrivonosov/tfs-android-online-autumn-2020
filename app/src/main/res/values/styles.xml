@@ -1,0 +1,33 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppThemeLight" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryLT</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryLT</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkLT</item>
+        <item name="android:colorBackground">@color/colorBackgroundLT</item>
+        <item name="colorAccent">@color/colorAccentLT</item>
+        <item name="titleTextColor">@color/titleTextColorLT</item>
+        <item name="subtitleTextColor">@color/subtitleTextColorLT</item>
+        <item name="android:textColor">@color/textColorPrimaryLT</item>
+        <item name="android:textColorPrimary">@color/textColorPrimaryLT</item>
+    </style>
+
+    <style name="AppThemeDark" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimaryDT</item>
+        <item name="colorOnPrimary">@color/colorOnPrimaryDT</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkDT</item>
+        <item name="android:colorBackground">@color/colorBackgroundDT</item>
+        <item name="colorAccent">@color/colorAccentDT</item>
+        <item name="titleTextColor">@color/titleTextColorDT</item>
+        <item name="subtitleTextColor">@color/subtitleTextColorDT</item>
+        <item name="android:textColor">@color/textColorPrimaryDT</item>
+        <item name="android:textColorPrimary">@color/textColorPrimaryDT</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
+
+</resources>
