@@ -1,7 +1,7 @@
 <resources>
-    <!-- Base application theme. -->
+    <!-- Light application theme. -->
     <style name="AppThemeLight" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/colorBackgroundLT</item>
         <item name="colorPrimary">@color/colorPrimaryLT</item>
         <item name="colorOnPrimary">@color/colorOnPrimaryLT</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkLT</item>
@@ -12,10 +12,13 @@
         <item name="subtitleTextColor">@color/subtitleTextColorLT</item>
         <item name="android:textColor">@color/textColorPrimaryLT</item>
         <item name="android:textColorPrimary">@color/textColorPrimaryLT</item>
+        <item name="android:textColorHint">@color/hintTextColorLT</item>
+        <item name="postLoadingViewColor">@color/postsLoadingViewColorLT</item>
     </style>
 
+    <!-- Dark application theme. -->
     <style name="AppThemeDark" parent="Theme.AppCompat.DayNight.DarkActionBar">
-        <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/colorBackgroundDT</item>
         <item name="colorPrimary">@color/colorPrimaryDT</item>
         <item name="colorOnPrimary">@color/colorOnPrimaryDT</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkDT</item>
@@ -26,6 +29,8 @@
         <item name="subtitleTextColor">@color/subtitleTextColorDT</item>
         <item name="android:textColor">@color/textColorPrimaryDT</item>
         <item name="android:textColorPrimary">@color/textColorPrimaryDT</item>
+        <item name="android:textColorHint">@color/hintTextColorDT</item>
+        <item name="postLoadingViewColor">@color/postsLoadingViewColorDT</item>
     </style>
 
     <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">

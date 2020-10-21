@@ -1,9 +1,12 @@
 package ru.krivonosovdenis.fintechapp
 
+
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import io.reactivex.Observable
+import io.reactivex.ObservableEmitter
 import kotlinx.android.synthetic.main.activity_main.*
 import org.joda.time.DateTime
 import ru.krivonosovdenis.fintechapp.dataclasses.PostRenderData
@@ -13,7 +16,7 @@ import ru.krivonosovdenis.fintechapp.fragments.PostsLikedFragment
 import ru.krivonosovdenis.fintechapp.interfaces.AllPostsActions
 import ru.krivonosovdenis.fintechapp.parserfunctions.parseGroupsResponse
 import ru.krivonosovdenis.fintechapp.parserfunctions.parsePostsResponse
-import java.io.IOException
+
 
 class MainActivity : AppCompatActivity(), AllPostsActions,
     BottomNavigationView.OnNavigationItemSelectedListener {
@@ -30,8 +33,8 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
     }
 
     //Захардкодил определенную дату для теста. Имитация случая, когда последний раз посты забирали давно
-    var lastUpdateDate = 1500000L
-    private var renderPostsData = ArrayList<PostRenderData>()
+    var lastUpdateDate = 1500000000L
+    var renderPostsData = ArrayList<PostRenderData>()
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -59,7 +62,6 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
         postsBottomNavigation.menu.findItem(R.id.actionAllPosts).isChecked = true
 
     }
-
 
     override fun onPostDismiss(postId: String) {
         val innerPosts = renderPostsData.toMutableList()
@@ -98,7 +100,6 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
             val isChecked = menuItem.itemId == item.itemId
             menuItem.isChecked = isChecked
         }
-
         when (item.itemId) {
             R.id.actionAllPosts -> {
                 supportFragmentManager
@@ -130,19 +131,31 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
     // В нашу мок дату специально добавим несколько постов с датой из будущего, чтоб
     //отобразить их только при рефреше
     fun getPostsData(
-        lastUpdateDate: Long,
-        fromRefresh: Boolean = false
+        newLastUpdateDate: Long,
+        fromNetwork: Boolean = false
+    ): Observable<ArrayList<PostRenderData>> {
+        if (renderPostsData.count() != 0 && !fromNetwork) {
+            return Observable.just(renderPostsData)
+        }
+        return readDataFromFile("Posts.json")
+            .zipWith(readDataFromFile("Groups.json"),
+                { firstResponse: String,
+                  secondResponse: String ->
+                    combineResult(firstResponse, secondResponse, newLastUpdateDate)
+                })
+
+    }
+
+    private fun combineResult(
+        postsRawData: String,
+        groupsRawData: String,
+        newLastUpdateDate: Long
     ): ArrayList<PostRenderData> {
-        val postsRawData = readDataFromFile("Posts.json")
         val postsData = parsePostsResponse(postsRawData)
-        val groupsRawData = readDataFromFile("Groups.json")
         val groupsData = parseGroupsResponse(groupsRawData)
         val currentRenderData = renderPostsData.toMutableList()
         postsData.forEach iterator@{ postData ->
-            //не показываем последний пост, если запрос не с рефреша
-            //Здесь пока оставил такой же return, который тебе не понравился
-            //Пока хз как правильно брейкать текущую итерацию foreach, надо поресерчить
-            if (!fromRefresh && postData.date > 1601845296000) {
+            if (postData.date > 1601845296000 && postData.date > newLastUpdateDate) {
                 return@iterator
             }
             if (postData.date < lastUpdateDate) {
@@ -169,6 +182,7 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
         //Помимо возвращения итоговых данных, мы также обновляем список,
         // хранящийся в активности, до актуального
         renderPostsData = currentRenderData as ArrayList<PostRenderData>
+        lastUpdateDate = newLastUpdateDate
         return currentRenderData
     }
 
@@ -176,16 +190,19 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
         return renderPostsData.filter { it.isLiked } as ArrayList<PostRenderData>
     }
 
-    private fun readDataFromFile(fileName: String): String {
-        return try {
-            val input = assets.open(fileName)
-            val size: Int = input.available()
-            val buffer = ByteArray(size)
-            input.read(buffer)
-            input.close()
-            String(buffer)
-        } catch (e: IOException) {
-            ""
+    private fun readDataFromFile(fileName: String): Observable<String> {
+        return Observable.create { emitter: ObservableEmitter<String> ->
+            try {
+                val input = assets.open(fileName)
+                val size: Int = input.available()
+                val buffer = ByteArray(size)
+                input.read(buffer)
+                input.close()
+                emitter.onNext(String(buffer))
+                emitter.onComplete()
+            } catch (e: Exception) {
+                emitter.onError(e)
+            }
         }
     }
 }

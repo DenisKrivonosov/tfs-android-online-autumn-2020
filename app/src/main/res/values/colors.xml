@@ -9,7 +9,9 @@
     <color name="colorAccentLT">#adb6be</color>
     <color name="titleTextColorLT">#343434</color>
     <color name="subtitleTextColorLT">#8d9194</color>
+    <color name="hintTextColorLT">#dddddd</color>
     <color name="textColorPrimaryLT">#000000</color>
+    <color name="postsLoadingViewColorLT">#4a86cc</color>
 
     <!--Dark theme colors-->
     <color name="colorPrimaryDT">#191919</color>
@@ -20,5 +22,7 @@
     <color name="colorAccentDT">#adb6be</color>
     <color name="titleTextColorDT">#cecfd1</color>
     <color name="subtitleTextColorDT">#7b7b7b</color>
+    <color name="hintTextColorDT">#adb6be</color>
     <color name="textColorPrimaryDT">#dedee0</color>
+    <color name="postsLoadingViewColorDT">#7b7b7b</color>
 </resources>

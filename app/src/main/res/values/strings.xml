@@ -10,4 +10,11 @@
     <string name="bottom_nav_news_liked">Liked</string>
     <string name="tools_post_text">Съешь ещё этих мягких французских булок, да выпей же чаю. Съешь ещё этих мягких французских булок, да выпей же чаю.  Съешь ещё этих мягких французских булок, да выпей же чаю. </string>
     <string name="tools_post_likes_count">666</string>
+    <string name="get_data_alert_dialog_title_text">Ошибка</string>
+    <string name="get_data_alert_dialog_message_text">Произошла ошибка при загрузке данных. Попробуем получить данные снова?</string>
+    <string name="get_data_alert_dialog_negative_button_text">Нет</string>
+    <string name="get_data_alert_dialog_positive_button_text">Попробуем</string>
+    <string name="search_edit_text_hint">Поиск</string>
+    <string name="error_view_smile_text">Сервер недоступен. Попробуйте позже</string>
+    <string name="error_view_error_text">Сервер недоступен. Попробуйте позже</string>
 </resources>
