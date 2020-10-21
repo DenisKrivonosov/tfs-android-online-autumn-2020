@@ -9,19 +9,19 @@ import androidx.core.view.marginBottom
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.view.marginTop
-import kotlinx.android.synthetic.main.soc_network_post_with_photo.view.*
+import kotlinx.android.synthetic.main.soc_network_post_details.view.*
 import ru.krivonosovdenis.fintechapp.R
 import kotlin.math.max
 
 
-class SocNetworkPostWithPhotoLayout @JvmOverloads constructor(
+class SocNetworkPostDetails @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,
     defStyleRAttr: Int = 0
 ) : ViewGroup(context, attributeSet, defStyleRAttr) {
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.soc_network_post_with_photo, this, true)
+        LayoutInflater.from(context).inflate(R.layout.soc_network_post_details, this, true)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -48,10 +48,10 @@ class SocNetworkPostWithPhotoLayout @JvmOverloads constructor(
         measureChildWithMargins(postText, widthMeasureSpec, 0, heightMeasureSpec, totalHeight)
         totalHeight += postText.measuredHeight + postText.marginTop + postText.marginBottom
 
-
-        measureChildWithMargins(postImage, widthMeasureSpec, 0, heightMeasureSpec, totalHeight)
-        totalHeight += postImage.measuredHeight + postImage.marginTop + postImage.marginBottom
-
+        if (postImage.visibility != GONE) {
+            measureChildWithMargins(postImage, widthMeasureSpec, 0, heightMeasureSpec, totalHeight)
+            totalHeight += postImage.measuredHeight + postImage.marginTop + postImage.marginBottom
+        }
         measureChildWithMargins(
             postActionsDivider,
             widthMeasureSpec,
@@ -61,22 +61,14 @@ class SocNetworkPostWithPhotoLayout @JvmOverloads constructor(
         )
         totalHeight += postActionsDivider.measuredHeight + postActionsDivider.marginTop + postActionsDivider.marginBottom
         measureChildWithMargins(postActionLike, widthMeasureSpec, 0, heightMeasureSpec, totalHeight)
-        measureChildWithMargins(
-            postActionComment,
-            widthMeasureSpec,
-            0,
-            heightMeasureSpec,
-            totalHeight
-        )
-        measureChildWithMargins(
-            postActionShare,
-            widthMeasureSpec,
-            0,
-            heightMeasureSpec,
-            totalHeight
-        )
         totalHeight += postActionLike.measuredHeight + postActionLike.marginTop + postActionLike.marginBottom
-
+        measureChildWithMargins(
+            postLikesCounter,
+            widthMeasureSpec,
+            0,
+            heightMeasureSpec,
+            totalHeight
+        )
         setMeasuredDimension(desiredWidth, resolveSize(totalHeight, heightMeasureSpec))
     }
 
@@ -179,6 +171,22 @@ class SocNetworkPostWithPhotoLayout @JvmOverloads constructor(
         )
         currentLeft = l + paddingLeft
 
+        if (postImage.visibility != GONE) {
+            val postImageLeftCoordinate = currentLeft + postImage.marginLeft
+            val postImageTopCoordinate = currentTop + postImage.marginTop
+            val postImageRightCoordinate =
+                postImageLeftCoordinate + postImage.measuredWidth
+            val postImageBottomCoordinate =
+                postImageTopCoordinate + postImage.measuredHeight
+            postImage.layout(
+                postImageLeftCoordinate,
+                postImageTopCoordinate,
+                postImageRightCoordinate,
+                postImageBottomCoordinate
+            )
+            currentTop = postImageBottomCoordinate + postImage.marginBottom
+        }
+
         val postTextLeftCoordinate = currentLeft + postText.marginLeft
         val postTextTopCoordinate = currentTop + postText.marginTop
         val postTextRightCoordinate =
@@ -192,20 +200,6 @@ class SocNetworkPostWithPhotoLayout @JvmOverloads constructor(
             postTextBottomCoordinate
         )
         currentTop = postTextBottomCoordinate + postText.marginBottom
-
-        val postImageLeftCoordinate = currentLeft + postImage.marginLeft
-        val postImageTopCoordinate = currentTop + postImage.marginTop
-        val postImageRightCoordinate =
-            postImageLeftCoordinate + postImage.measuredWidth
-        val postImageBottomCoordinate =
-            postImageTopCoordinate + postImage.measuredHeight
-        postImage.layout(
-            postImageLeftCoordinate,
-            postImageTopCoordinate,
-            postImageRightCoordinate,
-            postImageBottomCoordinate
-        )
-        currentTop = postImageBottomCoordinate + postImage.marginBottom
 
         val postActionsDividerLeftCoordinate = currentLeft + postActionsDivider.marginLeft
         val postActionsDividerTopCoordinate = currentTop + postActionsDivider.marginTop
@@ -234,33 +228,19 @@ class SocNetworkPostWithPhotoLayout @JvmOverloads constructor(
             postActionLikeRightCoordinate,
             postActionLikeBottomCoordinate
         )
+
         currentLeft = postActionLikeRightCoordinate + postActionLike.marginRight
-
-        val postActionCommentLeftCoordinate = currentLeft + postActionComment.marginLeft
-        val postActionCommentTopCoordinate = currentTop + postActionComment.marginTop
-        val postActionCommentRightCoordinate =
-            postActionCommentLeftCoordinate + postActionComment.measuredWidth
-        val postActionCommentBottomCoordinate =
-            postActionCommentTopCoordinate + postActionComment.measuredHeight
-        postActionComment.layout(
-            postActionCommentLeftCoordinate,
-            postActionCommentTopCoordinate,
-            postActionCommentRightCoordinate,
-            postActionCommentBottomCoordinate
-        )
-        currentLeft = postActionCommentRightCoordinate + postActionComment.marginRight
-
-        val postActionShareLeftCoordinate = currentLeft + postActionShare.marginLeft
-        val postActionShareTopCoordinate = currentTop + postActionLike.marginTop
-        val postActionShareRightCoordinate =
-            postActionShareLeftCoordinate + postActionShare.measuredWidth
-        val postActionShareBottomCoordinate =
-            postActionShareTopCoordinate + postActionShare.measuredHeight
-        postActionShare.layout(
-            postActionShareLeftCoordinate,
-            postActionShareTopCoordinate,
-            postActionShareRightCoordinate,
-            postActionShareBottomCoordinate
+        val postLikesCounterLeftCoordinate = currentLeft + postLikesCounter.marginLeft
+        val postLikesCounterTopCoordinate = currentTop + postLikesCounter.marginTop
+        val postLikesCounterRightCoordinate =
+            postLikesCounterLeftCoordinate + postLikesCounter.measuredWidth
+        val postLikesCounterBottomCoordinate =
+            postLikesCounterTopCoordinate + postLikesCounter.measuredHeight
+        postLikesCounter.layout(
+            postLikesCounterLeftCoordinate,
+            postLikesCounterTopCoordinate,
+            postLikesCounterRightCoordinate,
+            postLikesCounterBottomCoordinate
         )
     }
 

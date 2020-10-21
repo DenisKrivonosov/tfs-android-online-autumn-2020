@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?attr/cardBackgroundColor"
     android:padding="10dp"
     tools:parentTag="ru.krivonosovdenis.fintechapp.customviews.SocNetworkPostWithPhoto">
 
@@ -56,6 +57,16 @@
         android:textSize="16sp"
         tools:text="@string/tools_post_text" />
 
+    <ImageView
+        android:id="@+id/postImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/post_image_description"
+        android:scaleType="fitXY"
+        android:src="@drawable/post_image_default" />
+
     <View
         android:id="@+id/postActionsDivider"
         android:layout_width="match_parent"
@@ -70,30 +81,20 @@
         android:layout_height="32dp"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="15dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginRight="2dp"
         android:layout_marginBottom="15dp"
         android:background="@drawable/post_like_button_icon"
         android:contentDescription="@string/like_post_description" />
 
-    <ImageButton
-        android:id="@+id/postActionComment"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginBottom="15dp"
-        android:background="@drawable/post_comment_button_icon"
-        android:contentDescription="@string/comment_post_description" />
-
-    <ImageButton
-        android:id="@+id/postActionShare"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginLeft="10dp"
+    <TextView
+        android:id="@+id/postLikesCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
         android:layout_marginTop="15dp"
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="15dp"
-        android:background="@drawable/post_share_button_icon"
-        android:contentDescription="@string/share_post_description" />
+        android:layout_marginBottom="10dp"
+        android:text="@string/tools_post_text"
+        android:textSize="22sp"
+        tools:text="@string/tools_post_likes_count" />
 </merge>

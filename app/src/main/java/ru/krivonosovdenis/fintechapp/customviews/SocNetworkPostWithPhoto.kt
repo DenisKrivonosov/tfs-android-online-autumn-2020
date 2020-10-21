@@ -9,12 +9,12 @@ import androidx.core.view.marginBottom
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.view.marginTop
-import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.*
+import kotlinx.android.synthetic.main.soc_network_post_with_photo.view.*
 import ru.krivonosovdenis.fintechapp.R
 import kotlin.math.max
 
 
-class SocNetworkPostWithoutPhotoLayout @JvmOverloads constructor(
+class SocNetworkPostWithPhoto @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,
     defStyleRAttr: Int = 0
@@ -42,9 +42,15 @@ class SocNetworkPostWithoutPhotoLayout @JvmOverloads constructor(
         val postDateHeight = postDate.measuredHeight + postDate.marginTop + postDate.marginBottom
 
         totalHeight += max(poserAvatarHeight, posterNameHeight + postDateHeight)
+        //Так как в дальнейшем посты из вк могут приходить без текста или без картинки, надо этот
+        //момент учесть заранее
 
         measureChildWithMargins(postText, widthMeasureSpec, 0, heightMeasureSpec, totalHeight)
         totalHeight += postText.measuredHeight + postText.marginTop + postText.marginBottom
+
+
+        measureChildWithMargins(postImage, widthMeasureSpec, 0, heightMeasureSpec, totalHeight)
+        totalHeight += postImage.measuredHeight + postImage.marginTop + postImage.marginBottom
 
         measureChildWithMargins(
             postActionsDivider,
@@ -173,7 +179,6 @@ class SocNetworkPostWithoutPhotoLayout @JvmOverloads constructor(
         )
         currentLeft = l + paddingLeft
 
-
         val postTextLeftCoordinate = currentLeft + postText.marginLeft
         val postTextTopCoordinate = currentTop + postText.marginTop
         val postTextRightCoordinate =
@@ -187,6 +192,20 @@ class SocNetworkPostWithoutPhotoLayout @JvmOverloads constructor(
             postTextBottomCoordinate
         )
         currentTop = postTextBottomCoordinate + postText.marginBottom
+
+        val postImageLeftCoordinate = currentLeft + postImage.marginLeft
+        val postImageTopCoordinate = currentTop + postImage.marginTop
+        val postImageRightCoordinate =
+            postImageLeftCoordinate + postImage.measuredWidth
+        val postImageBottomCoordinate =
+            postImageTopCoordinate + postImage.measuredHeight
+        postImage.layout(
+            postImageLeftCoordinate,
+            postImageTopCoordinate,
+            postImageRightCoordinate,
+            postImageBottomCoordinate
+        )
+        currentTop = postImageBottomCoordinate + postImage.marginBottom
 
         val postActionsDividerLeftCoordinate = currentLeft + postActionsDivider.marginLeft
         val postActionsDividerTopCoordinate = currentTop + postActionsDivider.marginTop
@@ -252,4 +271,5 @@ class SocNetworkPostWithoutPhotoLayout @JvmOverloads constructor(
     override fun generateLayoutParams(p: LayoutParams?) = MarginLayoutParams(p)
 
     override fun checkLayoutParams(p: LayoutParams?) = p is MarginLayoutParams
+
 }

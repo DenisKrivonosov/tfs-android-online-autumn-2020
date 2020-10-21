@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.0.0"
+        classpath "com.android.tools.build:gradle:4.0.2"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -35,4 +35,6 @@ ext {
     leakCanary = '2.4'
     swipeRefreshLayout = '1.1.0'
     glideVersion = "4.11.0"
+    jodaTime = "2.10.6.1"
+    constraintLayout = "2.0.2"
 }

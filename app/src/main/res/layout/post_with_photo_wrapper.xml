@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ru.krivonosovdenis.fintechapp.customviews.SocNetworkPostWithPhotoLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ru.krivonosovdenis.fintechapp.customviews.SocNetworkPostWithPhoto xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/postWithPhotoContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="20dp"
     android:background="?attr/cardBackgroundColor" />

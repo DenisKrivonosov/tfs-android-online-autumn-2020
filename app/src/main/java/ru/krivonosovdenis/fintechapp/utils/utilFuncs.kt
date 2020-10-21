@@ -1,6 +1,7 @@
 package ru.krivonosovdenis.fintechapp.utils
 
-import kotlin.math.abs
+import android.content.Context
+import android.util.TypedValue
 
 fun getCurrentDate(): Long {
     //Для нормально отображения постов и корректной работы примера pull to refresh
@@ -13,9 +14,14 @@ fun getCurrentDate(): Long {
 
 }
 
-fun humanizePostDate(postDate: Long): String {
+fun Int.dpToPx(context: Context) = TypedValue.applyDimension(
+    TypedValue.COMPLEX_UNIT_DIP,
+    this.toFloat(),
+    context.resources.displayMetrics
+)
 
-    var secondsDiff = getCurrentDate() - postDate
+fun humanizePostDate(postDate: Long): String {
+    var secondsDiff = getCurrentDate() - postDate / 1000
     if (secondsDiff < 0) {
         secondsDiff -= 1
     }
@@ -42,67 +48,6 @@ fun humanizePostDate(postDate: Long): String {
         secondsDiff in 26 * 60 * 60..360 * 24 * 60 * 60 && range2.contains(secondsDiff / (24 * 60 * 60) % 10) -> "${secondsDiff / (24 * 60 * 60)} день назад"
         secondsDiff in 26 * 60 * 60..360 * 24 * 60 * 60 && range3.contains(secondsDiff / (24 * 60 * 60) % 10) -> "${secondsDiff / (24 * 60 * 60)} дня назад"
         secondsDiff > 360 * 24 * 60 * 60 -> "более года назад"
-
-        secondsDiff < 0 && abs(secondsDiff) in 0..1 -> "только что"
-        secondsDiff < 0 && abs(secondsDiff) in 1..45 -> "чере несколько секунд "
-        secondsDiff < 0 && abs(secondsDiff) in 45..75 -> "через минуту"
-        secondsDiff < 0 && abs(secondsDiff) in 75..45 * 60 && secondsDiff <= -600 && secondsDiff >= -1200 -> "через ${
-            abs(
-                secondsDiff
-            ) / 60
-        } минут"
-        secondsDiff < 0 && abs(secondsDiff) in 75..45 * 60 && range1.contains(abs(secondsDiff) / 60 % 10) -> "через ${
-            abs(
-                secondsDiff
-            ) / 60
-        } минут"
-        secondsDiff < 0 && abs(secondsDiff) in 75..45 * 60 && range2.contains(
-            abs(
-                secondsDiff
-            ) / 60 % 10
-        ) -> "через ${abs(secondsDiff) / 60} минуту"
-        secondsDiff < 0 && abs(secondsDiff) in 75..45 * 60 && range3.contains(
-            abs(
-                secondsDiff
-            ) / 60 % 10
-        ) -> "через ${abs(secondsDiff) / 60} минуты"
-        secondsDiff < 0 && abs(secondsDiff) in 45 * 60..75 * 60 -> "час назад"
-        secondsDiff < 0 && abs(secondsDiff) in 75 * 60..22 * 60 * 60 && abs(secondsDiff) <= -10 * 66 * 66 && abs(
-            secondsDiff
-        ) >= -20 * 60 * 60 -> "через ${abs(secondsDiff) / (60 * 60)} часов"
-        secondsDiff < 0 && abs(secondsDiff) in 75 * 60..22 * 60 * 60 && range1.contains(
-            abs(
-                secondsDiff
-            ) / (60 * 60) % 10
-        ) -> "через ${abs(secondsDiff) / (60 * 60)} часов"
-        secondsDiff < 0 && abs(secondsDiff) in 75 * 60..22 * 60 * 60 && range2.contains(
-            abs(
-                secondsDiff
-            ) / (60 * 60) % 10
-        ) -> "через ${abs(secondsDiff) / (60 * 60)} час"
-        secondsDiff < 0 && abs(secondsDiff) in 75 * 60..22 * 60 * 60 && range3.contains(
-            abs(
-                secondsDiff
-            ) / (60 * 60) % 10
-        ) -> "через ${abs(secondsDiff) / (60 * 60)} часа"
-        secondsDiff < 0 && abs(secondsDiff) in 22 * 60 * 60..26 * 60 * 60 -> "день назад"
-        secondsDiff < 0 && abs(secondsDiff) in 26 * 60 * 60..360 * 24 * 60 * 60 && abs(
-            secondsDiff
-        ) <= -10 * 24 * 60 * 60 && abs(secondsDiff) >= -20 * 24 * 60 * 60 -> "через ${
-            abs(
-                secondsDiff
-            ) / (24 * 60 * 60)
-        } дней"
-        secondsDiff < 0 && abs(secondsDiff) in 26 * 60 * 60..360 * 24 * 60 * 60 && range1.contains(
-            abs(secondsDiff) / (24 * 60 * 60) % 10
-        ) -> "через ${abs(secondsDiff) / (24 * 60 * 60)} дней"
-        secondsDiff < 0 && abs(secondsDiff) in 26 * 60 * 60..360 * 24 * 60 * 60 && range2.contains(
-            abs(secondsDiff) / (24 * 60 * 60) % 10
-        ) -> "через ${abs(secondsDiff) / (24 * 60 * 60)} день"
-        secondsDiff < 0 && abs(secondsDiff) in 26 * 60 * 60..360 * 24 * 60 * 60 && range3.contains(
-            abs(secondsDiff) / (24 * 60 * 60) % 10
-        ) -> "через ${abs(secondsDiff) / (24 * 60 * 60)} дня"
-        secondsDiff < 0 && abs(secondsDiff) > 360 * 24 * 60 * 60 -> "более чем через год"
         else -> "$secondsDiff"
     }
 }

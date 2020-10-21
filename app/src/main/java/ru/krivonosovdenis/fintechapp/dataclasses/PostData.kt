@@ -5,5 +5,6 @@ data class PostData(
     val postId: Int,
     val date: Long,
     val text: String,
-    val photo: String?
+    val photo: String?,
+    var likesCount:Int
 )
