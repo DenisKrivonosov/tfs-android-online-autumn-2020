@@ -6,6 +6,7 @@
         <item name="colorOnPrimary">@color/colorOnPrimaryLT</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkLT</item>
         <item name="android:colorBackground">@color/colorBackgroundLT</item>
+        <item name="cardBackgroundColor">@color/colorCardBackgroundLT</item>
         <item name="colorAccent">@color/colorAccentLT</item>
         <item name="titleTextColor">@color/titleTextColorLT</item>
         <item name="subtitleTextColor">@color/subtitleTextColorLT</item>
@@ -19,6 +20,7 @@
         <item name="colorOnPrimary">@color/colorOnPrimaryDT</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDarkDT</item>
         <item name="android:colorBackground">@color/colorBackgroundDT</item>
+        <item name="cardBackgroundColor">@color/colorCardBackgroundDT</item>
         <item name="colorAccent">@color/colorAccentDT</item>
         <item name="titleTextColor">@color/titleTextColorDT</item>
         <item name="subtitleTextColor">@color/subtitleTextColorDT</item>
