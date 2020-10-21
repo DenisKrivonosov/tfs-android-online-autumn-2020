@@ -30,10 +30,15 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
     companion object {
         const val POST_RENDER_DATA = "posts_render_data"
         const val LAST_UPDATE_DATE = "last_update_date"
+        const val ALL_POSTS_LIST = "all_posts_list"
+        const val LIKED_POSTS_LIST = "all_posts_list"
+        const val POST_DETAILS = "post_details"
     }
 
     //Захардкодил определенную дату для теста. Имитация случая, когда последний раз посты забирали давно
-    var lastUpdateDate = 1500000000L
+    //Магию с датой поменяю в следующей домашке. Хардкоды также уберу, нужны были только для проверки
+    //работоспособности приложения
+    private var lastUpdateDate = 1500000000L
     var renderPostsData = ArrayList<PostRenderData>()
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -49,7 +54,7 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
         if (savedInstanceState == null) {
             supportFragmentManager
                 .beginTransaction()
-                .add(R.id.fragment_container, PostsFeedFragment.newInstance(), "allPostsList")
+                .add(R.id.fragment_container, PostsFeedFragment.newInstance(), ALL_POSTS_LIST)
                 .commit()
             postsBottomNavigation.menu.findItem(R.id.actionLikedPosts).isVisible = false
         } else {
@@ -57,10 +62,9 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
             renderPostsData =
                 savedInstanceState.getParcelableArrayList<PostRenderData>(POST_RENDER_DATA) as ArrayList<PostRenderData>
             postsBottomNavigation.menu.findItem(R.id.actionLikedPosts).isVisible =
-                renderPostsData.filter { it.isLiked }.count() != 0
+                renderPostsData.any { it.isLiked }
         }
         postsBottomNavigation.menu.findItem(R.id.actionAllPosts).isChecked = true
-
     }
 
     override fun onPostDismiss(postId: String) {
@@ -68,9 +72,8 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
         val position = innerPosts.indexOfFirst { it.postId == postId }
         innerPosts.removeAt(position)
         renderPostsData = innerPosts as ArrayList<PostRenderData>
-        if (renderPostsData.filter { it.isLiked }.count() == 0) {
-            postsBottomNavigation.menu.findItem(R.id.actionLikedPosts).isVisible = false
-        }
+        postsBottomNavigation.menu.findItem(R.id.actionLikedPosts).isVisible =
+            renderPostsData.any { it.isLiked }
     }
 
     override fun onPostLiked(postId: String) {
@@ -85,7 +88,7 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
             PostDetailsFragment.newInstance(renderPostsData[position])
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_container, postDetailsFragment, "postDetails")
+            .replace(R.id.fragment_container, postDetailsFragment, POST_DETAILS)
             .addToBackStack(null)
             .commit()
     }
@@ -97,8 +100,7 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
         }
         for (i in 0 until postsBottomNavigation.menu.size()) {
             val menuItem: MenuItem = postsBottomNavigation.menu.getItem(i)
-            val isChecked = menuItem.itemId == item.itemId
-            menuItem.isChecked = isChecked
+            menuItem.isChecked = menuItem.itemId == item.itemId
         }
         when (item.itemId) {
             R.id.actionAllPosts -> {
@@ -107,7 +109,7 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
                     .replace(
                         R.id.fragment_container,
                         PostsFeedFragment.newInstance(),
-                        "allPostsList"
+                        ALL_POSTS_LIST
                     )
                     .commit()
             }
@@ -117,7 +119,7 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
                     .replace(
                         R.id.fragment_container,
                         PostsLikedFragment.newInstance(),
-                        "likedPostsList"
+                        LIKED_POSTS_LIST
                     )
                     .commit()
             }

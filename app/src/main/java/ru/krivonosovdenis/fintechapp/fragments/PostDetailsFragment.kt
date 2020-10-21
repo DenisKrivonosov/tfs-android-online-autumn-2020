@@ -3,9 +3,9 @@ package ru.krivonosovdenis.fintechapp.fragments
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isGone
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_main.*
@@ -21,11 +21,11 @@ class PostDetailsFragment : Fragment() {
         private const val POST_DATA = "post_data"
 
         fun newInstance(postData: PostRenderData): PostDetailsFragment {
-            val arguments = Bundle()
-            arguments.putParcelable(POST_DATA, postData)
-            val fragment = PostDetailsFragment()
-            fragment.arguments = arguments
-            return fragment
+            return PostDetailsFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(POST_DATA, postData)
+                }
+            }
         }
     }
 
@@ -39,7 +39,7 @@ class PostDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as MainActivity).postsBottomNavigation.visibility = GONE
+        (activity as MainActivity).postsBottomNavigation.isGone = true
         val post = arguments!!.getParcelable<PostRenderData>(POST_DATA) as PostRenderData
         Glide.with(activity as MainActivity)
             .load(post.groupAvatar)
@@ -53,19 +53,19 @@ class PostDetailsFragment : Fragment() {
                 .load(post.photo)
                 .into(postImage)
         } else {
-            postImage.visibility = GONE
+            postImage.isGone = true
         }
         postActionLike.background = if (post.isLiked) {
             ResourcesCompat.getDrawable(
-                context!!.resources,
+                requireContext().resources,
                 R.drawable.post_like_button_clicked_icon,
-                context!!.theme
+                requireContext().theme
             )
         } else {
             ResourcesCompat.getDrawable(
-                context!!.resources,
+                requireContext().resources,
                 R.drawable.post_like_button_icon,
-                context!!.theme
+                requireContext().theme
             )
         }
         postLikesCounter.text = post.likesCount.toString()

@@ -3,10 +3,10 @@ package ru.krivonosovdenis.fintechapp.fragments
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,10 +41,7 @@ class PostsFeedFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(
-            R.layout.fragment_all_posts, container,
-            false
-        )
+        return inflater.inflate(R.layout.fragment_all_posts, container, false)
     }
 
     override fun onDestroyView() {
@@ -55,7 +52,7 @@ class PostsFeedFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         allPostsSwipeRefreshLayout.setOnRefreshListener(this)
-        (activity as MainActivity).postsBottomNavigation.visibility = VISIBLE
+        (activity as MainActivity).postsBottomNavigation.isVisible = true
         rvAdapter = PostsFeedAdapter(activity as MainActivity)
         allPostsRecyclerView.layoutManager = LinearLayoutManager(activity)
         allPostsRecyclerView.adapter = rvAdapter
@@ -137,20 +134,20 @@ class PostsFeedFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     }
 
     private fun showPostsView() {
-        allPostsRecyclerView.visibility = VISIBLE
-        loadingView.visibility = GONE
-        errorView.visibility = GONE
+        allPostsRecyclerView.isVisible = true
+        loadingView.isGone = true
+        errorView.isGone = true
     }
 
     private fun showLoadingView() {
-        allPostsRecyclerView.visibility = GONE
-        loadingView.visibility = VISIBLE
-        errorView.visibility = GONE
+        allPostsRecyclerView.isGone = true
+        loadingView.isVisible = true
+        errorView.isGone = true
     }
 
     private fun showErrorView() {
-        allPostsRecyclerView.visibility = GONE
-        loadingView.visibility = GONE
-        errorView.visibility = VISIBLE
+        allPostsRecyclerView.isGone = true
+        loadingView.isGone = true
+        errorView.isVisible = true
     }
 }

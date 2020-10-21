@@ -5,10 +5,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import androidx.core.view.marginBottom
-import androidx.core.view.marginLeft
-import androidx.core.view.marginRight
-import androidx.core.view.marginTop
+import androidx.core.view.*
 import kotlinx.android.synthetic.main.soc_network_post_details.view.*
 import ru.krivonosovdenis.fintechapp.R
 import kotlin.math.max
@@ -48,7 +45,7 @@ class SocNetworkPostDetails @JvmOverloads constructor(
         measureChildWithMargins(postText, widthMeasureSpec, 0, heightMeasureSpec, totalHeight)
         totalHeight += postText.measuredHeight + postText.marginTop + postText.marginBottom
 
-        if (postImage.visibility != GONE) {
+        if (!postImage.isGone) {
             measureChildWithMargins(postImage, widthMeasureSpec, 0, heightMeasureSpec, totalHeight)
             totalHeight += postImage.measuredHeight + postImage.marginTop + postImage.marginBottom
         }
@@ -171,7 +168,7 @@ class SocNetworkPostDetails @JvmOverloads constructor(
         )
         currentLeft = l + paddingLeft
 
-        if (postImage.visibility != GONE) {
+        if (!postImage.isGone) {
             val postImageLeftCoordinate = currentLeft + postImage.marginLeft
             val postImageTopCoordinate = currentTop + postImage.marginTop
             val postImageRightCoordinate =
