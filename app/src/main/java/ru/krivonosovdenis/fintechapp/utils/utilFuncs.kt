@@ -3,29 +3,17 @@ package ru.krivonosovdenis.fintechapp.utils
 import android.content.Context
 import android.util.TypedValue
 
-fun getCurrentDate(): Long {
-    //Для нормально отображения постов и корректной работы примера pull to refresh
-    //возвращаем хардкод дату. Основная идея - самый первый пост считать новым и не отображать
-    //при дефолтном рендеринге, но отобразить при рефреше
-    //    return date.time
-
-    //10/04/2020 @ 8:19pm (UTC)
-    return 1601845596
-
-}
-
 fun Int.dpToPx(context: Context) = TypedValue.applyDimension(
     TypedValue.COMPLEX_UNIT_DIP,
     this.toFloat(),
     context.resources.displayMetrics
 )
 
-fun humanizePostDate(postDate: Long): String {
-    var secondsDiff = getCurrentDate() - postDate / 1000
+fun humanizePostDate(currentDate: Long, postDate: Long): String {
+    var secondsDiff = (currentDate - postDate) / 1000
     if (secondsDiff < 0) {
         secondsDiff -= 1
     }
-
     val range1 = arrayOf(0L, 5L, 6L, 7L, 8L, 9L)
     val range2 = arrayOf(1L)
     val range3 = arrayOf(2L, 3L, 4L)

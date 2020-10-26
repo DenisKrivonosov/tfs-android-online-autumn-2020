@@ -6,7 +6,8 @@ import org.joda.time.DateTime
 
 @Parcelize
 data class PostRenderData(
-    val postId: String,
+    val postId: Int,
+    val sourceId: Int,
     val groupAvatar: String,
     val groupName: String,
     val date: DateTime,

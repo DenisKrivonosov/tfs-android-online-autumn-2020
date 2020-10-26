@@ -10,7 +10,6 @@ import kotlinx.android.synthetic.main.soc_network_post_details.view.*
 import ru.krivonosovdenis.fintechapp.R
 import kotlin.math.max
 
-
 class SocNetworkPostDetails @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,

@@ -47,4 +47,14 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxandroid:$rxandroidVersion"
     implementation "io.reactivex.rxjava2:rxkotlin:$rxkotlinVersion"
     implementation "com.facebook.shimmer:shimmer:$shimmerAndroidVersion"
+
+    //retrofit dependencies
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitGsonConverterVersion"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retroRxAdapterVersion"
+
+    implementation "com.google.code.gson:gson:$googleGsonVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$httpLoggingInterceptorVersion"
+    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    implementation "com.vk:androidsdk:$vkSDKVersion"
 }

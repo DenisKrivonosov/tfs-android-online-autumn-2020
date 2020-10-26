@@ -13,7 +13,6 @@ import kotlinx.android.synthetic.main.soc_network_post_with_photo.view.*
 import ru.krivonosovdenis.fintechapp.R
 import kotlin.math.max
 
-
 class SocNetworkPostWithPhoto @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,

@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.soc_network_post_details.*
+import org.joda.time.LocalDate
 import ru.krivonosovdenis.fintechapp.MainActivity
 import ru.krivonosovdenis.fintechapp.R
 import ru.krivonosovdenis.fintechapp.dataclasses.PostRenderData
@@ -46,7 +47,8 @@ class PostDetailsFragment : Fragment() {
             .centerCrop()
             .into(posterAvatar)
         posterName.text = post.groupName
-        postDate.text = humanizePostDate(post.date.millis)
+        postDate.text =
+            humanizePostDate(LocalDate().toDateTimeAtCurrentTime().millis, post.date.millis)
         postText.text = post.text
         if (post.photo != null) {
             Glide.with(activity as MainActivity)

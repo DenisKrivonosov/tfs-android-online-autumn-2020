@@ -23,7 +23,6 @@ import ru.krivonosovdenis.fintechapp.rvcomponents.ItemTouchHelperAdapter
 import ru.krivonosovdenis.fintechapp.rvcomponents.ItemTouchHelperCallback
 import ru.krivonosovdenis.fintechapp.rvcomponents.PostsFeedAdapter
 import ru.krivonosovdenis.fintechapp.rvcomponents.PostsListItemDecoration
-import java.util.concurrent.TimeUnit
 
 class PostsFeedFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
@@ -62,38 +61,22 @@ class PostsFeedFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
         itemTouchHelper.attachToRecyclerView(allPostsRecyclerView)
     }
 
-    //Логику получения данных во фрагменте я реализовал в этом колбеке. Обрабатывается случай
-    // поворота экрана. При реализации в этом колбеке я могу быть уверен, что у активности
-    // вызвался метод onCreate и что мы обработали в этом методе bundle, в котором хранятся
-    //время последнего апдейта и данные. По этой же причине в главной активности savedInstanceState
-    // bundle я обрабатываю в onCreate, а не в  onRestoreInstanceState. onRestoreInstanceState
-    //вызывается в произвольное время и, видимо, позже чем onCreate
-    // Потом, опять же, можно будет переписать на другую логику, когда изменится логика работы с данными
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         if ((activity as MainActivity).renderPostsData.count() == 0) {
             showLoadingView()
-            getPosts(1601845296000L, true)
+            getFeedPosts()
         } else {
-            getPosts(1601845296000L)
+            getFeedPosts()
         }
     }
 
     override fun onRefresh() {
-        getPosts(1801845296000L, true)
+        getFeedPosts(true)
     }
 
-
-    //Пока я передаю дату сюда, как логику для демонстрации работы. Потом даты здесь не будет.
-    // Будет только храниться последняя дата обновления данных в источнике данных и все
-    private fun getPosts(newLastUpdate: Long, fromNetwork: Boolean = false) {
-        compositeDisposable.add((activity as MainActivity).getPostsData(newLastUpdate, fromNetwork)
-            //Добавляем искуственную задержку при имитации поиска из сети (по факту при чтении из файла)
-            .compose {
-                if (fromNetwork) it.delay(3000, TimeUnit.MILLISECONDS) else {
-                    it
-                }
-            }
+    private fun getFeedPosts(forceApiLoading: Boolean = false) {
+        compositeDisposable.add((activity as MainActivity).getPostsData(forceApiLoading)
             .doFinally {
                 allPostsSwipeRefreshLayout.isRefreshing = false
             }
@@ -104,7 +87,7 @@ class PostsFeedFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                     rvAdapter.posts = it
                 },
                 onError = {
-                    if (fromNetwork) {
+                    if (forceApiLoading) {
                         showErrorView()
                     } else {
                         showGetDataErrorDialog()
@@ -128,7 +111,7 @@ class PostsFeedFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
             .setPositiveButton(
                 R.string.get_data_alert_dialog_positive_button_text
             ) { _, _ ->
-                getPosts(1801845296000L)
+                getFeedPosts()
             }
             .create().show()
     }

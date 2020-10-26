@@ -1,5 +1,7 @@
 package ru.krivonosovdenis.fintechapp.interfaces
 
+import ru.krivonosovdenis.fintechapp.dataclasses.PostRenderData
+
 //Вообще я сначала в качестве параметра для всех методов передавал position элемента. Но более честно
 //передавать уникальный postId (в нем хранится связка postId+groupId). Так мы не привязываемся к
 // конкретной реализации списка, избегаем возможных ошибок при добавлении и удалении элементов.
@@ -10,7 +12,7 @@ package ru.krivonosovdenis.fintechapp.interfaces
 // Потом, когда мы пройдем запросы и бд, источники данных, скорее всего, разделятся
 //текущий фид из сети, лайкнутые посты из бд. Пока для простоты решил сделать так
 interface AllPostsActions {
-    fun onPostDismiss(postId: String)
-    fun onPostLiked(postId:String)
-    fun onPostClicked(postId: String)
+    fun onPostDismiss(post: PostRenderData)
+    fun onPostLiked(post:PostRenderData)
+    fun onPostClicked(post: PostRenderData)
 }

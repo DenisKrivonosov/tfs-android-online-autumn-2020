@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.postDa
 import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.postText
 import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.posterAvatar
 import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.posterName
+import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import ru.krivonosovdenis.fintechapp.R
 import ru.krivonosovdenis.fintechapp.dataclasses.PostRenderData
@@ -34,7 +35,6 @@ class LikedPostsAdapter(private val callbackInterface: AllPostsActions) :
     }
 
     private val differ = AsyncListDiffer(this, DiffCallback())
-
 
     var posts: MutableList<PostRenderData>
         set(value) {
@@ -70,7 +70,7 @@ class LikedPostsAdapter(private val callbackInterface: AllPostsActions) :
             else -> throw IllegalArgumentException("это какой-то неправильный тип поста")
         }
         view.setOnClickListener {
-            callbackInterface.onPostClicked(posts[viewHolder.adapterPosition].postId)
+            callbackInterface.onPostClicked(posts[viewHolder.adapterPosition])
         }
         return viewHolder
     }
@@ -78,6 +78,8 @@ class LikedPostsAdapter(private val callbackInterface: AllPostsActions) :
     override fun onBindViewHolder(viewHolder: BaseViewHolder, position: Int) {
         val context = viewHolder.itemView.context
         val post = posts[position]
+        val currentDate = LocalDate().toDateTimeAtCurrentTime().millis
+
         when (viewHolder.itemViewType) {
             VIEW_HOLDER_WITHOUT_PHOTO -> {
                 Glide.with(context)
@@ -85,7 +87,8 @@ class LikedPostsAdapter(private val callbackInterface: AllPostsActions) :
                     .centerCrop()
                     .into(viewHolder.containerView.posterAvatar)
                 viewHolder.containerView.posterName.text = post.groupName
-                viewHolder.containerView.postDate.text = humanizePostDate(post.date.millis)
+                viewHolder.containerView.postDate.text =
+                    humanizePostDate(currentDate, post.date.millis)
                 viewHolder.containerView.postText.text = post.text
                 viewHolder.containerView.postActionLike.background =
                     if (post.isLiked) {
@@ -108,7 +111,8 @@ class LikedPostsAdapter(private val callbackInterface: AllPostsActions) :
                     .centerCrop()
                     .into(viewHolder.containerView.posterAvatar)
                 viewHolder.containerView.posterName.text = post.groupName
-                viewHolder.containerView.postDate.text = humanizePostDate(post.date.millis)
+                viewHolder.containerView.postDate.text =
+                    humanizePostDate(currentDate, post.date.millis)
                 viewHolder.containerView.postText.text = post.text
                 Glide.with(context)
                     .load(post.photo)
