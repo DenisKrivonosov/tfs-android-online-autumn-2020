@@ -11,7 +11,7 @@ import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKScope
-import io.reactivex.Observable
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -23,6 +23,7 @@ import org.joda.time.DateTime
 import ru.krivonosovdenis.fintechapp.dataclasses.PostRenderData
 import ru.krivonosovdenis.fintechapp.dataclasses.groupsdataclasses.GroupsApiResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.newsfeeddataclasses.NewsfeedApiResponse
+import ru.krivonosovdenis.fintechapp.dbclasses.ApplicationDatabase
 import ru.krivonosovdenis.fintechapp.fragments.InitLoadingFragment
 import ru.krivonosovdenis.fintechapp.fragments.PostDetailsFragment
 import ru.krivonosovdenis.fintechapp.fragments.PostsFeedFragment
@@ -30,18 +31,10 @@ import ru.krivonosovdenis.fintechapp.fragments.PostsLikedFragment
 import ru.krivonosovdenis.fintechapp.interfaces.AllPostsActions
 import ru.krivonosovdenis.fintechapp.networkutils.VkApiClient
 
-
 class MainActivity : AppCompatActivity(), AllPostsActions,
     BottomNavigationView.OnNavigationItemSelectedListener {
-    //В связи с добавлением фрагментов бизнес логика и UI поменялись. Отображение UI мы перенесли на
-    //фрагменты. Бизнес же логику я пока оставил здесь. В активитити будут храниться данные и
-    //методы получения этих данных, доступные для приатаченных к этой активити фрагментов
-    //впоследствие мы перенесем логику работы с данными и их хранене в отдельные классы, например
-    //viewmodel. Та как особо с viewmodel и реактивщиной пока не работал, рещил не бежать впереди паровоза
-    //и оставить бизнеслогику здесь. Поэтому я добавил несколько публичных переменных, отвечающих за данные
 
     companion object {
-        const val POST_RENDER_DATA = "posts_render_data"
         const val ALL_POSTS_LIST = "all_posts_list"
         const val LIKED_POSTS_LIST = "all_posts_list"
         const val POST_DETAILS = "post_details"
@@ -50,43 +43,62 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
         const val DELETE_POST_TYPE = "wall"
     }
 
-    var renderPostsData = ArrayList<PostRenderData>()
     private val compositeDisposable = CompositeDisposable()
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putParcelableArrayList(POST_RENDER_DATA, renderPostsData)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         postsBottomNavigation.setOnNavigationItemSelectedListener(this)
         postsBottomNavigation.menu.findItem(R.id.actionAllPosts).isChecked = true
-        postsBottomNavigation.menu.findItem(R.id.actionLikedPosts).isVisible =
-            renderPostsData.any { it.isLiked }
+
+        //Удаляем все посты при открытии приложения
+        compositeDisposable.add(
+            ApplicationDatabase.getInstance(this)?.feedPostsDao()?.deleteAllPosts()!!
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+        )
+        //Таба с лайкнутыми постами также теперь подписана на DB
+        compositeDisposable.add(
+            ApplicationDatabase.getInstance(this)?.feedPostsDao()?.subscribeOnLikedCount()!!
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(
+                    onNext = {
+                        postsBottomNavigation.menu.findItem(R.id.actionLikedPosts).isVisible =
+                            it > 0
+                    },
+                )
+        )
 
         if (!VK.isLoggedIn()) {
             showInitLoadingFragment()
             openVkLogin()
-        } else if (savedInstanceState == null) {
-            showAllPostsFragment()
         } else {
-            renderPostsData =
-                savedInstanceState.getParcelableArrayList<PostRenderData>(POST_RENDER_DATA) as ArrayList<PostRenderData>
-            postsBottomNavigation.menu.findItem(R.id.actionLikedPosts).isVisible =
-                renderPostsData.any { it.isLiked }
+            compositeDisposable.add(getPostsData()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(
+                    onError = {
+                        showGetDataErrorDialog()
+                    }
+                )
+            )
+            showAllPostsFragment()
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
-                //Сейчас у меня в приложении такая бага. Если при открытии окна логина вкашным sdk
-                //выйти из окна webview браузера, а потом попытаться залогиниться заново, то токен
-                //отдастся, но он будет невалидным
                 SessionManager(this@MainActivity).storeSessionToken(token.accessToken)
                 VkApiClient.accessToken = token.accessToken
+                compositeDisposable.add(
+                    getPostsData()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe()
+                )
                 showAllPostsFragment()
             }
 
@@ -101,26 +113,38 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
     }
 
     override fun onPostDismiss(post: PostRenderData) {
-        val innerPosts = renderPostsData.toMutableList()
-        val position = innerPosts.indexOfFirst { it.postId == post.postId }
-        innerPosts.removeAt(position)
-        renderPostsData = innerPosts as ArrayList<PostRenderData>
         sendDeletePostToServer(post)
-        postsBottomNavigation.menu.findItem(R.id.actionLikedPosts).isVisible =
-            renderPostsData.any { it.isLiked }
+        removePostFromDb(post)
     }
 
     override fun onPostLiked(post: PostRenderData) {
-        val position = renderPostsData.indexOfFirst { it.postId == post.postId }
-        renderPostsData[position].likesCount += 1
-        postsBottomNavigation.menu.findItem(R.id.actionLikedPosts).isVisible = true
         sendLikeToServer(post)
+        updateDBPostLiked(post)
+    }
+
+    private fun removePostFromDb(post: PostRenderData) {
+        compositeDisposable.add(
+            ApplicationDatabase.getInstance(this)?.feedPostsDao()
+                ?.deletePostById(post.postId, post.sourceId)!!
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+        )
+    }
+
+    private fun updateDBPostLiked(post: PostRenderData) {
+        compositeDisposable.add(
+            ApplicationDatabase.getInstance(this)?.feedPostsDao()
+                ?.setPostLikeById(post.postId, post.sourceId, post.likesCount + 1)!!
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+        )
     }
 
     override fun onPostClicked(post: PostRenderData) {
-        val position = renderPostsData.indexOfFirst { it.postId == post.postId }
         val postDetailsFragment =
-            PostDetailsFragment.newInstance(renderPostsData[position])
+            PostDetailsFragment.newInstance(post.postId, post.sourceId)
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, postDetailsFragment, POST_DETAILS)
@@ -162,32 +186,20 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
         return true
     }
 
-    //Здесь ситуация такая. Сейчас endpoint для получения постов следующий:
-    //https://api.vk.com/method/newsfeed.get Он отдает данные в следующем формате
-    // -response
-    //    -items
-    //    -profiles
-    //    -groups
-    //Где items - сами посты, а profiles и groups - доп инфа о профилях и группах,
-    // оставиших эти посты. Получается, что для рендера инфы о посте вся инфа приходит с одного
-    //эндпоинта. Но в учебных целях я допустил, что инфы об постерах нет и забираю с эндпоинта
-    // /https://api.vk.com/method/groups.getById Цель - понять как комбинировать два
-    // последовательных запроса в рамках rx. Поэтому сейчас отображаются посты только от групп.
-    // В конечной версии приложения можно будет перенести всё на один запрос и отобразить посты
-    //от пользователей тоже
-    fun getPostsData(forceApiLoading: Boolean = false): Observable<ArrayList<PostRenderData>> {
-        if (renderPostsData.count() > 0 && !forceApiLoading) {
-            return Observable.just(renderPostsData)
-        }
+    fun getPostsData(): Completable {
         return VkApiClient.getAuthRetrofitClient().getNewsFeed()
-            .flatMap { addGroupsInfoToPosts(it) }.toObservable()
+            .flatMap { addGroupsInfoToPosts(it) }
+            .flatMapCompletable {
+                ApplicationDatabase.getInstance(this)?.feedPostsDao()?.insertPostsInDb(it)
+            }
     }
 
     private fun addGroupsInfoToPosts(newsfeedApiResponse: NewsfeedApiResponse): Single<ArrayList<PostRenderData>> {
         val groups = getDistinctGroups(newsfeedApiResponse)
-        return VkApiClient.getAuthRetrofitClient().getGroups(groups).flatMap {
-            Single.just(combinePostsAndGroups(newsfeedApiResponse, it))
-        }
+        return VkApiClient.getAuthRetrofitClient().getGroups(groups)
+            .flatMap {
+                Single.just(combinePostsAndGroups(newsfeedApiResponse, it))
+            }
     }
 
     private fun combinePostsAndGroups(
@@ -220,22 +232,11 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
                     )
                 )
             } catch (e: Exception) {
-                //add exception handler here
+                showGetDataErrorDialog()
             }
 
         }
-
         currentRenderData.sortByDescending { it.date }
-        renderPostsData = currentRenderData
-
-        // не знаю можно ли так делать По факту при вызове данных нам надо перехватить rx поток и показать
-        //вьюху не во фрагменте, а в активности. Возможно, стоит перенести вызов этой проверки
-        //во фрагмент или реализовать как-то по-другому
-        runOnUiThread {
-            postsBottomNavigation.menu.findItem(R.id.actionLikedPosts).isVisible =
-                renderPostsData.any { it.isLiked }
-        }
-
         return currentRenderData
     }
 
@@ -247,14 +248,7 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onSuccess = { it ->
-                    renderPostsData.first { it.postId == post.postId && it.sourceId == post.sourceId }.likesCount =
-                        it.response.likes
-                },
-                onError = {
-                },
-            )
+            .subscribe()
         )
     }
 
@@ -266,23 +260,13 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onSuccess = { _ ->
-
-                },
-                onError = {
-                },
-            )
+            .subscribe()
         )
     }
 
     private fun getDistinctGroups(apiResponse: NewsfeedApiResponse): String {
         return apiResponse.response.items.map { it.sourceId }.filter { it < 0 }.map { -it }
             .joinToString(separator = ",")
-    }
-
-    fun getLikedPostsData(): ArrayList<PostRenderData> {
-        return renderPostsData.filter { it.isLiked } as ArrayList<PostRenderData>
     }
 
     private fun showAllPostsFragment() {
@@ -317,6 +301,22 @@ class MainActivity : AppCompatActivity(), AllPostsActions,
                 R.string.vk_login_alert_dialog_positive_button_text
             ) { _, _ ->
                 openVkLogin()
+            }
+            .create().show()
+    }
+
+    private fun showGetDataErrorDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.alert_dialog_error_title_text))
+            .setMessage(getString(R.string.get_data_alert_dialog_message_text))
+            .setCancelable(false)
+            .setNegativeButton(
+                R.string.get_data_alert_dialog_negative_button_text
+            ) { _, _ -> this.finish() }
+            .setPositiveButton(
+                R.string.get_data_alert_dialog_positive_button_text
+            ) { _, _ ->
+                getPostsData()
             }
             .create().show()
     }

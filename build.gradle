@@ -1,12 +1,13 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     ext.kotlin_version = "1.4.10"
+    ext.gradle_version = '4.1.0'
     repositories {
         google()
         jcenter()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.0.2"
+        classpath "com.android.tools.build:gradle:$gradle_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -36,7 +37,7 @@ ext {
     swipeRefreshLayout = '1.1.0'
     glideVersion = "4.11.0"
     jodaTime = "2.10.6.1"
-    constraintLayout = "2.0.2"
+    constraintLayout = "2.0.3"
     rxjava2Version = "2.2.8"
     rxandroidVersion = "2.0.1"
     rxkotlinVersion = "2.2.0"
@@ -48,4 +49,7 @@ ext {
     googleGsonVersion = "2.8.6"
     httpLoggingInterceptorVersion = "4.9.0"
     okhttpVersion = "4.9.0"
+    roomRuntimeVersion = "2.2.5"
+    roomVersion = "2.2.1"
+    roomRxjavaVersion = "2.2.5"
 }

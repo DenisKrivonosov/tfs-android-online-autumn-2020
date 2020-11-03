@@ -6,7 +6,7 @@ import okhttp3.Request
 import okhttp3.Response
 import ru.krivonosovdenis.fintechapp.networkutils.VkApiClient
 
-class VkTokenInterceptor() : Interceptor {
+class VkTokenInterceptor : Interceptor {
     /**
      * Add VK Token Interceptor
      */

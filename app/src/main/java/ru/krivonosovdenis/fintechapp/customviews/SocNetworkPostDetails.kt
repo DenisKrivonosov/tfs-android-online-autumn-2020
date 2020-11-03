@@ -65,6 +65,20 @@ class SocNetworkPostDetails @JvmOverloads constructor(
             heightMeasureSpec,
             totalHeight
         )
+        measureChildWithMargins(
+            postActionShare,
+            widthMeasureSpec,
+            0,
+            heightMeasureSpec,
+            totalHeight
+        )
+        measureChildWithMargins(
+            postActionSave,
+            widthMeasureSpec,
+            0,
+            heightMeasureSpec,
+            totalHeight
+        )
         setMeasuredDimension(desiredWidth, resolveSize(totalHeight, heightMeasureSpec))
     }
 
@@ -237,6 +251,36 @@ class SocNetworkPostDetails @JvmOverloads constructor(
             postLikesCounterTopCoordinate,
             postLikesCounterRightCoordinate,
             postLikesCounterBottomCoordinate
+        )
+
+        currentLeft = postLikesCounterRightCoordinate + postLikesCounter.marginRight
+
+        val postActionShareLeftCoordinate = currentLeft + postActionShare.marginLeft
+        val postActionShareTopCoordinate = currentTop + postActionLike.marginTop
+        val postActionShareRightCoordinate =
+            postActionShareLeftCoordinate + postActionShare.measuredWidth
+        val postActionShareBottomCoordinate =
+            postActionShareTopCoordinate + postActionShare.measuredHeight
+        postActionShare.layout(
+            postActionShareLeftCoordinate,
+            postActionShareTopCoordinate,
+            postActionShareRightCoordinate,
+            postActionShareBottomCoordinate
+        )
+
+        currentLeft = postActionShareRightCoordinate + postActionShare.marginRight
+        val postActionSaveLeftCoordinate = currentLeft + postActionSave.marginLeft
+        val postActionSaveTopCoordinate = currentTop + postActionSave.marginTop
+        val postActionSaveRightCoordinate =
+            postActionSaveLeftCoordinate + postActionSave.measuredWidth
+        val postActionSaveBottomCoordinate =
+            postActionSaveTopCoordinate + postActionSave.measuredHeight
+
+        postActionSave.layout(
+            postActionSaveLeftCoordinate,
+            postActionSaveTopCoordinate,
+            postActionSaveRightCoordinate,
+            postActionSaveBottomCoordinate
         )
     }
 

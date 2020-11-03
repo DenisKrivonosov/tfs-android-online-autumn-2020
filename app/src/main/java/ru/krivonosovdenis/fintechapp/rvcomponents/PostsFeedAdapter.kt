@@ -68,7 +68,11 @@ class PostsFeedAdapter(private val callbackInterface: AllPostsActions) :
         return viewHolder
     }
 
-    override fun onBindViewHolder(viewHolder: BaseViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
+        bindHolder(holder, position)
+    }
+
+    private fun bindHolder(viewHolder: BaseViewHolder, position: Int) {
         val context = viewHolder.itemView.context
         val post = posts[position]
         val currentDate = LocalDate().toDateTimeAtCurrentTime().millis
@@ -175,6 +179,7 @@ class PostsFeedAdapter(private val callbackInterface: AllPostsActions) :
                 )
             )
         }
+
     }
 
     abstract class BaseViewHolder(override val containerView: View) :

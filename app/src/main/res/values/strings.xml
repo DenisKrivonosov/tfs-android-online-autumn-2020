@@ -10,17 +10,22 @@
     <string name="bottom_nav_news_liked">Liked</string>
     <string name="tools_post_text">Съешь ещё этих мягких французских булок, да выпей же чаю. Съешь ещё этих мягких французских булок, да выпей же чаю.  Съешь ещё этих мягких французских булок, да выпей же чаю. </string>
     <string name="tools_post_likes_count">666</string>
-    <string name="get_data_alert_dialog_title_text">Ошибка</string>
+    <string name="alert_dialog_error_title_text">Ошибка</string>
     <string name="get_data_alert_dialog_message_text">Произошла ошибка при загрузке данных. Попробуем получить данные снова?</string>
+    <string name="share_image_error_alert_dialog_message_text">Произошла ошибка при попытке обработать картинку.</string>
     <string name="get_data_alert_dialog_negative_button_text">Нет</string>
     <string name="get_data_alert_dialog_positive_button_text">Попробуем</string>
     <string name="vk_login_alert_dialog_title_text">Ошибка</string>
     <string name="vk_login_alert_dialog_message_text">Произошла ошибка при логине во Вконтакте. Попробуем снова?</string>
     <string name="vk_login_alert_dialog_negative_button_text">Нет</string>
     <string name="vk_login_alert_dialog_positive_button_text">Попробуем</string>
+    <string name="write_permissions_check_alert_dialog_message_text">Похоже, что вы не дали разрешение на запись данных. Без этого разрешения мы не сможем сохранить картинку. Попробуем снова?</string>
+    <string name="write_permissions_check_alert_dialog_negative_button_text">Нет</string>
+    <string name="write_permissions_check_alert_dialog_positive_button_text">Попробуем</string>
     <string name="search_edit_text_hint">Поиск</string>
     <string name="init_loading_text">Работаем!</string>
+    <string name="error_view_load_posts_error_text">Произошла ошибка при загрузке данных, попробуйте позже. Попробуйте позже</string>
     <string name="error_view_smile_text">Сервер недоступен. Попробуйте позже</string>
-    <string name="error_view_error_text">Сервер недоступен. Попробуйте позже</string>
+    <string name="image_saved_toast_text">Картинка сохранена в галерею</string>
     <integer name="com_vk_sdk_AppId">7637409</integer>
 </resources>

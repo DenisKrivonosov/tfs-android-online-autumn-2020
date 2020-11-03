@@ -171,6 +171,7 @@ class LikedPostsAdapter(private val callbackInterface: AllPostsActions) :
                 )
             )
         }
+
     }
 
     abstract class BaseViewHolder(override val containerView: View) :

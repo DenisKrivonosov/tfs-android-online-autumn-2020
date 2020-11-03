@@ -1,5 +1,6 @@
 package ru.krivonosovdenis.fintechapp.networkutils
 
+import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -24,12 +25,12 @@ interface ApiInterface {
         @Query("type") type: String,
         @Query("owner_id") ownerId: Int,
         @Query("item_id") itemId: Int,
-    ): Single<PostLikeResponse>
+    ): Completable
 
     @GET("newsfeed.ignoreItem")
     fun deletePostFromFeed(
         @Query("type") type: String,
         @Query("owner_id") ownerId: Int,
         @Query("item_id") itemId: Int,
-    ): Single<PostDislikeResponse>
+    ): Completable
 }

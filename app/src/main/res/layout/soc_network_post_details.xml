@@ -97,4 +97,26 @@
         android:text="@string/tools_post_text"
         android:textSize="22sp"
         tools:text="@string/tools_post_likes_count" />
+
+    <ImageButton
+        android:id="@+id/postActionShare"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="2dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/post_share_button_icon"
+        android:contentDescription="@string/share_post_description" />
+
+    <ImageButton
+        android:id="@+id/postActionSave"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="2dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/image_download_button_icon"
+        android:contentDescription="@string/share_post_description" />
 </merge>
