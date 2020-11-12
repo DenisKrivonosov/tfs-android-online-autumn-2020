@@ -1,4 +1,4 @@
-package ru.krivonosovdenis.fintechapp.networkutils
+package ru.krivonosovdenis.fintechapp.data.network
 
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -6,8 +6,6 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import ru.krivonosovdenis.fintechapp.dataclasses.groupsdataclasses.GroupsApiResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.newsfeeddataclasses.NewsfeedApiResponse
-import ru.krivonosovdenis.fintechapp.dataclasses.postdislikedataclasses.PostDislikeResponse
-import ru.krivonosovdenis.fintechapp.dataclasses.postlikedataclasses.PostLikeResponse
 
 interface ApiInterface {
     @GET("newsfeed.get")

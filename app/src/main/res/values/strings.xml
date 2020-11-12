@@ -26,6 +26,7 @@
     <string name="init_loading_text">Работаем!</string>
     <string name="error_view_load_posts_error_text">Произошла ошибка при загрузке данных, попробуйте позже. Попробуйте позже</string>
     <string name="error_view_smile_text">Сервер недоступен. Попробуйте позже</string>
+    <string name="db_error_text">Произошла ошибка при обращении к базе данных</string>
     <string name="image_saved_toast_text">Картинка сохранена в галерею</string>
     <integer name="com_vk_sdk_AppId">7637409</integer>
 </resources>

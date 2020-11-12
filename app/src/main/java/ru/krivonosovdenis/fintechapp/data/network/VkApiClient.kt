@@ -1,4 +1,4 @@
-package ru.krivonosovdenis.fintechapp.networkutils
+package ru.krivonosovdenis.fintechapp.data.network
 
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
@@ -6,8 +6,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.krivonosovdenis.fintechapp.networkutils.interceptors.VkApiVersionInterceptor
-import ru.krivonosovdenis.fintechapp.networkutils.interceptors.VkTokenInterceptor
+import ru.krivonosovdenis.fintechapp.data.network.interceptors.VkApiVersionInterceptor
+import ru.krivonosovdenis.fintechapp.data.network.interceptors.VkTokenInterceptor
 import java.util.concurrent.TimeUnit
 
 object VkApiClient {

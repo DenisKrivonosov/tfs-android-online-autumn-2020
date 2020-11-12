@@ -1,21 +1,21 @@
-package ru.krivonosovdenis.fintechapp.dbclasses
+package ru.krivonosovdenis.fintechapp.data.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
-import ru.krivonosovdenis.fintechapp.dataclasses.PostRenderData
+import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
 
 @Dao
 interface FeedPostsDao {
     @Query("SELECT * from all_feed_posts order by date desc")
-    fun subscribeOnAllFeedPosts(): Flowable<List<PostRenderData>>
+    fun subscribeOnAllFeedPosts(): Flowable<List<PostFullData>>
 
     @Query("SELECT * from all_feed_posts where isLiked=1 order by date desc")
-    fun subscribeOnLikedFeedPosts(): Flowable<List<PostRenderData>>
+    fun subscribeOnLikedFeedPosts(): Flowable<List<PostFullData>>
+
+    @Query("SELECT count(*) from all_feed_posts")
+    fun getAllPostsCount(): Single<Int>
 
     @Query("SELECT count(*) from all_feed_posts where isLiked=1")
     fun subscribeOnLikedCount(): Flowable<Int>
@@ -27,11 +27,18 @@ interface FeedPostsDao {
     fun setPostLikeById(postId: Int, sourceId: Int, likesCount: Int): Completable
 
     @Query("SELECT * from all_feed_posts where postId=:postId and sourceId=:sourceId")
-    fun getPostById(postId: Int, sourceId: Int): Single<PostRenderData>
+    fun getPostById(postId: Int, sourceId: Int): Single<PostFullData>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertPostsInDb(posts: ArrayList<PostRenderData>): Completable
+    fun insertPostsInDb(posts: ArrayList<PostFullData>)
 
     @Query("DELETE FROM all_feed_posts")
-    fun deleteAllPosts(): Completable
+    fun deleteAllPosts()
+
+    @Transaction
+    fun deleteAllAndInsert(posts: ArrayList<PostFullData>) {
+        deleteAllPosts()
+        insertPostsInDb(posts)
+    }
+
 }

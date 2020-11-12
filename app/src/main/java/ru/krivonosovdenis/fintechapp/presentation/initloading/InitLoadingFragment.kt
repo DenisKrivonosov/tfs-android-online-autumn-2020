@@ -1,4 +1,4 @@
-package ru.krivonosovdenis.fintechapp.fragments
+package ru.krivonosovdenis.fintechapp.presentation.initloading
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -1,4 +1,4 @@
-package ru.krivonosovdenis.fintechapp.fragments
+package ru.krivonosovdenis.fintechapp.presentation.postdetails
 
 import android.Manifest
 import android.content.Intent
@@ -21,34 +21,36 @@ import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_post_details.*
 import kotlinx.android.synthetic.main.soc_network_post_details.*
 import org.joda.time.LocalDate
 import ru.krivonosovdenis.fintechapp.BuildConfig
-import ru.krivonosovdenis.fintechapp.MainActivity
 import ru.krivonosovdenis.fintechapp.R
-import ru.krivonosovdenis.fintechapp.dataclasses.PostRenderData
-import ru.krivonosovdenis.fintechapp.dbclasses.ApplicationDatabase
+import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
+import ru.krivonosovdenis.fintechapp.di.GlobalDI
+import ru.krivonosovdenis.fintechapp.presentation.base.mvp.MvpFragment
+import ru.krivonosovdenis.fintechapp.presentation.mainactivity.MainActivity
 import ru.krivonosovdenis.fintechapp.utils.humanizePostDate
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class PostDetailsFragment : Fragment() {
+class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>(), PostDetailsView {
 
-    private val compositeDisposable = CompositeDisposable()
     private lateinit var postId: Pair<Int, Int>
 
     companion object {
         private const val POST_ID = "post_id"
         private const val SOURCE_ID = "source_id"
         private const val REQUEST_WRITE_EXTERNAL_CODE = 1
+        private const val COMPRESSION_QUALITY = 90
+        private const val IMAGE_FILE_EXTENSION = "png"
+        private const val PROVIDER_POSTFIX = ".provider"
+        private const val TITLE = "title_"
+        private const val DESCRIPTION = "description_"
+        private const val SHARE_IMAGE = "share_image_"
 
         fun newInstance(postId: Int, sourceId: Int): PostDetailsFragment {
             return PostDetailsFragment().apply {
@@ -60,6 +62,10 @@ class PostDetailsFragment : Fragment() {
         }
     }
 
+    override fun getPresenter(): PostDetailsPresenter = GlobalDI.INSTANCE.postDetailsPresenter
+
+    override fun getMvpView(): PostDetailsView = this
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -68,81 +74,13 @@ class PostDetailsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_post_details, container, false)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        compositeDisposable.clear()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as MainActivity).postsBottomNavigation.isGone = true
         postId = arguments!!.getInt(POST_ID) to arguments!!.getInt(SOURCE_ID)
-        getPostFromDB()
+        getPresenter().getPostFromDb(postId.first, postId.second)
     }
 
-    private fun getPostFromDB() {
-        compositeDisposable.add(
-            ApplicationDatabase.getInstance(context!!)?.feedPostsDao()
-                ?.getPostById(postId.first, postId.second)!!
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribeBy(
-                    onSuccess = {
-                        renderPostData(it)
-                        if (it.photo != null && it.photo != "") {
-                            postActionShare.isVisible = true
-                            postActionShare.setOnClickListener {
-                                shareImageIntent(
-                                    postImage
-                                )
-                            }
-                            postActionSave.isVisible = true
-                            postActionSave.setOnClickListener {
-                                checkExternalWrightPermission()
-                            }
-                        } else {
-                            postActionShare.isVisible = false
-                            postActionSave.isVisible = false
-                        }
-                    }, onError = {
-                        showGetPostErrorDialog()
-                    }
-                )
-        )
-    }
-
-    private fun renderPostData(post: PostRenderData) {
-        Glide.with(activity as MainActivity)
-            .load(post.groupAvatar)
-            .centerCrop()
-            .into(posterAvatar)
-        posterName.text = post.groupName
-        postDate.text =
-            humanizePostDate(LocalDate().toDateTimeAtCurrentTime().millis, post.date.millis)
-        postText.text = post.text
-        if (post.photo != null) {
-            Glide.with(activity as MainActivity)
-                .load(post.photo)
-                .into(postImage)
-        } else {
-            postImage.isGone = true
-            postActionShare.isGone = true
-        }
-        postActionLike.background = if (post.isLiked) {
-            ResourcesCompat.getDrawable(
-                requireContext().resources,
-                R.drawable.post_like_button_clicked_icon,
-                requireContext().theme
-            )
-        } else {
-            ResourcesCompat.getDrawable(
-                requireContext().resources,
-                R.drawable.post_like_button_icon,
-                requireContext().theme
-            )
-        }
-        postLikesCounter.text = post.likesCount.toString()
-    }
 
     private fun shareImageIntent(view: ImageView) {
         val bmpUri: Uri? = getLocalBitmapUri(view)
@@ -163,15 +101,15 @@ class PostDetailsFragment : Fragment() {
         try {
             val file = File(
                 requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                "share_image_" + System.currentTimeMillis() + ".png"
+                SHARE_IMAGE + System.currentTimeMillis() + IMAGE_FILE_EXTENSION
             )
             val out = FileOutputStream(file)
-            bmp?.compress(Bitmap.CompressFormat.PNG, 90, out)
+            bmp?.compress(Bitmap.CompressFormat.PNG, COMPRESSION_QUALITY, out)
             out.close()
 
             bmpUri = FileProvider.getUriForFile(
                 requireContext(),
-                BuildConfig.APPLICATION_ID + ".provider",
+                BuildConfig.APPLICATION_ID + PROVIDER_POSTFIX,
                 file
             )
         } catch (e: IOException) {
@@ -228,8 +166,8 @@ class PostDetailsFragment : Fragment() {
         MediaStore.Images.Media.insertImage(
             requireContext().contentResolver,
             imageViewToBitmap(view),
-            "title_" + System.currentTimeMillis(),
-            "description_" + System.currentTimeMillis()
+            TITLE + System.currentTimeMillis(),
+            DESCRIPTION + System.currentTimeMillis()
         )
         Toast.makeText(
             requireContext(),
@@ -238,21 +176,6 @@ class PostDetailsFragment : Fragment() {
         ).show()
     }
 
-    private fun showGetPostErrorDialog() {
-        AlertDialog.Builder(activity as MainActivity)
-            .setTitle(getString(R.string.alert_dialog_error_title_text))
-            .setMessage(getString(R.string.get_data_alert_dialog_message_text))
-            .setCancelable(false)
-            .setNegativeButton(
-                R.string.get_data_alert_dialog_negative_button_text
-            ) { _, _ -> (activity as MainActivity).finish() }
-            .setPositiveButton(
-                R.string.get_data_alert_dialog_positive_button_text
-            ) { _, _ ->
-                getPostFromDB()
-            }
-            .create().show()
-    }
 
     private fun showImageShareErrorDialog() {
         AlertDialog.Builder(activity as MainActivity)
@@ -282,5 +205,69 @@ class PostDetailsFragment : Fragment() {
                 checkExternalWrightPermission()
             }
             .create().show()
+    }
+
+
+    override fun showPost(post: PostFullData) {
+        postDetailView.isVisible = true
+        errorView.isGone = true
+        renderPostData(post)
+    }
+
+    override fun showErrorView() {
+        postDetailView.isGone = true
+        errorView.isVisible = true
+    }
+
+    override fun showPostView() {
+        postDetailView.isVisible = true
+        errorView.isGone = true
+    }
+
+    private fun renderPostData(post: PostFullData) {
+        Glide.with(activity as MainActivity)
+            .load(post.groupAvatar)
+            .centerCrop()
+            .into(posterAvatar)
+        posterName.text = post.groupName
+        postDate.text =
+            humanizePostDate(LocalDate().toDateTimeAtCurrentTime().millis, post.date.millis)
+        postText.text = post.text
+        if (post.photo != null) {
+            Glide.with(activity as MainActivity)
+                .load(post.photo)
+                .into(postImage)
+        } else {
+            postImage.isGone = true
+            postActionShare.isGone = true
+        }
+        postActionLike.background = if (post.isLiked) {
+            ResourcesCompat.getDrawable(
+                requireContext().resources,
+                R.drawable.post_like_button_clicked_icon,
+                requireContext().theme
+            )
+        } else {
+            ResourcesCompat.getDrawable(
+                requireContext().resources,
+                R.drawable.post_like_button_icon,
+                requireContext().theme
+            )
+        }
+        postLikesCounter.text = post.likesCount.toString()
+
+        if (!post.photo.isNullOrEmpty()) {
+            postActionShare.isVisible = true
+            postActionShare.setOnClickListener {
+                shareImageIntent(postImage)
+            }
+            postActionSave.isVisible = true
+            postActionSave.setOnClickListener {
+                checkExternalWrightPermission()
+            }
+        } else {
+            postActionShare.isVisible = false
+            postActionSave.isVisible = false
+        }
     }
 }

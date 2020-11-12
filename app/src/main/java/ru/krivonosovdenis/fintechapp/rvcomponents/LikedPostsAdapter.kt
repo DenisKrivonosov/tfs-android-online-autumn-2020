@@ -18,14 +18,14 @@ import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.poster
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import ru.krivonosovdenis.fintechapp.R
-import ru.krivonosovdenis.fintechapp.dataclasses.PostRenderData
-import ru.krivonosovdenis.fintechapp.interfaces.AllPostsActions
+import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
+import ru.krivonosovdenis.fintechapp.interfaces.LikedPostsActions
 import ru.krivonosovdenis.fintechapp.utils.humanizePostDate
 
 //Добавил отдельный адаптер для понравившихся постов. В текущей реализации разница с адаптером
 //для всех постов не столь велика, но все же она есть и в дальнейшем эта разница может увеличиться
 //В текущей реализации адаптер, в отличие от PostsFeedAdapter, не имплементит ItemTouchHelperCallback
-class LikedPostsAdapter(private val callbackInterface: AllPostsActions) :
+class LikedPostsAdapter(private val callbackInterface: LikedPostsActions) :
     RecyclerView.Adapter<LikedPostsAdapter.BaseViewHolder>(),
     DecorationTypeProvider {
 
@@ -36,7 +36,7 @@ class LikedPostsAdapter(private val callbackInterface: AllPostsActions) :
 
     private val differ = AsyncListDiffer(this, DiffCallback())
 
-    var posts: MutableList<PostRenderData>
+    var posts: MutableList<PostFullData>
         set(value) {
             differ.submitList(value)
         }

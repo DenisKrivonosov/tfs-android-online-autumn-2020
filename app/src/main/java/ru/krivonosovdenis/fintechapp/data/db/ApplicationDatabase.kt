@@ -1,13 +1,13 @@
-package ru.krivonosovdenis.fintechapp.dbclasses
+package ru.krivonosovdenis.fintechapp.data.db
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import ru.krivonosovdenis.fintechapp.dataclasses.PostRenderData
+import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
 
-@Database(entities = [PostRenderData::class], version = 2)
+@Database(entities = [PostFullData::class], version = 2)
 @TypeConverters(Converters::class)
 abstract class ApplicationDatabase : RoomDatabase() {
 
@@ -16,17 +16,17 @@ abstract class ApplicationDatabase : RoomDatabase() {
     companion object {
         private var INSTANCE: ApplicationDatabase? = null
 
-        fun getInstance(context: Context): ApplicationDatabase? {
+        fun getInstance(context: Context): ApplicationDatabase {
             if (INSTANCE == null) {
                 synchronized(ApplicationDatabase::class) {
                     INSTANCE = Room.databaseBuilder(
                         context.applicationContext,
                         ApplicationDatabase::class.java, "applicationDatabase.db"
-                    )
-                        .build()
+                    ).build()
+
                 }
             }
-            return INSTANCE
+            return INSTANCE!!
         }
     }
 }

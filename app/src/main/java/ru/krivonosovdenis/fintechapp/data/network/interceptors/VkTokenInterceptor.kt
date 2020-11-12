@@ -1,10 +1,10 @@
-package ru.krivonosovdenis.fintechapp.networkutils.interceptors
+package ru.krivonosovdenis.fintechapp.data.network.interceptors
 
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import ru.krivonosovdenis.fintechapp.networkutils.VkApiClient
+import ru.krivonosovdenis.fintechapp.data.network.VkApiClient
 
 class VkTokenInterceptor : Interceptor {
     /**

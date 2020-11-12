@@ -1,4 +1,4 @@
-package ru.krivonosovdenis.fintechapp.dbclasses
+package ru.krivonosovdenis.fintechapp.data.db
 
 import androidx.room.TypeConverter
 import org.joda.time.DateTime

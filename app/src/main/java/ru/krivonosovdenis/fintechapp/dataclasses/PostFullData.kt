@@ -7,7 +7,7 @@ import org.joda.time.DateTime
 
 @Entity(tableName = "all_feed_posts", primaryKeys = ["postId", "sourceId"])
 @Parcelize
-data class PostRenderData(
+data class PostFullData(
     val postId: Int,
     val sourceId: Int,
     val groupAvatar: String,
