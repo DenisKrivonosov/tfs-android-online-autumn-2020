@@ -79,10 +79,10 @@ class PostsFeedAdapter(private val callbackInterface: AllPostsActions) :
         when (viewHolder.itemViewType) {
             VIEW_HOLDER_WITHOUT_PHOTO -> {
                 Glide.with(context)
-                    .load(post.groupAvatar)
+                    .load(post.posterAvatar)
                     .centerCrop()
                     .into(viewHolder.containerView.posterAvatar)
-                viewHolder.containerView.posterName.text = post.groupName
+                viewHolder.containerView.posterName.text = post.posterName
                 viewHolder.containerView.postDate.text =
                     humanizePostDate(currentDate, post.date.millis)
                 viewHolder.containerView.postText.text = post.text
@@ -103,10 +103,10 @@ class PostsFeedAdapter(private val callbackInterface: AllPostsActions) :
             }
             VIEW_HOLDER_WITH_PHOTO -> {
                 Glide.with(context)
-                    .load(post.groupAvatar)
+                    .load(post.posterAvatar)
                     .centerCrop()
                     .into(viewHolder.containerView.posterAvatar)
-                viewHolder.containerView.posterName.text = post.groupName
+                viewHolder.containerView.posterName.text = post.posterName
                 viewHolder.containerView.postDate.text =
                     humanizePostDate(currentDate, post.date.millis)
                 viewHolder.containerView.postText.text = post.text

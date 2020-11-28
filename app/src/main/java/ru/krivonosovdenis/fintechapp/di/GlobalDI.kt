@@ -1,14 +1,18 @@
 package ru.krivonosovdenis.fintechapp.di
 
 import android.content.Context
+import android.content.res.Resources
 import ru.krivonosovdenis.fintechapp.SessionManager
 import ru.krivonosovdenis.fintechapp.data.Repository
 import ru.krivonosovdenis.fintechapp.data.db.ApplicationDatabase
 import ru.krivonosovdenis.fintechapp.data.network.VkApiClient
 import ru.krivonosovdenis.fintechapp.presentation.allposts.AllPostsPresenter
+import ru.krivonosovdenis.fintechapp.presentation.appsettings.AppSettingsPresenter
 import ru.krivonosovdenis.fintechapp.presentation.likedposts.LikedPostsPresenter
 import ru.krivonosovdenis.fintechapp.presentation.mainactivity.MainActivityPresenter
 import ru.krivonosovdenis.fintechapp.presentation.postdetails.PostDetailsPresenter
+import ru.krivonosovdenis.fintechapp.presentation.sendpost.SendPostPresenter
+import ru.krivonosovdenis.fintechapp.presentation.userprofile.UserProfilePresenter
 
 class GlobalDI private constructor(
     private val applicationContext: Context
@@ -20,6 +24,10 @@ class GlobalDI private constructor(
 
     val repository by lazy { Repository(authNetworkClient, dbConnection) }
 
+    val appLanguage by lazy {
+        Resources.getSystem().configuration.locale.language
+    }
+
     val allPostsPresenter by lazy {
         AllPostsPresenter(repository)
     }
@@ -29,6 +37,18 @@ class GlobalDI private constructor(
     }
     val postDetailsPresenter by lazy {
         PostDetailsPresenter(repository)
+    }
+
+    val userProfilePresenter by lazy {
+        UserProfilePresenter(repository)
+    }
+
+    val sendPostPresenter by lazy {
+        SendPostPresenter(repository)
+    }
+
+    val appSettingsPresenter by lazy {
+        AppSettingsPresenter(repository)
     }
 
     val mainActivityPresenter by lazy {

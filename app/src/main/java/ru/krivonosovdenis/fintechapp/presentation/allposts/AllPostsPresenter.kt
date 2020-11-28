@@ -20,7 +20,7 @@ class AllPostsPresenter(
         repository.getPostsFromApi()
             .flatMapCompletable {
                 Completable.fromAction {
-                    repository.deleteAllAndInsertIntoDb(it)
+                    repository.deleteAllPostsAndInsertIntoDb(it)
                 }
             }
             .subscribeOn(Schedulers.io())

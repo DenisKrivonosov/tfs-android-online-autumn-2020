@@ -6,8 +6,12 @@
     <string name="like_post_description">Поставить лайк посту</string>
     <string name="comment_post_description">Прокомментировать пост</string>
     <string name="share_post_description">Поделиться постом</string>
-    <string name="bottom_nav_news">News</string>
-    <string name="bottom_nav_news_liked">Liked</string>
+    <string name="toolbar_menu_set_light_theme">Светлая тема</string>
+    <string name="toolbar_menu_set_dark_theme">Тёмная тема</string>
+    <string name="toolbar_menu_settings">Настройки</string>
+    <string name="bottom_nav_news">Фид</string>
+    <string name="bottom_nav_news_liked">Избранное</string>
+    <string name="bottom_nav_profile_tab">Профиль</string>
     <string name="tools_post_text">Съешь ещё этих мягких французских булок, да выпей же чаю. Съешь ещё этих мягких французских булок, да выпей же чаю.  Съешь ещё этих мягких французских булок, да выпей же чаю. </string>
     <string name="tools_post_likes_count">666</string>
     <string name="alert_dialog_error_title_text">Ошибка</string>
@@ -29,4 +33,9 @@
     <string name="db_error_text">Произошла ошибка при обращении к базе данных</string>
     <string name="image_saved_toast_text">Картинка сохранена в галерею</string>
     <integer name="com_vk_sdk_AppId">7637409</integer>
+    <string name="city">Город</string>
+    <string name="country">Страна</string>
+    <string name="education_university">Университет</string>
+    <string name="education_faculty">Факультет</string>
+    <string name="followers">Подписчики</string>
 </resources>

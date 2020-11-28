@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.core.view.*
-import kotlinx.android.synthetic.main.soc_network_post_details.view.*
+import kotlinx.android.synthetic.main.post_details.view.*
 import ru.krivonosovdenis.fintechapp.R
 import kotlin.math.max
 
@@ -17,7 +17,7 @@ class SocNetworkPostDetails @JvmOverloads constructor(
 ) : ViewGroup(context, attributeSet, defStyleRAttr) {
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.soc_network_post_details, this, true)
+        LayoutInflater.from(context).inflate(R.layout.post_details, this, true)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

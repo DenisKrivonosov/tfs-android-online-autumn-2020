@@ -28,11 +28,6 @@ class AllPostsFragment : MvpFragment<AllPostsView, AllPostsPresenter>(), AllPost
     private lateinit var rvAdapter: PostsFeedAdapter
     private val compositeDisposable = CompositeDisposable()
 
-    companion object {
-        fun newInstance(): AllPostsFragment {
-            return AllPostsFragment()
-        }
-    }
 
     override fun getPresenter(): AllPostsPresenter = GlobalDI.INSTANCE.allPostsPresenter
 
@@ -82,6 +77,7 @@ class AllPostsFragment : MvpFragment<AllPostsView, AllPostsPresenter>(), AllPost
         //Похоже эта штука не работает из-за того, что добавление постов отрабатывает позже
         //То есть оно скролится, но на первый пост из предыдущей коллекции постов
         //буду разбираться.
+        //TODO разобраться как скролить правильно
         allPostsView.scrollToPosition(0)
     }
 
@@ -120,6 +116,12 @@ class AllPostsFragment : MvpFragment<AllPostsView, AllPostsPresenter>(), AllPost
 
     override fun onPostClicked(post: PostFullData) {
         (activity as MainActivity).openPostDetails(post)
+    }
+
+    companion object {
+        fun newInstance(): AllPostsFragment {
+            return AllPostsFragment()
+        }
     }
 
 }

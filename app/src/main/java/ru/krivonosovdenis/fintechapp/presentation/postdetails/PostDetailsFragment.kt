@@ -15,13 +15,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_post_details.*
 import kotlinx.android.synthetic.main.soc_network_post_details.*
@@ -178,7 +178,7 @@ class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>()
 
 
     private fun showImageShareErrorDialog() {
-        AlertDialog.Builder(activity as MainActivity)
+        MaterialAlertDialogBuilder(activity as MainActivity)
             .setTitle(getString(R.string.alert_dialog_error_title_text))
             .setMessage(getString(R.string.share_image_error_alert_dialog_message_text))
             .setCancelable(true)
@@ -192,7 +192,7 @@ class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>()
     }
 
     private fun showGrantWritePermissionErrorAlert() {
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogStyle)
             .setTitle(getString(R.string.alert_dialog_error_title_text))
             .setMessage(getString(R.string.write_permissions_check_alert_dialog_message_text))
             .setCancelable(false)
@@ -226,10 +226,10 @@ class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>()
 
     private fun renderPostData(post: PostFullData) {
         Glide.with(activity as MainActivity)
-            .load(post.groupAvatar)
+            .load(post.posterAvatar)
             .centerCrop()
             .into(posterAvatar)
-        posterName.text = post.groupName
+        posterName.text = post.posterName
         postDate.text =
             humanizePostDate(LocalDate().toDateTimeAtCurrentTime().millis, post.date.millis)
         postText.text = post.text

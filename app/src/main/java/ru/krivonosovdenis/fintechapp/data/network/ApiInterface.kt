@@ -6,8 +6,11 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import ru.krivonosovdenis.fintechapp.dataclasses.groupsdataclasses.GroupsApiResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.newsfeeddataclasses.NewsfeedApiResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userfullinfodataclasses.UserFullInfoResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userwallpostsdataclasses.UserWallPostsResponse
 
 interface ApiInterface {
+    //FEED TAB
     @GET("newsfeed.get")
     fun getNewsFeed(): Single<NewsfeedApiResponse>
 
@@ -31,4 +34,17 @@ interface ApiInterface {
         @Query("owner_id") ownerId: Int,
         @Query("item_id") itemId: Int,
     ): Completable
+
+    //PROFILE TAB
+    @GET("users.get")
+    fun getUserProfileInfo(
+        @Query("fields") fields: String,
+    ): Single<UserFullInfoResponse>
+
+    @GET("wall.get")
+    fun getUserOwnPosts(
+        @Query("count") count: Int,
+        @Query("filter") filter: String,
+    ): Single<UserWallPostsResponse>
+
 }

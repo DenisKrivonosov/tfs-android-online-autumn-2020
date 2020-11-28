@@ -6,8 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
+import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileMainInfo
 
-@Database(entities = [PostFullData::class], version = 2)
+@Database(entities = [PostFullData::class, UserProfileMainInfo::class], version = 3)
 @TypeConverters(Converters::class)
 abstract class ApplicationDatabase : RoomDatabase() {
 

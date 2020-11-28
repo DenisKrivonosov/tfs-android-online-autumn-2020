@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Dark theme colors-->
+    <color name="colorPrimary">#191919</color>
+    <color name="colorOnPrimary">#ffffff</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorBackground">#000000</color>
+    <color name="colorCardBackground">#191919</color>
+    <color name="colorAccent">#adb6be</color>
+    <color name="titleTextColor">#cecfd1</color>
+    <color name="subtitleTextColor">#7b7b7b</color>
+    <color name="hintTextColor">#adb6be</color>
+    <color name="textColorPrimary">#dedee0</color>
+    <color name="postsLoadingViewColor">#7b7b7b</color>
+</resources>

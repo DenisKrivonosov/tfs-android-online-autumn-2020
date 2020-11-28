@@ -1,9 +1,16 @@
 package ru.krivonosovdenis.fintechapp.presentation.mainactivity
 
+import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
+import androidx.annotation.NonNull
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.isVisible
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.vk.api.sdk.VK
@@ -13,13 +20,17 @@ import com.vk.api.sdk.auth.VKScope
 import kotlinx.android.synthetic.main.activity_main.*
 import ru.krivonosovdenis.fintechapp.R
 import ru.krivonosovdenis.fintechapp.data.network.VkApiClient
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
 import ru.krivonosovdenis.fintechapp.di.GlobalDI
 import ru.krivonosovdenis.fintechapp.presentation.allposts.AllPostsFragment
+import ru.krivonosovdenis.fintechapp.presentation.appsettings.AppSettingsFragment
 import ru.krivonosovdenis.fintechapp.presentation.base.mvp.MvpActivity
 import ru.krivonosovdenis.fintechapp.presentation.initloading.InitLoadingFragment
 import ru.krivonosovdenis.fintechapp.presentation.likedposts.LikedPostsFragment
 import ru.krivonosovdenis.fintechapp.presentation.postdetails.PostDetailsFragment
+import ru.krivonosovdenis.fintechapp.presentation.sendpost.SendPostFragment
+import ru.krivonosovdenis.fintechapp.presentation.userprofile.UserProfileFragment
+import java.util.*
+
 
 class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), MainActivityView,
     BottomNavigationView.OnNavigationItemSelectedListener {
@@ -36,8 +47,13 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
     override fun getMvpView(): MainActivityView = this
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        //TODO добавить проверку на то, что у меня проставлен флаг, отвечающий за постоянный
+        //ночной или постоянный дневной режим
+//        AppCompatDelegate.setDefaultNightMode(
+//            AppCompatDelegate.MODE_NIGHT_AUTO);
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar(toolbar)
         postsBottomNavigation.setOnNavigationItemSelectedListener(this)
         postsBottomNavigation.menu.findItem(R.id.actionAllPosts).isChecked = true
         getPresenter().subscribeBottomTabsOnDb()
@@ -49,10 +65,47 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
+        val nightMode = AppCompatDelegate.getDefaultNightMode()
+        if (nightMode == AppCompatDelegate.MODE_NIGHT_YES) {
+            menu.findItem(R.id.changeNightMode).apply {
+                setIcon(R.drawable.toolbar_sun_icon)
+                setTitle(R.string.toolbar_menu_set_light_theme)
+            }
+        } else {
+            menu.findItem(R.id.changeNightMode).apply {
+                setIcon(R.drawable.toolbar_moon_icon)
+                setTitle(R.string.toolbar_menu_set_dark_theme)
+            }
+        }
+        return true
+    }
+
+    override fun onOptionsItemSelected(@NonNull item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.changeNightMode -> {
+                val nightMode = AppCompatDelegate.getDefaultNightMode()
+                if (nightMode == AppCompatDelegate.MODE_NIGHT_YES) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                }
+                recreate()
+            }
+            R.id.settings ->{
+                //TODO add action to settings
+            }
+
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
                 GlobalDI.INSTANCE.sessionManager.storeSessionToken(token.accessToken)
+                Log.e("mainActivity", "token:${token.accessToken}")
                 VkApiClient.accessToken = token.accessToken
                 showAllPostsFragment()
             }
@@ -83,6 +136,9 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
             R.id.actionLikedPosts -> {
                 showLikedPostsFragment()
             }
+            R.id.actionUserProfile -> {
+                showUserProfileFragment()
+            }
         }
         return true
     }
@@ -103,12 +159,45 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
             .commit()
     }
 
+    private fun showUserProfileFragment() {
+        postsBottomNavigation.isVisible = true
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, UserProfileFragment.newInstance())
+            .commit()
+    }
+
+    private fun showSendPostFragment() {
+        postsBottomNavigation.isVisible = true
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, SendPostFragment.newInstance())
+            .commit()
+    }
+
+    private fun showAppSettingsFragment() {
+        postsBottomNavigation.isVisible = true
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, AppSettingsFragment.newInstance())
+            .commit()
+    }
+
     private fun showInitLoadingFragment() {
         postsBottomNavigation.isVisible = false
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, InitLoadingFragment.newInstance(), INIT_LOADING)
             .commit()
+    }
+
+    fun setLocale(activity: Activity, languageCode: String?) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+        val resources: Resources = activity.resources
+        val config: Configuration = resources.configuration
+        config.setLocale(locale)
+        resources.updateConfiguration(config, resources.displayMetrics)
     }
 
     private fun openVkLogin() {

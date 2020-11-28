@@ -1,28 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--Light theme colors-->
-    <color name="colorPrimaryLT">#4a86cc</color>
-    <color name="colorOnPrimaryLT">#ffffff</color>
-    <color name="colorPrimaryDarkLT">#3700B3</color>
-    <color name="colorBackgroundLT">#dddddd</color>
-    <color name="colorCardBackgroundLT">#ffffff</color>
-    <color name="colorAccentLT">#adb6be</color>
-    <color name="titleTextColorLT">#343434</color>
-    <color name="subtitleTextColorLT">#8d9194</color>
-    <color name="hintTextColorLT">#dddddd</color>
-    <color name="textColorPrimaryLT">#000000</color>
-    <color name="postsLoadingViewColorLT">#4a86cc</color>
+    <color name="colorPrimary">#4a86cc</color>
+    <color name="colorOnPrimary">#000000</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorBackground">#dddddd</color>
+    <color name="colorCardBackground">#ffffff</color>
+    <color name="colorAccent">#adb6be</color>
+    <color name="titleTextColor">#343434</color>
+    <color name="subtitleTextColor">#8d9194</color>
+    <color name="hintTextColor">#dddddd</color>
+    <color name="textColorPrimary">#000000</color>
+    <color name="postsLoadingViewColor">#4a86cc</color>
 
-    <!--Dark theme colors-->
-    <color name="colorPrimaryDT">#191919</color>
-    <color name="colorOnPrimaryDT">#ffffff</color>
-    <color name="colorPrimaryDarkDT">#000000</color>
-    <color name="colorBackgroundDT">#000000</color>
-    <color name="colorCardBackgroundDT">#191919</color>
-    <color name="colorAccentDT">#adb6be</color>
-    <color name="titleTextColorDT">#cecfd1</color>
-    <color name="subtitleTextColorDT">#7b7b7b</color>
-    <color name="hintTextColorDT">#adb6be</color>
-    <color name="textColorPrimaryDT">#dedee0</color>
-    <color name="postsLoadingViewColorDT">#7b7b7b</color>
 </resources>
