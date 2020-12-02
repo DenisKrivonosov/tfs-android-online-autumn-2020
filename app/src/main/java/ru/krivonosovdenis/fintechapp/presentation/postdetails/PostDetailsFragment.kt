@@ -17,50 +17,34 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.FileProvider
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import com.bumptech.glide.Glide
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_post_details.*
-import kotlinx.android.synthetic.main.soc_network_post_details.*
-import org.joda.time.LocalDate
+import kotlinx.android.synthetic.main.post_details.*
 import ru.krivonosovdenis.fintechapp.BuildConfig
 import ru.krivonosovdenis.fintechapp.R
+import ru.krivonosovdenis.fintechapp.dataclasses.CommentData
+import ru.krivonosovdenis.fintechapp.dataclasses.InfoRepresentationClass
 import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
+import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileMainInfo
 import ru.krivonosovdenis.fintechapp.di.GlobalDI
+import ru.krivonosovdenis.fintechapp.interfaces.PostDetailsActions
 import ru.krivonosovdenis.fintechapp.presentation.base.mvp.MvpFragment
 import ru.krivonosovdenis.fintechapp.presentation.mainactivity.MainActivity
-import ru.krivonosovdenis.fintechapp.utils.humanizePostDate
+import ru.krivonosovdenis.fintechapp.rvcomponents.PostDetailsRVAdapter
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>(), PostDetailsView {
+class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>(), PostDetailsView,
+    SwipeRefreshLayout.OnRefreshListener, PostDetailsActions {
 
+    private lateinit var rvAdapter: PostDetailsRVAdapter
     private lateinit var postId: Pair<Int, Int>
-
-    companion object {
-        private const val POST_ID = "post_id"
-        private const val SOURCE_ID = "source_id"
-        private const val REQUEST_WRITE_EXTERNAL_CODE = 1
-        private const val COMPRESSION_QUALITY = 90
-        private const val IMAGE_FILE_EXTENSION = "png"
-        private const val PROVIDER_POSTFIX = ".provider"
-        private const val TITLE = "title_"
-        private const val DESCRIPTION = "description_"
-        private const val SHARE_IMAGE = "share_image_"
-
-        fun newInstance(postId: Int, sourceId: Int): PostDetailsFragment {
-            return PostDetailsFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(POST_ID, postId)
-                    putInt(SOURCE_ID, sourceId)
-                }
-            }
-        }
-    }
 
     override fun getPresenter(): PostDetailsPresenter = GlobalDI.INSTANCE.postDetailsPresenter
 
@@ -76,9 +60,19 @@ class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        postDetailsAndCommentsSwipeRefreshLayout.setOnRefreshListener(this)
         (activity as MainActivity).postsBottomNavigation.isGone = true
+
+        rvAdapter = PostDetailsRVAdapter(this)
+        with(postDetailsAndCommentsView) {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = rvAdapter
+        }
+
         postId = arguments!!.getInt(POST_ID) to arguments!!.getInt(SOURCE_ID)
-        getPresenter().getPostFromDb(postId.first, postId.second)
+        getPresenter().loadPostCommentsFromApiAndInsertIntoDB(postId.first, postId.second)
+        getPresenter().subscribeOnPostDetailsFromDb(postId.first, postId.second)
+        getPresenter().subscribeOnPostCommentsFromDb(postId.first, postId.second)
     }
 
 
@@ -144,7 +138,8 @@ class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>()
         }
     }
 
-    private fun checkExternalWrightPermission() {
+
+    private fun checkExternalWritePermission() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED
@@ -197,77 +192,95 @@ class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>()
             .setMessage(getString(R.string.write_permissions_check_alert_dialog_message_text))
             .setCancelable(false)
             .setNegativeButton(
-                R.string.write_permissions_check_alert_dialog_negative_button_text
+                R.string.grant_permissions_check_alert_dialog_negative_button_text
             ) { dialog, _ -> dialog.cancel() }
             .setPositiveButton(
-                R.string.write_permissions_check_alert_dialog_positive_button_text
+                R.string.grant_permissions_check_alert_dialog_positive_button_text
             ) { _, _ ->
-                checkExternalWrightPermission()
+                checkExternalWritePermission()
             }
             .create().show()
     }
 
 
-    override fun showPost(post: PostFullData) {
-        postDetailView.isVisible = true
-        errorView.isGone = true
-        renderPostData(post)
+    override fun renderPostDetails(postDetailsData: PostFullData) {
+        val finalData = mutableListOf<InfoRepresentationClass>()
+        val adapterData = rvAdapter.dataUnits
+        adapterData.removeAll{it is PostFullData }
+        finalData.add(postDetailsData)
+        finalData.addAll(adapterData)
+        rvAdapter.dataUnits = finalData
+
+        postDetailsAndCommentsView.isVisible = true
+        loadingView.isGone = true
+        dbLoadingErrorView.isGone = true
     }
 
-    override fun showErrorView() {
-        postDetailView.isGone = true
-        errorView.isVisible = true
+    override fun renderPostComments(comments: List<CommentData>) {
+        val finalData = mutableListOf<InfoRepresentationClass>()
+        val adapterData = rvAdapter.dataUnits
+        val postDetailsData = adapterData.find { it is PostFullData }
+        if(postDetailsData!=null){
+            finalData.add(postDetailsData)
+        }
+        finalData.addAll(comments)
+        rvAdapter.dataUnits = finalData
+
+        postDetailsAndCommentsView.isVisible = true
+        loadingView.isGone = true
+        dbLoadingErrorView.isGone = true
+    }
+
+    override fun showDbLoadingErrorView() {
+        postDetailsAndCommentsView.isGone = true
+        dbLoadingErrorView.isVisible = true
     }
 
     override fun showPostView() {
-        postDetailView.isVisible = true
-        errorView.isGone = true
+        postDetailsAndCommentsView.isVisible = true
+        dbLoadingErrorView.isGone = true
     }
 
-    private fun renderPostData(post: PostFullData) {
-        Glide.with(activity as MainActivity)
-            .load(post.posterAvatar)
-            .centerCrop()
-            .into(posterAvatar)
-        posterName.text = post.posterName
-        postDate.text =
-            humanizePostDate(LocalDate().toDateTimeAtCurrentTime().millis, post.date.millis)
-        postText.text = post.text
-        if (post.photo != null) {
-            Glide.with(activity as MainActivity)
-                .load(post.photo)
-                .into(postImage)
-        } else {
-            postImage.isGone = true
-            postActionShare.isGone = true
-        }
-        postActionLike.background = if (post.isLiked) {
-            ResourcesCompat.getDrawable(
-                requireContext().resources,
-                R.drawable.post_like_button_clicked_icon,
-                requireContext().theme
-            )
-        } else {
-            ResourcesCompat.getDrawable(
-                requireContext().resources,
-                R.drawable.post_like_button_icon,
-                requireContext().theme
-            )
-        }
-        postLikesCounter.text = post.likesCount.toString()
 
-        if (!post.photo.isNullOrEmpty()) {
-            postActionShare.isVisible = true
-            postActionShare.setOnClickListener {
-                shareImageIntent(postImage)
+
+    override fun setRefreshing(isRefreshing: Boolean) {
+        postDetailsAndCommentsSwipeRefreshLayout.isRefreshing = isRefreshing
+    }
+
+    override fun showLoadDataFromNetworkErrorView() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onRefresh() {
+        getPresenter().loadPostCommentsFromApiAndInsertIntoDB(postId.first, postId.second)
+    }
+
+    override fun sharePostImage(post: PostFullData) {
+        shareImageIntent(postImage)
+    }
+
+    override fun savePostImage(post: PostFullData) {
+        checkExternalWritePermission()
+    }
+
+    companion object {
+        private const val POST_ID = "post_id"
+        private const val SOURCE_ID = "source_id"
+        private const val REQUEST_WRITE_EXTERNAL_CODE = 1
+        private const val COMPRESSION_QUALITY = 90
+        private const val IMAGE_FILE_EXTENSION = "png"
+        private const val PROVIDER_POSTFIX = ".provider"
+        private const val TITLE = "title_"
+        private const val DESCRIPTION = "description_"
+        private const val SHARE_IMAGE = "share_image_"
+
+        fun newInstance(postId: Int, sourceId: Int): PostDetailsFragment {
+            return PostDetailsFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(POST_ID, postId)
+                    putInt(SOURCE_ID, sourceId)
+                }
             }
-            postActionSave.isVisible = true
-            postActionSave.setOnClickListener {
-                checkExternalWrightPermission()
-            }
-        } else {
-            postActionShare.isVisible = false
-            postActionSave.isVisible = false
         }
     }
 }

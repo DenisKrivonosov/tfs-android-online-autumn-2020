@@ -1,17 +1,18 @@
-package ru.krivonosovdenis.fintechapp.presentation.allposts
+package ru.krivonosovdenis.fintechapp.presentation.postsfeed
 
 import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
 
-interface AllPostsView {
+interface PostsFeedView {
     fun showPosts(posts: List<PostFullData>)
 
     fun showPostsView()
 
-    fun showErrorView()
+    fun showDbGetFeedErrorView()
+
+    fun showPostUpdateErrorToast()
 
     fun showLoadingView()
 
     fun setRefreshing(isRefreshing: Boolean)
 
-    fun scrollViewToTop()
 }

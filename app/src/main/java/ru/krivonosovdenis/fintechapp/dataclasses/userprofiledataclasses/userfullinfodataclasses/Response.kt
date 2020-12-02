@@ -1,6 +1,5 @@
 package ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userfullinfodataclasses
 
-
 import com.google.gson.annotations.SerializedName
 
 data class Response(
@@ -14,21 +13,22 @@ data class Response(
     @SerializedName("is_closed")
     val isClosed: Boolean,
     val domain: String,
-    val bdate: String,
+    val bdate: String?,
     val city: City,
     val country: Country,
     val photo: String,
+    val status: String?,
     val about: String,
     @SerializedName("last_seen")
     val lastSeen: LastSeen,
     @SerializedName("followers_count")
-    val followersCount: Int,
+    val followersCount: Int?,
     val career: List<Any>,
     val university: Int,
     @SerializedName("university_name")
-    val universityName: String,
+    val universityName: String?,
     val faculty: Int,
     @SerializedName("faculty_name")
-    val facultyName: String,
+    val facultyName: String?,
     val graduation: Int
 )

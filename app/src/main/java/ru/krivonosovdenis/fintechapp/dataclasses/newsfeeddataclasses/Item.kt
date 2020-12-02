@@ -18,16 +18,16 @@ data class Item(
     val attachments: List<Attachment>?,
     @SerializedName("post_source")
     val postSource: PostSource,
-    val comments: Comments,
+    val comments: Comments?,
     val likes: Likes?,
-    val reposts: Reposts,
-    val views: Views,
+    val reposts: Reposts?,
+    val views: Views?,
     @SerializedName("is_favorite")
     val isFavorite: Boolean,
     @SerializedName("post_id")
     val postId: Int,
     val type: String,
-    val photos: Photos,
+    val photos: Photos?,
     @SerializedName("audio_playlist")
     val audioPlaylist: AudioPlaylist,
     @SerializedName("copy_history")

@@ -8,25 +8,25 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.fragment_liked_posts.*
 import ru.krivonosovdenis.fintechapp.R
+import ru.krivonosovdenis.fintechapp.dataclasses.InfoRepresentationClass
+import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
 import ru.krivonosovdenis.fintechapp.di.GlobalDI
+import ru.krivonosovdenis.fintechapp.interfaces.CommonAdapterActions
 import ru.krivonosovdenis.fintechapp.interfaces.LikedPostsActions
 import ru.krivonosovdenis.fintechapp.presentation.base.mvp.MvpFragment
 import ru.krivonosovdenis.fintechapp.presentation.mainactivity.MainActivity
-import ru.krivonosovdenis.fintechapp.rvcomponents.LikedPostsAdapter
+import ru.krivonosovdenis.fintechapp.rvcomponents.CommonRVAdapter
+//import ru.krivonosovdenis.fintechapp.rvcomponents.LikedPostsAdapter
 import ru.krivonosovdenis.fintechapp.rvcomponents.PostsListItemDecoration
 
 class LikedPostsFragment : MvpFragment<LikedPostsView, LikedPostsPresenter>(), LikedPostsView,
+    CommonAdapterActions,
     LikedPostsActions {
 
-    private lateinit var rvAdapter: LikedPostsAdapter
-
-    companion object {
-        fun newInstance(): LikedPostsFragment {
-            return LikedPostsFragment()
-        }
-    }
+    private lateinit var rvAdapter: CommonRVAdapter
 
     override fun getPresenter(): LikedPostsPresenter = GlobalDI.INSTANCE.allLikedPostsPresenter
 
@@ -43,8 +43,7 @@ class LikedPostsFragment : MvpFragment<LikedPostsView, LikedPostsPresenter>(), L
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as MainActivity).showBottomNavigationTabs()
-        rvAdapter = LikedPostsAdapter(this)
-
+        rvAdapter = CommonRVAdapter(this)
         with(likedPostsView) {
             layoutManager = LinearLayoutManager(activity)
             adapter = rvAdapter
@@ -54,7 +53,7 @@ class LikedPostsFragment : MvpFragment<LikedPostsView, LikedPostsPresenter>(), L
     }
 
     override fun showGetPostErrorDialog() {
-        AlertDialog.Builder(requireActivity())
+        MaterialAlertDialogBuilder(requireContext(), R.style.AlertDialogStyle)
             .setTitle(getString(R.string.alert_dialog_error_title_text))
             .setMessage(getString(R.string.get_data_alert_dialog_message_text))
             .setCancelable(false)
@@ -69,10 +68,10 @@ class LikedPostsFragment : MvpFragment<LikedPostsView, LikedPostsPresenter>(), L
             .create().show()
     }
 
-    override fun showPosts(posts: List<PostFullData>) {
+    override fun showPosts(posts: List<InfoRepresentationClass>) {
         likedPostsView.isVisible = true
         errorView.isGone = true
-        rvAdapter.posts = posts.toMutableList()
+        rvAdapter.dataUnits = posts.toMutableList()
     }
 
     override fun showPostsView() {
@@ -85,7 +84,29 @@ class LikedPostsFragment : MvpFragment<LikedPostsView, LikedPostsPresenter>(), L
         errorView.isVisible = true
     }
 
-    override fun onPostClicked(post: PostFullData) {
-        (activity as MainActivity).openPostDetails(post)
+//    override fun onPostClicked(post: PostFullData) {
+//    }
+
+    override fun onPostDismiss(data: PostFullData) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onPostLiked(data: PostFullData) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onPostDisliked(post: PostFullData) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onPostClicked(data: PostFullData) {
+        (activity as MainActivity).openPostDetails(data)
+
+    }
+
+    companion object {
+        fun newInstance(): LikedPostsFragment {
+            return LikedPostsFragment()
+        }
     }
 }

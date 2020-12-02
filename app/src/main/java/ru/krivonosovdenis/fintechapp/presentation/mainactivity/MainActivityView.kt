@@ -1,5 +1,7 @@
 package ru.krivonosovdenis.fintechapp.presentation.mainactivity
 
+import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
+
 interface MainActivityView {
 
     fun openPostDetails(post: PostFullData)
@@ -8,5 +10,5 @@ interface MainActivityView {
 
     fun setLikedPostsVisibility(visibilityFlag: Boolean)
 
-
+    fun showNewPostFragment(vkUserId:Int)
 }

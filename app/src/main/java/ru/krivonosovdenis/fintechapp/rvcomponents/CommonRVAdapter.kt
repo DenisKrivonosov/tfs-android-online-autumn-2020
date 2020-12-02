@@ -1,7 +1,5 @@
 package ru.krivonosovdenis.fintechapp.rvcomponents
 
-import ru.krivonosovdenis.fintechapp.dataclasses.InfoRepresentationClass
-import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileMainInfo
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,22 +10,30 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import kotlinx.android.extensions.LayoutContainer
-import kotlinx.android.synthetic.main.soc_network_post_with_photo.view.*
-import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.postActionLike
-import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.postDate
-import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.postText
-import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.posterAvatar
-import kotlinx.android.synthetic.main.soc_network_post_without_photo.view.posterName
+import kotlinx.android.synthetic.main.post_with_photo.view.*
+import kotlinx.android.synthetic.main.post_without_photo.view.postActionLike
+import kotlinx.android.synthetic.main.post_without_photo.view.postCommentsCounter
+import kotlinx.android.synthetic.main.post_without_photo.view.postDate
+import kotlinx.android.synthetic.main.post_without_photo.view.postLikesCounter
+import kotlinx.android.synthetic.main.post_without_photo.view.postText
+import kotlinx.android.synthetic.main.post_without_photo.view.posterAvatar
+import kotlinx.android.synthetic.main.post_without_photo.view.posterName
 import kotlinx.android.synthetic.main.user_profile_info_layout.view.*
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import ru.krivonosovdenis.fintechapp.R
+import ru.krivonosovdenis.fintechapp.dataclasses.CommentData
+import ru.krivonosovdenis.fintechapp.dataclasses.InfoRepresentationClass
 import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
-import ru.krivonosovdenis.fintechapp.interfaces.AllPostsActions
-import ru.krivonosovdenis.fintechapp.utils.humanizePostDate
+import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileMainInfo
+import ru.krivonosovdenis.fintechapp.interfaces.CommonAdapterActions
+import ru.krivonosovdenis.fintechapp.utils.humanizeDate
 
-class UserProfileRVAdapter(private val callbackInterface: AllPostsActions) :
-    RecyclerView.Adapter<UserProfileRVAdapter.BaseViewHolder>(), ItemTouchHelperAdapter,
+
+class CommonRVAdapter(
+    private val callbackInterface: CommonAdapterActions,
+) :
+    RecyclerView.Adapter<CommonRVAdapter.BaseViewHolder>(), ItemTouchHelperAdapter,
     DecorationTypeProvider {
 
     companion object {
@@ -41,7 +47,7 @@ class UserProfileRVAdapter(private val callbackInterface: AllPostsActions) :
         set(value) {
             differ.submitList(value)
         }
-        get() = differ.currentList
+        get() = differ.currentList as MutableList<InfoRepresentationClass>
 
     private val dateFormatWithYear = DateTimeFormat.forPattern("dd MMMM YYYY")
     private val dateFormatWithoutYear = DateTimeFormat.forPattern("dd MMMM")
@@ -67,7 +73,7 @@ class UserProfileRVAdapter(private val callbackInterface: AllPostsActions) :
                     parent,
                     false
                 )
-            else -> throw IllegalArgumentException("это какой-то неправильный тип поста")
+            else -> throw IllegalArgumentException("это какой-то неправильный тип данных")
         }
         val viewHolder = when (viewType) {
             VIEW_HOLDER_POST_WITHOUT_PHOTO -> PostWithoutPhotoViewHolder(view)
@@ -75,10 +81,9 @@ class UserProfileRVAdapter(private val callbackInterface: AllPostsActions) :
             VIEW_HOLDER_USER_INFO -> UserProfileInfoViewHolder(view)
             else -> throw IllegalArgumentException("это какой-то неправильный тип данных")
         }
-        view.setOnClickListener {
-            if(viewType!= VIEW_HOLDER_USER_INFO) {
+        if (viewType != VIEW_HOLDER_USER_INFO) {
+            view.setOnClickListener {
                 callbackInterface.onPostClicked(dataUnits[viewHolder.adapterPosition] as PostFullData)
-
             }
         }
         return viewHolder
@@ -100,7 +105,7 @@ class UserProfileRVAdapter(private val callbackInterface: AllPostsActions) :
                     .into(viewHolder.containerView.posterAvatar)
                 viewHolder.containerView.posterName.text = post.posterName
                 viewHolder.containerView.postDate.text =
-                    humanizePostDate(currentDate, post.date.millis)
+                    humanizeDate(currentDate, post.date.millis)
                 viewHolder.containerView.postText.text = post.text
                 viewHolder.containerView.postActionLike.background =
                     if (post.isLiked) {
@@ -116,6 +121,30 @@ class UserProfileRVAdapter(private val callbackInterface: AllPostsActions) :
                             context.theme
                         )
                     }
+                viewHolder.containerView.postLikesCounter.text = post.likesCount.toString()
+                viewHolder.containerView.postCommentsCounter.text = post.commentsCount.toString()
+                viewHolder.containerView.postActionLike.setOnClickListener {
+                    when (post.isLiked) {
+                        true -> {
+                            callbackInterface.onPostDisliked(dataUnits[position] as PostFullData)
+                        }
+                        false -> {
+
+                            callbackInterface.onPostLiked(dataUnits[position] as PostFullData)
+
+                        }
+                    }
+                }
+                viewHolder.containerView.postLikesCounter.setOnClickListener {
+                    when (post.isLiked) {
+                        true -> {
+                            callbackInterface.onPostDisliked(dataUnits[position] as PostFullData)
+                        }
+                        false -> {
+                            callbackInterface.onPostLiked(dataUnits[position] as PostFullData)
+                        }
+                    }
+                }
             }
             VIEW_HOLDER_POST_WITH_PHOTO -> {
                 val post = dataUnits[position] as PostFullData
@@ -125,7 +154,7 @@ class UserProfileRVAdapter(private val callbackInterface: AllPostsActions) :
                     .into(viewHolder.containerView.posterAvatar)
                 viewHolder.containerView.posterName.text = post.posterName
                 viewHolder.containerView.postDate.text =
-                    humanizePostDate(currentDate, post.date.millis)
+                    humanizeDate(currentDate, post.date.millis)
                 viewHolder.containerView.postText.text = post.text
                 Glide.with(context)
                     .load(post.photo)
@@ -144,42 +173,67 @@ class UserProfileRVAdapter(private val callbackInterface: AllPostsActions) :
                             context.theme
                         )
                     }
+                viewHolder.containerView.postLikesCounter.text = post.likesCount.toString()
+                viewHolder.containerView.postCommentsCounter.text = post.commentsCount.toString()
+                viewHolder.containerView.postActionLike.setOnClickListener {
+                    when (post.isLiked) {
+                        true -> {
+                            callbackInterface.onPostDisliked(dataUnits[position] as PostFullData)
+                        }
+                        false -> {
+                            callbackInterface.onPostLiked(dataUnits[position] as PostFullData)
+                        }
+                    }
+                }
+                viewHolder.containerView.postLikesCounter.setOnClickListener {
+                    when (post.isLiked) {
+                        true -> {
+                            callbackInterface.onPostDisliked(dataUnits[position] as PostFullData)
+                        }
+                        false -> {
+                            callbackInterface.onPostLiked(dataUnits[position] as PostFullData)
+                        }
+                    }
+                }
             }
-            VIEW_HOLDER_USER_INFO->{
+            VIEW_HOLDER_USER_INFO -> {
                 val userData = dataUnits[position] as UserProfileMainInfo
                 Glide.with(context)
                     .load(userData.photo)
                     .centerCrop()
                     .into(viewHolder.containerView.userAvatar)
-                viewHolder.containerView.userName.text = "${userData.firstName} ${userData.lastName}"
-                viewHolder.containerView.userStatus.text = "test status"
-                if(userData.city!=null){
+                viewHolder.containerView.userName.text =
+                    "${userData.firstName} ${userData.lastName}"
+                viewHolder.containerView.userStatus.text = userData.status
+                if (userData.city != null) {
                     viewHolder.containerView.cityLayoutGroup.isVisible = true
                     viewHolder.containerView.userCity.text = userData.city
-                }
-                else {
+                } else {
                     viewHolder.containerView.cityLayoutGroup.isGone = true
                 }
-                if(userData.country!=null){
+                if (userData.country != null) {
                     viewHolder.containerView.countryLayoutGroup.isVisible = true
                     viewHolder.containerView.userCountry.text = userData.country
-                }
-                else {
+                } else {
                     viewHolder.containerView.countryLayoutGroup.isGone = true
                 }
-                if(userData.universityName!=null){
+                if (userData.universityName != null) {
                     viewHolder.containerView.educationUniversityLayoutGroup.isVisible = true
                     viewHolder.containerView.userEducationUniversity.text = userData.universityName
-                }
-                else {
+                } else {
                     viewHolder.containerView.educationUniversityLayoutGroup.isGone = true
                 }
-                if(userData.facultyName!=null){
+                if (userData.facultyName != null) {
                     viewHolder.containerView.educationFacultyLayoutGroup.isVisible = true
                     viewHolder.containerView.userEducationFaculty.text = userData.facultyName
-                }
-                else {
+                } else {
                     viewHolder.containerView.educationFacultyLayoutGroup.isGone = true
+                }
+                if (userData.followersCount != null) {
+                    viewHolder.containerView.followersLayoutGroup.isVisible = true
+                    viewHolder.containerView.userFollowers.text = userData.followersCount.toString()
+                } else {
+                    viewHolder.containerView.followersLayoutGroup.isGone = true
                 }
             }
         }
@@ -189,32 +243,34 @@ class UserProfileRVAdapter(private val callbackInterface: AllPostsActions) :
         return dataUnits.size
     }
 
-    override fun getItemViewType(position: Int):Int {
-        return when(val data =dataUnits[position]){
+    override fun getItemViewType(position: Int): Int {
+        return when (val data = dataUnits[position]) {
             is UserProfileMainInfo -> VIEW_HOLDER_USER_INFO
             is PostFullData -> if (data.photo != null) VIEW_HOLDER_POST_WITH_PHOTO else VIEW_HOLDER_POST_WITHOUT_PHOTO
+            is CommentData -> throw java.lang.IllegalArgumentException("адаптер не поддерживает данные этого типа")
         }
-//        if(dataUnits[position] is UserProfileMainInfo) {
-//            return VIEW_HOLDER_USER_INFO
-//        }
-//        else {
-//            return if (dataUnits[position].photo != null) VIEW_HOLDER_WITH_PHOTO else VIEW_HOLDER_WITHOUT_PHOTO
-//
-//        }
-
     }
 
     override fun onItemDismiss(position: Int) {
-        callbackInterface.onPostDismiss(dataUnits[position])
+        val dataUnit = dataUnits[position]
+        if (dataUnit is UserProfileMainInfo) {
+            return
+        }
+        callbackInterface.onPostDismiss(dataUnit as PostFullData)
         val innerPosts = dataUnits.toMutableList()
         innerPosts.removeAt(position)
         dataUnits = innerPosts
     }
 
     override fun onItemLiked(position: Int) {
-        callbackInterface.onPostLiked(dataUnits[position])
-        dataUnits[position].isLiked = true
-        notifyItemChanged(position)
+        when (dataUnits[position]) {
+            is UserProfileMainInfo -> return
+            is PostFullData -> {
+                callbackInterface.onPostLiked(dataUnits[position] as PostFullData)
+                (dataUnits[position] as PostFullData).isLiked = true
+                notifyItemChanged(position)
+            }
+        }
     }
 
     override fun getDecorationType(position: Int): PostsListDecorationType {
@@ -224,29 +280,48 @@ class UserProfileRVAdapter(private val callbackInterface: AllPostsActions) :
         if (dataUnits.isEmpty()) {
             return PostsListDecorationType.Space
         }
-        if (position == 0) {
-            return PostsListDecorationType.WithText(dataUnits[0].date.toString(dateFormatWithoutYear))
-        }
-        val current = dataUnits[position]
-        val previous = dataUnits[position - 1]
-        return when {
-            current.date.dayOfYear().get() == previous.date.dayOfYear().get()
-                    && current.date.year().get() == previous.date.year()
-                .get() -> PostsListDecorationType.Space
-            current.date.year().get() != previous.date.year()
-                .get() -> PostsListDecorationType.WithText(
-                posts[position].date.toString(
-                    dateFormatWithYear
-                )
-            )
-            else -> PostsListDecorationType.WithText(
-                posts[position].date.toString(
+
+        if (position == 0 && dataUnits[0] is PostFullData) {
+            return PostsListDecorationType.WithText(
+                (dataUnits[0] as PostFullData).date.toString(
                     dateFormatWithoutYear
                 )
             )
         }
+        if (position == 0) {
+            return PostsListDecorationType.Space
+        }
+        val current = dataUnits[position]
+        val previous = dataUnits[position - 1]
+        return when {
+            current is UserProfileMainInfo ->
+                PostsListDecorationType.Space
+            current is PostFullData && previous is UserProfileMainInfo -> {
+                PostsListDecorationType.WithText(current.date.toString(dateFormatWithoutYear))
+            }
+            (current as PostFullData).date.dayOfYear()
+                .get() == (previous as PostFullData).date.dayOfYear().get()
+                    && current.date.year().get() == previous.date.year()
+                .get() -> PostsListDecorationType.Space
+            current.date.year().get() != previous.date.year()
+                .get() -> PostsListDecorationType.WithText(
+                current.date.toString(
+                    dateFormatWithYear
+                )
+            )
+            current.date.dayOfYear() != previous.date.dayOfYear() ->
+                PostsListDecorationType.WithText(
+                    current.date.toString(
+                        dateFormatWithoutYear
+                    )
+                )
+            else -> {
+                PostsListDecorationType.Space
+            }
 
+        }
     }
+
 
     abstract class BaseViewHolder(override val containerView: View) :
         RecyclerView.ViewHolder(containerView), LayoutContainer
@@ -255,6 +330,7 @@ class UserProfileRVAdapter(private val callbackInterface: AllPostsActions) :
         BaseViewHolder(containerView)
 
     class PostWithPhotoViewHolder(override val containerView: View) : BaseViewHolder(containerView)
-    class UserProfileInfoViewHolder(override val containerView: View) : BaseViewHolder(containerView)
+    class UserProfileInfoViewHolder(override val containerView: View) :
+        BaseViewHolder(containerView)
 
 }

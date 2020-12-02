@@ -1,11 +1,20 @@
 <resources>
-    <style name="AppThemeDark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/colorBackground</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+<!--        <item name="colorSurface">@color/colorOnSecondary</item>-->
+<!--        <item name="colorOnSurface">@color/colorOnSecondary</item>-->
+
+        <item name="colorSurface">@color/colorCardBackground</item>
+        <item name="colorOnSurface">@color/textColorPrimary</item>
+
         <item name="android:colorBackground">@color/colorBackground</item>
         <item name="cardBackgroundColor">@color/colorCardBackground</item>
+
         <item name="colorAccent">@color/colorAccent</item>
         <item name="titleTextColor">@color/titleTextColor</item>
         <item name="subtitleTextColor">@color/subtitleTextColor</item>
@@ -15,7 +24,8 @@
         <item name="postLoadingViewColor">@color/postsLoadingViewColor</item>
     </style>
 
-    <style name="AlertDialogStyle" parent="Theme.AppCompat.DayNight.Dialog.Alert"/>
+    <style name="AlertDialogStyle" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+    </style>
 
     <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
         <item name="cornerSize">50%</item>

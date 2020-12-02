@@ -4,9 +4,13 @@
     <color name="colorPrimary">#191919</color>
     <color name="colorOnPrimary">#ffffff</color>
     <color name="colorPrimaryDark">#000000</color>
+    <color name="colorSecondary">#438bf9</color>
+    <color name="colorOnSecondary">#ffffff</color>
     <color name="colorBackground">#000000</color>
+    <color name="colorSurface">#000000</color>
+    <color name="colorOnSurface">#909aa2</color>
     <color name="colorCardBackground">#191919</color>
-    <color name="colorAccent">#adb6be</color>
+    <color name="colorAccent">#438bf9</color>
     <color name="titleTextColor">#cecfd1</color>
     <color name="subtitleTextColor">#7b7b7b</color>
     <color name="hintTextColor">#adb6be</color>

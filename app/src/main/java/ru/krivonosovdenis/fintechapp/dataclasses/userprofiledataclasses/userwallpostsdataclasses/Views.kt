@@ -4,5 +4,5 @@ package ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userwal
 import com.google.gson.annotations.SerializedName
 
 data class Views(
-    val count: Int
+    val count: Int?
 )

@@ -1,4 +1,4 @@
-package ru.krivonosovdenis.fintechapp.dataclasses.groupsdataclasses
+package ru.krivonosovdenis.fintechapp.dataclasses.getgroupsdataclasses
 
 import com.google.gson.annotations.SerializedName
 

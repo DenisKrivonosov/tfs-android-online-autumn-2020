@@ -70,30 +70,42 @@
         android:layout_height="32dp"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="15dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginRight="5dp"
         android:layout_marginBottom="15dp"
         android:background="@drawable/post_like_button_icon"
         android:contentDescription="@string/like_post_description" />
 
+    <TextView
+        android:id="@+id/postLikesCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="22sp"
+        tools:text="@string/tools_post_likes_count" />
+
     <ImageButton
         android:id="@+id/postActionComment"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginTop="19dp"
+        android:layout_marginRight="5dp"
         android:layout_marginBottom="15dp"
         android:background="@drawable/post_comment_button_icon"
         android:contentDescription="@string/comment_post_description" />
 
-    <ImageButton
-        android:id="@+id/postActionShare"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginLeft="10dp"
+    <TextView
+        android:id="@+id/postCommentsCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
         android:layout_marginTop="15dp"
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="15dp"
-        android:background="@drawable/post_share_button_icon"
-        android:contentDescription="@string/share_post_description" />
+        android:layout_marginBottom="10dp"
+        android:text="@string/tools_post_text"
+        android:textSize="22sp"
+        tools:text="@string/tools_post_comments_count" />
 </merge>

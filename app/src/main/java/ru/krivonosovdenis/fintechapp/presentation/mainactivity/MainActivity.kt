@@ -1,9 +1,6 @@
 package ru.krivonosovdenis.fintechapp.presentation.mainactivity
 
-import android.app.Activity
 import android.content.Intent
-import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -11,8 +8,10 @@ import android.view.MenuItem
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
@@ -20,9 +19,9 @@ import com.vk.api.sdk.auth.VKScope
 import kotlinx.android.synthetic.main.activity_main.*
 import ru.krivonosovdenis.fintechapp.R
 import ru.krivonosovdenis.fintechapp.data.network.VkApiClient
+import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
 import ru.krivonosovdenis.fintechapp.di.GlobalDI
-import ru.krivonosovdenis.fintechapp.presentation.allposts.AllPostsFragment
-import ru.krivonosovdenis.fintechapp.presentation.appsettings.AppSettingsFragment
+import ru.krivonosovdenis.fintechapp.presentation.postsfeed.PostsFeedFragment
 import ru.krivonosovdenis.fintechapp.presentation.base.mvp.MvpActivity
 import ru.krivonosovdenis.fintechapp.presentation.initloading.InitLoadingFragment
 import ru.krivonosovdenis.fintechapp.presentation.likedposts.LikedPostsFragment
@@ -53,7 +52,7 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
 //            AppCompatDelegate.MODE_NIGHT_AUTO);
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+        setSupportActionBar(appGlobalToolbar)
         postsBottomNavigation.setOnNavigationItemSelectedListener(this)
         postsBottomNavigation.menu.findItem(R.id.actionAllPosts).isChecked = true
         getPresenter().subscribeBottomTabsOnDb()
@@ -93,7 +92,7 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
                 }
                 recreate()
             }
-            R.id.settings ->{
+            R.id.settings -> {
                 //TODO add action to settings
             }
 
@@ -137,6 +136,7 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
                 showLikedPostsFragment()
             }
             R.id.actionUserProfile -> {
+                Log.e("show_user_profile", "true1");
                 showUserProfileFragment()
             }
         }
@@ -151,15 +151,17 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
             .commit()
     }
 
+
     private fun showAllPostsFragment() {
         postsBottomNavigation.isVisible = true
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_container, AllPostsFragment.newInstance(), ALL_POSTS_LIST)
+            .replace(R.id.fragment_container, PostsFeedFragment.newInstance(), ALL_POSTS_LIST)
             .commit()
     }
 
     private fun showUserProfileFragment() {
+        Log.e("show_user_profile", "true2");
         postsBottomNavigation.isVisible = true
         supportFragmentManager
             .beginTransaction()
@@ -167,19 +169,13 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
             .commit()
     }
 
-    private fun showSendPostFragment() {
+    override fun showNewPostFragment(vkUserId:Int) {
+        hideGlobalToolbar()
         postsBottomNavigation.isVisible = true
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.fragment_container, SendPostFragment.newInstance())
-            .commit()
-    }
-
-    private fun showAppSettingsFragment() {
-        postsBottomNavigation.isVisible = true
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.fragment_container, AppSettingsFragment.newInstance())
+            .replace(R.id.fragment_container, SendPostFragment.newInstance(vkUserId))
+            .addToBackStack(null)
             .commit()
     }
 
@@ -191,21 +187,29 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
             .commit()
     }
 
-    fun setLocale(activity: Activity, languageCode: String?) {
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-        val resources: Resources = activity.resources
-        val config: Configuration = resources.configuration
-        config.setLocale(locale)
-        resources.updateConfiguration(config, resources.displayMetrics)
+//    fun setLocale(activity: Activity, languageCode: String?) {
+//        val locale = Locale(languageCode)
+//        Locale.setDefault(locale)
+//        val resources: Resources = activity.resources
+//        val config: Configuration = resources.configuration
+//        config.setLocale(locale)
+//        resources.updateConfiguration(config, resources.displayMetrics)
+//    }
+
+    fun showGlobalToolbar(){
+        appGlobalToolbar.isVisible = true
     }
+    fun hideGlobalToolbar(){
+        appGlobalToolbar.isGone = true
+    }
+
 
     private fun openVkLogin() {
         VK.login(this, arrayListOf(VKScope.WALL, VKScope.FRIENDS))
     }
 
     fun showVkLoginErrorAlert() {
-        AlertDialog.Builder(this@MainActivity)
+        MaterialAlertDialogBuilder(this,R.style.AlertDialogStyle)
             .setTitle(getString(R.string.vk_login_alert_dialog_title_text))
             .setMessage(getString(R.string.vk_login_alert_dialog_message_text))
             .setCancelable(false)

@@ -1,11 +1,15 @@
 package ru.krivonosovdenis.fintechapp.data.network
 
-import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Query
-import ru.krivonosovdenis.fintechapp.dataclasses.groupsdataclasses.GroupsApiResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.getgroupsdataclasses.GroupsApiResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.getpostcommentsdataclasses.PostCommentsResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.newsfeeddataclasses.NewsfeedApiResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.postdeletedataclasses.PostDeleteResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.postdislikedataclasses.PostDislikeResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.postlikedataclasses.PostLikeResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.sendpostdataclasses.SendPostResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userfullinfodataclasses.UserFullInfoResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userwallpostsdataclasses.UserWallPostsResponse
 
@@ -26,14 +30,31 @@ interface ApiInterface {
         @Query("type") type: String,
         @Query("owner_id") ownerId: Int,
         @Query("item_id") itemId: Int,
-    ): Completable
+    ): Single<PostLikeResponse>
+
+    @GET("likes.delete")
+    fun removeLike(
+        @Query("type") type: String,
+        @Query("owner_id") ownerId: Int,
+        @Query("item_id") itemId: Int,
+    ): Single<PostDislikeResponse>
 
     @GET("newsfeed.ignoreItem")
     fun deletePostFromFeed(
         @Query("type") type: String,
         @Query("owner_id") ownerId: Int,
         @Query("item_id") itemId: Int,
-    ): Completable
+    ): Single<PostDeleteResponse>
+
+    //POST DETAILS TAB
+    @GET("wall.getComments")
+    fun getPostComments(
+        @Query("type") type: String,
+        @Query("post_id") postId: Int,
+        @Query("owner_id") ownerId: Int,
+        @Query("extended") extended: Int,
+    ): Single<PostCommentsResponse>
+
 
     //PROFILE TAB
     @GET("users.get")
@@ -46,5 +67,12 @@ interface ApiInterface {
         @Query("count") count: Int,
         @Query("filter") filter: String,
     ): Single<UserWallPostsResponse>
+
+    //та же фигня. Отправляю  get'ом, а не POST'ом
+    @GET("wall.post")
+    fun sendPostToOwnWall(
+        @Query("message") message: String,
+        @Query("attachments") attachments: String,
+    ): Single<SendPostResponse>
 
 }

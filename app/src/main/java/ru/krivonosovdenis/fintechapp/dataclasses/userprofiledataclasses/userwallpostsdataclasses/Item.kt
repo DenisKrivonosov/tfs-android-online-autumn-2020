@@ -34,7 +34,7 @@ data class Item(
     @SerializedName("short_text_rate")
     val shortTextRate: Double,
     val attachments: List<Attachment>?,
-    val views: Views,
+    val views: Views?,
     @SerializedName("copy_history")
     val copyHistory: List<CopyHistory>
 )

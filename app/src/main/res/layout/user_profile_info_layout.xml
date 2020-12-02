@@ -3,11 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginStart="10dp"
+    android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
-    android:layout_marginEnd="10dp"
-    android:layout_marginBottom="50dp">
+    android:paddingBottom="20dp"
+    android:background="?attr/cardBackgroundColor">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/userAvatar"
@@ -20,7 +19,7 @@
 
     <TextView
         android:id="@+id/userName"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_marginTop="15dp"
@@ -29,11 +28,12 @@
         android:maxLines="1"
         app:layout_constraintStart_toEndOf="@id/userAvatar"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         tools:text="Человеек Пароход" />
 
     <TextView
         android:id="@+id/userStatus"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_marginTop="10dp"
@@ -41,7 +41,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         app:layout_constraintStart_toEndOf="@id/userAvatar"
-
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/userName"
         tools:text="Самый быстрый Человеек Пароход парозодович" />
 
@@ -54,11 +54,10 @@
 
     <ImageView
         android:id="@+id/cityIcon"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="160dp"
+        android:layout_marginTop="17dp"
         android:contentDescription="@string/city"
         android:src="@drawable/user_profile_city"
         app:layout_constraintHorizontal_bias="0.5"
@@ -71,11 +70,10 @@
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:layout_marginTop="20dp"
+        android:layout_marginStart="15dp"
         android:text="@string/city"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/cityIcon"
-        app:layout_constraintTop_toBottomOf="@id/userAvatar"
-        tools:layout_editor_absoluteY="130dp" />
+        app:layout_constraintTop_toBottomOf="@id/userAvatar" />
 
     <TextView
         android:id="@+id/userCity"
@@ -100,8 +98,8 @@
         android:id="@+id/countryIcon"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="160dp"
         android:contentDescription="@string/country"
         android:src="@drawable/user_profile_country"
@@ -114,9 +112,9 @@
         android:id="@+id/countryText"
         android:layout_width="wrap_content"
         android:layout_height="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="18dp"
         android:text="@string/country"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/countryIcon"
         app:layout_constraintTop_toBottomOf="@id/cityIcon"
         tools:layout_editor_absoluteY="130dp" />
@@ -126,7 +124,7 @@
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="60dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toEndOf="@+id/countryText"
@@ -141,10 +139,10 @@
 
     <ImageView
         android:id="@+id/educationIcon"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="160dp"
         android:contentDescription="@string/education_university"
         android:src="@drawable/user_profile_education"
@@ -156,7 +154,8 @@
         android:id="@+id/educationUniversityText"
         android:layout_width="wrap_content"
         android:layout_height="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="17dp"
         android:text="@string/education_university"
         app:layout_constraintStart_toEndOf="@+id/educationIcon"
         app:layout_constraintTop_toBottomOf="@id/countryIcon"
@@ -167,7 +166,7 @@
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:layout_marginEnd="60dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toEndOf="@+id/educationUniversityText"
@@ -185,6 +184,7 @@
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:layout_marginTop="5dp"
+        android:layout_marginStart="17dp"
         android:text="@string/education_faculty"
         app:layout_constraintStart_toEndOf="@+id/educationIcon"
         app:layout_constraintTop_toBottomOf="@id/educationUniversityText"
@@ -199,7 +199,7 @@
         android:layout_marginEnd="60dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toEndOf="@+id/educationFacultyText"
-        app:layout_constraintTop_toBottomOf="@id/educationIcon" />
+        app:layout_constraintTop_toBottomOf="@id/educationUniversityText" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/followersLayoutGroup"
@@ -210,11 +210,10 @@
 
     <ImageView
         android:id="@+id/followersIcon"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="160dp"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="17dp"
         android:contentDescription="@string/followers"
         android:src="@drawable/user_profile_followers"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -225,7 +224,8 @@
         android:id="@+id/followersText"
         android:layout_width="wrap_content"
         android:layout_height="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="15dp"
         android:text="@string/followers"
         app:layout_constraintStart_toEndOf="@+id/educationIcon"
         app:layout_constraintTop_toBottomOf="@id/userEducationFaculty"
@@ -235,9 +235,8 @@
         android:id="@+id/userFollowers"
         android:layout_width="wrap_content"
         android:layout_height="20dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="60dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="15dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toEndOf="@+id/educationUniversityText"
         app:layout_constraintTop_toBottomOf="@id/userEducationFaculty" />

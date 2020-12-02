@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--Light theme colors-->
-    <color name="colorPrimary">#4a86cc</color>
-    <color name="colorOnPrimary">#000000</color>
+    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorOnPrimary">#afb4ba</color>
     <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorSecondary">#438bf9</color>
+    <color name="colorOnSecondary">#ffffff</color>
     <color name="colorBackground">#dddddd</color>
+    <color name="colorSurface">#dddddd</color>
+    <color name="colorOnSurface">#909aa2</color>
     <color name="colorCardBackground">#ffffff</color>
-    <color name="colorAccent">#adb6be</color>
+    <color name="colorAccent">#438bf9</color>
     <color name="titleTextColor">#343434</color>
     <color name="subtitleTextColor">#8d9194</color>
     <color name="hintTextColor">#dddddd</color>

@@ -59,6 +59,13 @@ class SocNetworkPostDetails @JvmOverloads constructor(
         measureChildWithMargins(postActionLike, widthMeasureSpec, 0, heightMeasureSpec, totalHeight)
         totalHeight += postActionLike.measuredHeight + postActionLike.marginTop + postActionLike.marginBottom
         measureChildWithMargins(
+            postActionLike,
+            widthMeasureSpec,
+            0,
+            heightMeasureSpec,
+            totalHeight
+        )
+        measureChildWithMargins(
             postLikesCounter,
             widthMeasureSpec,
             0,

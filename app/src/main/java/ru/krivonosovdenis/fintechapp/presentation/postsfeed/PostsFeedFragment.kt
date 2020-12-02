@@ -1,9 +1,11 @@
-package ru.krivonosovdenis.fintechapp.presentation.allposts
+package ru.krivonosovdenis.fintechapp.presentation.postsfeed
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -14,24 +16,21 @@ import kotlinx.android.synthetic.main.fragment_all_posts.*
 import ru.krivonosovdenis.fintechapp.R
 import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
 import ru.krivonosovdenis.fintechapp.di.GlobalDI
-import ru.krivonosovdenis.fintechapp.interfaces.AllPostsActions
+import ru.krivonosovdenis.fintechapp.interfaces.CommonAdapterActions
 import ru.krivonosovdenis.fintechapp.presentation.base.mvp.MvpFragment
 import ru.krivonosovdenis.fintechapp.presentation.mainactivity.MainActivity
-import ru.krivonosovdenis.fintechapp.rvcomponents.ItemTouchHelperAdapter
-import ru.krivonosovdenis.fintechapp.rvcomponents.ItemTouchHelperCallback
-import ru.krivonosovdenis.fintechapp.rvcomponents.PostsFeedAdapter
-import ru.krivonosovdenis.fintechapp.rvcomponents.PostsListItemDecoration
+import ru.krivonosovdenis.fintechapp.rvcomponents.*
 
-class AllPostsFragment : MvpFragment<AllPostsView, AllPostsPresenter>(), AllPostsView,
-    AllPostsActions, SwipeRefreshLayout.OnRefreshListener {
+class PostsFeedFragment : MvpFragment<PostsFeedView, PostsFeedPresenter>(), PostsFeedView,
+    CommonAdapterActions, SwipeRefreshLayout.OnRefreshListener {
 
-    private lateinit var rvAdapter: PostsFeedAdapter
+    private lateinit var rvAdapter: CommonRVAdapter
     private val compositeDisposable = CompositeDisposable()
 
 
-    override fun getPresenter(): AllPostsPresenter = GlobalDI.INSTANCE.allPostsPresenter
+    override fun getPresenter(): PostsFeedPresenter = GlobalDI.INSTANCE.allPostsPresenter
 
-    override fun getMvpView(): AllPostsView = this
+    override fun getMvpView(): PostsFeedView = this
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,7 +49,7 @@ class AllPostsFragment : MvpFragment<AllPostsView, AllPostsPresenter>(), AllPost
         super.onViewCreated(view, savedInstanceState)
         allPostsSwipeRefreshLayout.setOnRefreshListener(this)
         (activity as MainActivity).showBottomNavigationTabs()
-        rvAdapter = PostsFeedAdapter(this)
+        rvAdapter = CommonRVAdapter(this)
         with(allPostsView) {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = rvAdapter
@@ -73,19 +72,23 @@ class AllPostsFragment : MvpFragment<AllPostsView, AllPostsPresenter>(), AllPost
         allPostsSwipeRefreshLayout.isRefreshing = isRefreshing
     }
 
-    override fun scrollViewToTop() {
-        //Похоже эта штука не работает из-за того, что добавление постов отрабатывает позже
-        //То есть оно скролится, но на первый пост из предыдущей коллекции постов
-        //буду разбираться.
-        //TODO разобраться как скролить правильно
-        allPostsView.scrollToPosition(0)
-    }
-
     override fun showPosts(posts: List<PostFullData>) {
+        val oldPosts = rvAdapter.dataUnits
         allPostsView.isVisible = true
         loadingView.isGone = true
         errorView.isGone = true
-        rvAdapter.posts = posts.toMutableList()
+        rvAdapter.dataUnits = posts.toMutableList()
+        //Смотрим появились ли новые посты. Если появились - скролим скроллвью наверх
+        posts.forEach { newPost->
+            if(oldPosts.find { ((it as PostFullData).sourceId == newPost.sourceId)
+                        &&((it).postId == newPost.postId)} == null){
+                allPostsView.postDelayed(Runnable {
+                    allPostsView.smoothScrollToPosition(
+                        0,
+                    )
+                }, 300)
+            }
+        }
     }
 
     override fun showLoadingView() {
@@ -100,18 +103,31 @@ class AllPostsFragment : MvpFragment<AllPostsView, AllPostsPresenter>(), AllPost
         errorView.isGone = true
     }
 
-    override fun showErrorView() {
+    override fun showDbGetFeedErrorView() {
         allPostsView.isGone = true
         loadingView.isGone = true
         errorView.isVisible = true
     }
 
+    override fun showPostUpdateErrorToast() {
+        Toast.makeText(
+            requireContext(),
+            resources.getString(R.string.post_update_error_text),
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
     override fun onPostDismiss(post: PostFullData) {
-        getPresenter().deletePostApiAndDb(post)
+        Log.e("heredeletingpost", post.text)
+        getPresenter().deletePostOnApiAndDb(post)
     }
 
     override fun onPostLiked(post: PostFullData) {
         getPresenter().likePostOnApiAndDb(post)
+    }
+
+    override fun onPostDisliked(post: PostFullData) {
+        getPresenter().dislikePostOnApiAndDb(post)
     }
 
     override fun onPostClicked(post: PostFullData) {
@@ -119,8 +135,8 @@ class AllPostsFragment : MvpFragment<AllPostsView, AllPostsPresenter>(), AllPost
     }
 
     companion object {
-        fun newInstance(): AllPostsFragment {
-            return AllPostsFragment()
+        fun newInstance(): PostsFeedFragment {
+            return PostsFeedFragment()
         }
     }
 

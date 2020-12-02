@@ -94,7 +94,6 @@
         android:layout_marginTop="15dp"
         android:layout_marginRight="10dp"
         android:layout_marginBottom="10dp"
-        android:text="@string/tools_post_text"
         android:textSize="22sp"
         tools:text="@string/tools_post_likes_count" />
 

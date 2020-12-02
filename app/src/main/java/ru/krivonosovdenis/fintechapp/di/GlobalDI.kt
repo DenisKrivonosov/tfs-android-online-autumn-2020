@@ -6,7 +6,7 @@ import ru.krivonosovdenis.fintechapp.SessionManager
 import ru.krivonosovdenis.fintechapp.data.Repository
 import ru.krivonosovdenis.fintechapp.data.db.ApplicationDatabase
 import ru.krivonosovdenis.fintechapp.data.network.VkApiClient
-import ru.krivonosovdenis.fintechapp.presentation.allposts.AllPostsPresenter
+import ru.krivonosovdenis.fintechapp.presentation.postsfeed.PostsFeedPresenter
 import ru.krivonosovdenis.fintechapp.presentation.appsettings.AppSettingsPresenter
 import ru.krivonosovdenis.fintechapp.presentation.likedposts.LikedPostsPresenter
 import ru.krivonosovdenis.fintechapp.presentation.mainactivity.MainActivityPresenter
@@ -18,6 +18,7 @@ class GlobalDI private constructor(
     private val applicationContext: Context
 ) {
     var isFirstAllPostsFragmentOpen = true
+    var isFirstUserProfileFragmentOpen = true
     val sessionManager by lazy { SessionManager(applicationContext) }
     val authNetworkClient by lazy { VkApiClient.getAuthRetrofitClient() }
     val dbConnection by lazy { ApplicationDatabase.getInstance(applicationContext) }
@@ -29,7 +30,7 @@ class GlobalDI private constructor(
     }
 
     val allPostsPresenter by lazy {
-        AllPostsPresenter(repository)
+        PostsFeedPresenter(repository)
     }
 
     val allLikedPostsPresenter by lazy {
