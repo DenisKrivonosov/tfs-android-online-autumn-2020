@@ -1,18 +1,27 @@
 package ru.krivonosovdenis.fintechapp.presentation.postsfeed
 
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
+import moxy.MvpView
+import moxy.viewstate.strategy.OneExecutionStateStrategy
+import moxy.viewstate.strategy.StateStrategyType
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
 
-interface PostsFeedView {
-    fun showPosts(posts: List<PostFullData>)
+interface PostsFeedView:MvpView {
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun showPosts(posts: List<PostData>)
 
+    @StateStrategyType(OneExecutionStateStrategy::class)
     fun showPostsView()
 
+    @StateStrategyType(OneExecutionStateStrategy::class)
     fun showDbGetFeedErrorView()
 
+    @StateStrategyType(OneExecutionStateStrategy::class)
     fun showPostUpdateErrorToast()
 
+    @StateStrategyType(OneExecutionStateStrategy::class)
     fun showLoadingView()
 
+    @StateStrategyType(OneExecutionStateStrategy::class)
     fun setRefreshing(isRefreshing: Boolean)
 
 }

@@ -5,11 +5,12 @@ import androidx.room.Entity
 import kotlinx.android.parcel.Parcelize
 import org.joda.time.DateTime
 
+
 sealed class InfoRepresentationClass
 
 @Entity(tableName = "user_profile_info", primaryKeys = ["userId"])
 @Parcelize
-data class UserProfileMainInfo(
+data class UserProfileData(
     val userId: Int,
     val firstName: String,
     val lastName: String,
@@ -26,7 +27,7 @@ data class UserProfileMainInfo(
 
 @Entity(tableName = "posts", primaryKeys = ["postId", "sourceId"])
 @Parcelize
-data class PostFullData(
+data class PostData(
     val postId: Int,
     val sourceId: Int,
     val posterAvatar: String,
@@ -55,6 +56,5 @@ data class CommentData(
     val text: String,
     val photo: String?,
     var likesCount: Int,
-    var isLiked: Boolean = false,
+    var isLiked: Boolean=false,
 ) :InfoRepresentationClass(), Parcelable
-

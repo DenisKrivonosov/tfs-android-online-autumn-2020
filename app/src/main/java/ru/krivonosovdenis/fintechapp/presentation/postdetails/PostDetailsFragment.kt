@@ -1,6 +1,7 @@
 package ru.krivonosovdenis.fintechapp.presentation.postdetails
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -10,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,32 +25,53 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_all_posts.*
 import kotlinx.android.synthetic.main.fragment_post_details.*
+import kotlinx.android.synthetic.main.fragment_post_details.loadingView
 import kotlinx.android.synthetic.main.post_details.*
+import moxy.MvpAppCompatFragment
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
+import ru.krivonosovdenis.fintechapp.ApplicationClass
 import ru.krivonosovdenis.fintechapp.BuildConfig
 import ru.krivonosovdenis.fintechapp.R
 import ru.krivonosovdenis.fintechapp.dataclasses.CommentData
 import ru.krivonosovdenis.fintechapp.dataclasses.InfoRepresentationClass
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
-import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileMainInfo
-import ru.krivonosovdenis.fintechapp.di.GlobalDI
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
+import ru.krivonosovdenis.fintechapp.interfaces.CommentsActions
 import ru.krivonosovdenis.fintechapp.interfaces.PostDetailsActions
-import ru.krivonosovdenis.fintechapp.presentation.base.mvp.MvpFragment
 import ru.krivonosovdenis.fintechapp.presentation.mainactivity.MainActivity
 import ru.krivonosovdenis.fintechapp.rvcomponents.PostDetailsRVAdapter
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import javax.inject.Inject
 
-class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>(), PostDetailsView,
-    SwipeRefreshLayout.OnRefreshListener, PostDetailsActions {
+class PostDetailsFragment : MvpAppCompatFragment(), PostDetailsView,
+    SwipeRefreshLayout.OnRefreshListener, PostDetailsActions, CommentsActions {
 
     private lateinit var rvAdapter: PostDetailsRVAdapter
     private lateinit var postId: Pair<Int, Int>
 
-    override fun getPresenter(): PostDetailsPresenter = GlobalDI.INSTANCE.postDetailsPresenter
+    @Inject
+    @InjectPresenter
+    lateinit var presenter: PostDetailsPresenter
 
-    override fun getMvpView(): PostDetailsView = this
+    @ProvidePresenter
+    fun provide() = presenter
+
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (activity?.applicationContext as ApplicationClass).addPostDetailsComponent()
+        (activity?.applicationContext as ApplicationClass).postDetailsComponent?.inject(this)
+        (activity as MainActivity).hideBottomSettings()
+    }
+
+    override fun onDetach() {
+        (activity?.applicationContext as ApplicationClass).clearPostDetailsComponent()
+        super.onDetach()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,18 +86,142 @@ class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>()
         postDetailsAndCommentsSwipeRefreshLayout.setOnRefreshListener(this)
         (activity as MainActivity).postsBottomNavigation.isGone = true
 
-        rvAdapter = PostDetailsRVAdapter(this)
+        rvAdapter = PostDetailsRVAdapter(this, this)
         with(postDetailsAndCommentsView) {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = rvAdapter
         }
 
-        postId = arguments!!.getInt(POST_ID) to arguments!!.getInt(SOURCE_ID)
-        getPresenter().loadPostCommentsFromApiAndInsertIntoDB(postId.first, postId.second)
-        getPresenter().subscribeOnPostDetailsFromDb(postId.first, postId.second)
-        getPresenter().subscribeOnPostCommentsFromDb(postId.first, postId.second)
+        postId = requireArguments().getInt(POST_ID) to requireArguments().getInt(SOURCE_ID)
+        getPostDetailsFromApi()
+        presenter.subscribeOnPostDetailsFromDb(postId.first, postId.second)
+        presenter.subscribeOnPostCommentsFromDb(postId.first, postId.second)
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            REQUEST_WRITE_EXTERNAL_CODE -> {
+                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    showGrantWritePermissionErrorAlert()
+
+                } else {
+                    saveImageToGallery(postImage)
+                }
+            }
+        }
+    }
+
+    override fun renderPostDetails(postDetailsData: PostData) {
+        val finalData = mutableListOf<InfoRepresentationClass>()
+        val commentsData = rvAdapter.dataUnits.filterIsInstance<CommentData>()
+        Log.e("inside_render_post_Data",postDetailsData.likesCount.toString());
+        Log.e("inside_render_post_Data",postDetailsData.isLiked.toString());
+        finalData.add(postDetailsData)
+        finalData.addAll(commentsData)
+        rvAdapter.dataUnits = finalData
+        postDetailsAndCommentsView.isVisible = true
+        loadingView.isGone = true
+        dbLoadingErrorView.isGone = true
+    }
+
+    override fun renderPostComments(comments: List<CommentData>) {
+        val finalData = mutableListOf<InfoRepresentationClass>()
+        val adapterData = rvAdapter.dataUnits
+        val postDetailsData = adapterData.find { it is PostData }
+        if (postDetailsData != null) {
+            finalData.add(postDetailsData)
+        }
+        finalData.addAll(comments)
+        rvAdapter.dataUnits = finalData
+        postDetailsAndCommentsView.isVisible = true
+        loadingView.isGone = true
+        dbLoadingErrorView.isGone = true
+    }
+
+    override fun showDbLoadingErrorView() {
+        postDetailsAndCommentsView.isGone = true
+        dbLoadingErrorView.isVisible = true
+    }
+
+    override fun showPostView() {
+        postDetailsAndCommentsView.isVisible = true
+        dbLoadingErrorView.isGone = true
+    }
+
+    override fun setRefreshing(isRefreshing: Boolean) {
+        postDetailsAndCommentsSwipeRefreshLayout.isRefreshing = isRefreshing
+    }
+
+    override fun showLoadDataFromNetworkErrorView() {
+        dbLoadingErrorView.isVisible = true
+        postDetailsAndCommentsView.isGone = true
+        loadingView.isGone = true
+    }
+
+    override fun showPostUpdateErrorToast() {
+        Toast.makeText(
+            requireContext(),
+            resources.getString(R.string.post_update_error_text),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    override fun showCommentUpdateErrorToast() {
+        Toast.makeText(
+            requireContext(),
+            resources.getString(R.string.comment_update_error_text),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    override fun onRefresh() {
+        getPostDetailsFromApi()
+    }
+
+    override fun sharePostImage(post: PostData) {
+        shareImageIntent(postImage)
+    }
+
+    override fun savePostImage(post: PostData) {
+        checkExternalWritePermission()
+    }
+
+    override fun likePost(post: PostData) {
+        likePostOnApi(post)
+    }
+
+    override fun dislikePost(post: PostData) {
+        dislikePostOnApi(post)
+    }
+
+    override fun likeComment(comment: CommentData) {
+        likeCommentOnApi(comment)
+    }
+
+    override fun dislikeComment(comment: CommentData) {
+        dislikeCommentOnApi(comment)
+    }
+
+    private fun checkExternalWritePermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED
+            ) {
+                saveImageToGallery(postImage)
+            } else {
+                requestPermissions(
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    REQUEST_WRITE_EXTERNAL_CODE
+                )
+            }
+        } else {
+            saveImageToGallery(postImage)
+        }
+    }
 
     private fun shareImageIntent(view: ImageView) {
         val bmpUri: Uri? = getLocalBitmapUri(view)
@@ -100,7 +247,6 @@ class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>()
             val out = FileOutputStream(file)
             bmp?.compress(Bitmap.CompressFormat.PNG, COMPRESSION_QUALITY, out)
             out.close()
-
             bmpUri = FileProvider.getUriForFile(
                 requireContext(),
                 BuildConfig.APPLICATION_ID + PROVIDER_POSTFIX,
@@ -121,41 +267,6 @@ class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>()
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            REQUEST_WRITE_EXTERNAL_CODE -> {
-                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    showGrantWritePermissionErrorAlert()
-
-                } else {
-                    saveImageToGallery(postImage)
-                }
-            }
-        }
-    }
-
-
-    private fun checkExternalWritePermission() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED
-            ) {
-                saveImageToGallery(postImage)
-            } else {
-                requestPermissions(
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    REQUEST_WRITE_EXTERNAL_CODE
-                )
-            }
-        } else {
-            saveImageToGallery(postImage)
-        }
-    }
-
     private fun saveImageToGallery(view: ImageView) {
         //Пока разобрался как делать только с помощью этого метода. Он был задепрекейчен в API 29
         MediaStore.Images.Media.insertImage(
@@ -167,7 +278,7 @@ class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>()
         Toast.makeText(
             requireContext(),
             getString(R.string.image_saved_toast_text),
-            Toast.LENGTH_LONG
+            Toast.LENGTH_SHORT
         ).show()
     }
 
@@ -203,64 +314,60 @@ class PostDetailsFragment : MvpFragment<PostDetailsView, PostDetailsPresenter>()
     }
 
 
-    override fun renderPostDetails(postDetailsData: PostFullData) {
-        val finalData = mutableListOf<InfoRepresentationClass>()
-        val adapterData = rvAdapter.dataUnits
-        adapterData.removeAll{it is PostFullData }
-        finalData.add(postDetailsData)
-        finalData.addAll(adapterData)
-        rvAdapter.dataUnits = finalData
-
-        postDetailsAndCommentsView.isVisible = true
-        loadingView.isGone = true
-        dbLoadingErrorView.isGone = true
-    }
-
-    override fun renderPostComments(comments: List<CommentData>) {
-        val finalData = mutableListOf<InfoRepresentationClass>()
-        val adapterData = rvAdapter.dataUnits
-        val postDetailsData = adapterData.find { it is PostFullData }
-        if(postDetailsData!=null){
-            finalData.add(postDetailsData)
+    private fun getPostDetailsFromApi(){
+        if(!(requireActivity().application as ApplicationClass).isNetworkAvailableVariable){
+            networkIsNotAvailableMessage(resources.getString(R.string.network_is_not_available_show_cached))
+            postDetailsAndCommentsSwipeRefreshLayout.isRefreshing = false
         }
-        finalData.addAll(comments)
-        rvAdapter.dataUnits = finalData
-
-        postDetailsAndCommentsView.isVisible = true
-        loadingView.isGone = true
-        dbLoadingErrorView.isGone = true
-    }
-
-    override fun showDbLoadingErrorView() {
-        postDetailsAndCommentsView.isGone = true
-        dbLoadingErrorView.isVisible = true
-    }
-
-    override fun showPostView() {
-        postDetailsAndCommentsView.isVisible = true
-        dbLoadingErrorView.isGone = true
+        else{
+            presenter.loadPostCommentsFromApiAndInsertIntoDB(postId.first, postId.second)
+        }
     }
 
 
-
-    override fun setRefreshing(isRefreshing: Boolean) {
-        postDetailsAndCommentsSwipeRefreshLayout.isRefreshing = isRefreshing
+    private fun likePostOnApi(post:PostData){
+        if(!(requireActivity().application as ApplicationClass).isNetworkAvailableVariable){
+            networkIsNotAvailableMessage(resources.getString(R.string.network_is_not_available_can_not_perform_action))
+        }
+        else{
+            presenter.likePostOnApiAndDb(post)
+        }
     }
 
-    override fun showLoadDataFromNetworkErrorView() {
-        TODO("Not yet implemented")
+    private fun dislikePostOnApi(post:PostData){
+        if(!(requireActivity().application as ApplicationClass).isNetworkAvailableVariable){
+            networkIsNotAvailableMessage(resources.getString(R.string.network_is_not_available_can_not_perform_action))
+        }
+        else{
+            presenter.dislikePostOnApiAndDb(post)
+        }
     }
 
-    override fun onRefresh() {
-        getPresenter().loadPostCommentsFromApiAndInsertIntoDB(postId.first, postId.second)
+    private fun likeCommentOnApi(comment: CommentData){
+        if(!(requireActivity().application as ApplicationClass).isNetworkAvailableVariable){
+            networkIsNotAvailableMessage(resources.getString(R.string.network_is_not_available_can_not_perform_action))
+        }
+        else{
+            presenter.likeCommentOnApiAndDb(comment)
+        }
     }
 
-    override fun sharePostImage(post: PostFullData) {
-        shareImageIntent(postImage)
+    private fun dislikeCommentOnApi(comment: CommentData){
+        if(!(requireActivity().application as ApplicationClass).isNetworkAvailableVariable){
+            networkIsNotAvailableMessage(resources.getString(R.string.network_is_not_available_can_not_perform_action))
+        }
+        else{
+            presenter.dislikeCommentOnApiAndDb(comment)
+        }
     }
 
-    override fun savePostImage(post: PostFullData) {
-        checkExternalWritePermission()
+
+    private fun networkIsNotAvailableMessage(toastText:String){
+        Toast.makeText(
+            requireContext(),
+            toastText,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     companion object {

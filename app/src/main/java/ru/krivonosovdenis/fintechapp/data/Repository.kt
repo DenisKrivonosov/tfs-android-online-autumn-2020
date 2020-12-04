@@ -8,51 +8,51 @@ import org.joda.time.DateTime
 import ru.krivonosovdenis.fintechapp.data.db.ApplicationDatabase
 import ru.krivonosovdenis.fintechapp.data.db.DBConstants.POST_SOURCE_FEED
 import ru.krivonosovdenis.fintechapp.data.db.DBConstants.POST_SOURCE_PROFILE
-import ru.krivonosovdenis.fintechapp.data.network.ApiInterface
 import ru.krivonosovdenis.fintechapp.data.network.VkApiClient
 import ru.krivonosovdenis.fintechapp.dataclasses.*
 import ru.krivonosovdenis.fintechapp.dataclasses.getgroupsdataclasses.GroupsApiResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.getpostcommentsdataclasses.PostCommentsResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.newsfeeddataclasses.NewsfeedApiResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.postdeletedataclasses.PostDeleteResponse
-import ru.krivonosovdenis.fintechapp.dataclasses.postdislikedataclasses.PostDislikeResponse
-import ru.krivonosovdenis.fintechapp.dataclasses.postlikedataclasses.PostLikeResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.objectdislikedataclasses.ObjectDislikeResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.objectlikedataclasses.ObjectLikeResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.sendpostdataclasses.SendPostResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userfullinfodataclasses.UserFullInfoResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userwallpostsdataclasses.UserWallPostsResponse
+import javax.inject.Inject
 
-class Repository(
-    private val authNetworkService: ApiInterface,
+class Repository @Inject constructor(
+    private val vkApiClient: VkApiClient,
     private val dbConnection: ApplicationDatabase
 ) {
 
     //DB REQUESTS
-    fun getAllPostsFromDb(): Flowable<List<PostFullData>> {
-        return dbConnection.feedPostsDao().subscribeOnFeedPosts()
+    fun getAllPostsFromDb(): Flowable<List<PostData>> {
+        return dbConnection.commonDao().subscribeOnFeedPosts()
     }
 
-    fun getLikedPostsFromDb(): Flowable<List<PostFullData>> {
-        return dbConnection.feedPostsDao().subscribeOnLikedPosts()
+    fun getLikedPostsFromDb(): Flowable<List<PostData>> {
+        return dbConnection.commonDao().subscribeOnLikedPosts()
     }
 
     fun getLikedPostsCount(): Flowable<Int> {
-        return dbConnection.feedPostsDao().subscribeOnFeedLikedCount()
+        return dbConnection.commonDao().subscribeOnFeedLikedCount()
     }
 
-    fun getPostFromDb(postId: Int, sourceId: Int): Flowable<PostFullData> {
-        return dbConnection.feedPostsDao().getPostById(postId, sourceId)
+    fun getPostFromDb(postId: Int, sourceId: Int): Flowable<PostData> {
+        return dbConnection.commonDao().getPostById(postId, sourceId)
     }
 
     fun getPostCommentsFromDb(postId: Int, ownerId: Int): Flowable<List<CommentData>> {
-        return dbConnection.feedPostsDao().subscribeOnPostComments(postId, ownerId)
+        return dbConnection.commonDao().subscribeOnPostComments(postId, ownerId)
     }
 
-    fun deletePostFromDb(post: PostFullData): Completable {
-        return dbConnection.feedPostsDao().deletePostById(post.postId, post.sourceId)
+    fun deletePostFromDb(post: PostData): Completable {
+        return dbConnection.commonDao().deletePostById(post.postId, post.sourceId)
     }
 
-    fun setPostIsLikedInDb(post: PostFullData): Completable {
-        return dbConnection.feedPostsDao()
+    fun setPostIsLikedInDb(post: PostData): Completable {
+        return dbConnection.commonDao()
             .setPostIsLikedById(
                 post.postId,
                 post.sourceId,
@@ -61,33 +61,43 @@ class Repository(
             )
     }
 
-    fun deleteAllPostsAndInsertIntoDb(posts: ArrayList<PostFullData>) {
-        return dbConnection.feedPostsDao().deleteAllFeedPostsAndInsert(posts)
+    fun setCommentIsLikedInDb(comment: CommentData): Completable {
+        return dbConnection.commonDao()
+            .setCommentIsLikedById(
+                comment.commentId,
+                comment.ownerId,
+                comment.likesCount,
+                if (comment.isLiked) 1 else 0
+            )
     }
 
-    fun getUserInfoFlowableFromDb(): Flowable<UserProfileMainInfo> {
-        return dbConnection.feedPostsDao().subscribeOnUserInfo()
+    fun deleteAllPostsAndInsertIntoDb(posts: ArrayList<PostData>) {
+        return dbConnection.commonDao().deleteAllFeedPostsAndInsert(posts)
     }
 
-    fun getUserInfoFromDb(vkId: Int): Single<UserProfileMainInfo> {
-        return dbConnection.feedPostsDao().getUserInfoById(vkId)
+    fun getUserInfoFlowableFromDb(): Flowable<UserProfileData> {
+        return dbConnection.commonDao().subscribeOnUserInfo()
     }
 
-    fun getUserOwnPostsFromDb(): Flowable<List<PostFullData>> {
-        return dbConnection.feedPostsDao().subscribeOnUserOwnPosts()
+    fun getUserInfoFromDb(vkId: Int): Single<UserProfileData> {
+        return dbConnection.commonDao().getUserInfoById(vkId)
+    }
+
+    fun getUserOwnPostsFromDb(): Flowable<List<PostData>> {
+        return dbConnection.commonDao().subscribeOnUserOwnPosts()
     }
 
     fun deleteAllUserProfileInfoAndPostsAndInsertIntoDb(data: ArrayList<InfoRepresentationClass>) {
-        val userProfile = data.filterIsInstance<UserProfileMainInfo>().first()
-        val userPosts = data.filterIsInstance<PostFullData>()
-        return dbConnection.feedPostsDao().deleteAllUserProfileInfoAndPostsAndInsert(
+        val userProfile = data.filterIsInstance<UserProfileData>().first()
+        val userPosts = data.filterIsInstance<PostData>()
+        return dbConnection.commonDao().deleteAllUserProfileInfoAndPostsAndInsert(
             userProfile,
-            userPosts as ArrayList<PostFullData>
+            userPosts as ArrayList<PostData>
         )
     }
 
     fun deleteAllPostCommentsAndInsertIntoDb(postId:Int, ownerId:Int, comments:ArrayList<CommentData>){
-        return dbConnection.feedPostsDao().deleteAllPostCommentsAndInsertIntoDb(
+        return dbConnection.commonDao().deleteAllPostCommentsAndInsertIntoDb(
             postId,
             ownerId,
             comments
@@ -97,24 +107,34 @@ class Repository(
 
     //NETWORK REQUESTS
     //posts
-    fun getFeedPostsFromApi(): Single<ArrayList<PostFullData>> {
-        return authNetworkService.getNewsFeed()
+    fun getFeedPostsFromApi(): Single<ArrayList<PostData>> {
+        return vkApiClient.getAuthRetrofitClient().getNewsFeed()
             .flatMap { addGroupsInfoToPosts(it) }
     }
 
 
-    fun likePostApi(post: PostFullData): Single<PostLikeResponse> {
-        return authNetworkService
+    fun likePostApi(post: PostData): Single<ObjectLikeResponse> {
+        return vkApiClient.getAuthRetrofitClient()
             .addLike(POST_TYPE, post.sourceId, post.postId)
     }
 
-    fun dislikePostApi(post: PostFullData): Single<PostDislikeResponse> {
-        return authNetworkService
+    fun dislikePostApi(post: PostData): Single<ObjectDislikeResponse> {
+        return vkApiClient.getAuthRetrofitClient()
             .removeLike(POST_TYPE, post.sourceId, post.postId)
     }
 
-    fun deletePostFromFeedApi(post: PostFullData): Single<PostDeleteResponse> {
-        return authNetworkService
+    fun likeCommentApi(comment: CommentData): Single<ObjectLikeResponse> {
+        return vkApiClient.getAuthRetrofitClient()
+            .addLike(COMMENT_TYPE, comment.ownerId, comment.commentId)
+    }
+
+    fun dislikeCommentApi(comment: CommentData): Single<ObjectDislikeResponse> {
+        return vkApiClient.getAuthRetrofitClient()
+            .removeLike(COMMENT_TYPE, comment.ownerId, comment.commentId)
+    }
+
+    fun deletePostFromFeedApi(post: PostData): Single<PostDeleteResponse> {
+        return vkApiClient.getAuthRetrofitClient()
             .deletePostFromFeed(DELETE_POST_TYPE, post.sourceId, post.postId)
     }
 
@@ -123,9 +143,9 @@ class Repository(
             .joinToString(separator = ",")
     }
 
-    private fun addGroupsInfoToPosts(newsfeedApiResponse: NewsfeedApiResponse): Single<ArrayList<PostFullData>> {
+    private fun addGroupsInfoToPosts(newsfeedApiResponse: NewsfeedApiResponse): Single<ArrayList<PostData>> {
         val groups = getDistinctGroups(newsfeedApiResponse)
-        return VkApiClient.getAuthRetrofitClient().getGroups(groups)
+        return vkApiClient.getAuthRetrofitClient().getGroups(groups)
             .flatMap {
                 Single.just(combinePostsAndGroups(newsfeedApiResponse, it))
             }
@@ -138,8 +158,8 @@ class Repository(
     private fun combinePostsAndGroups(
         postsData: NewsfeedApiResponse,
         groupsData: GroupsApiResponse
-    ): ArrayList<PostFullData> {
-        val currentRenderData = ArrayList<PostFullData>()
+    ): ArrayList<PostData> {
+        val currentRenderData = ArrayList<PostData>()
         postsData.response.items.forEach iterator@{ postData ->
             //Во первых - мы отсекаем все сущности, тип которых не является "post"
             if (postData.type != "post") {
@@ -159,7 +179,7 @@ class Repository(
             }
             val group = groupsData.response.first { it.id == -postData.sourceId }
             currentRenderData.add(
-                PostFullData(
+                PostData(
                     postData.postId,
                     postData.sourceId,
                     group.photo200,
@@ -182,7 +202,7 @@ class Repository(
 
     //post_details
     fun getPostCommentsFromApi(postId: Int, ownerId: Int): Single<List<CommentData>> {
-        return authNetworkService.getPostComments(POST_TYPE, postId, ownerId, EXTENDED_TRUE)
+        return vkApiClient.getAuthRetrofitClient().getPostComments(TRUE_INT,POST_TYPE, postId, ownerId, EXTENDED_TRUE)
             .flatMap { Single.just(transformPostCommentsResponse(it)) }
     }
 
@@ -192,13 +212,13 @@ class Repository(
     //и параллельные запросы, но тогда сильно усложнилась бы логика работы самого приложения. В рамках
     //текущей задачи был выбран более простой вариант реализации
     fun getUserProfileAndWallFromApi(): Single<ArrayList<InfoRepresentationClass>> {
-        return authNetworkService.getUserProfileInfo(USER_PROFILE_INFO_FIELDS)
+        return vkApiClient.getAuthRetrofitClient().getUserProfileInfo(USER_PROFILE_INFO_FIELDS)
             .flatMap { addUserPostsToProfileInfo(it) }
     }
 
 
     private fun addUserPostsToProfileInfo(userProfileInfoApiResponse: UserFullInfoResponse): Single<ArrayList<InfoRepresentationClass>> {
-        return VkApiClient.getAuthRetrofitClient()
+        return vkApiClient.getAuthRetrofitClient()
             .getUserOwnPosts(USER_WALL_OWN_POSTS_COUNT, USER_WALL_POSTS_OWNER)
             .flatMap {
                 Single.just(combineUserInfoAndWallPosts(userProfileInfoApiResponse, it))
@@ -212,7 +232,7 @@ class Repository(
     ): ArrayList<InfoRepresentationClass> {
         val finalData = ArrayList<InfoRepresentationClass>()
         val userProfileApiResponse = userProfileInfoApiResponse.response.first()
-        val userProfileMainInfo = UserProfileMainInfo(
+        val userProfileMainInfo = UserProfileData(
             userProfileApiResponse.id,
             userProfileApiResponse.firstName,
             userProfileApiResponse.lastName,
@@ -230,7 +250,7 @@ class Repository(
 
         userWallPostsResponse.response.items.forEach { postData ->
             finalData.add(
-                PostFullData(
+                PostData(
                     postData.id,
                     postData.fromId,
                     userProfileApiResponse.photo,
@@ -253,6 +273,7 @@ class Repository(
     private fun transformPostCommentsResponse(apiResponse: PostCommentsResponse): List<CommentData> {
         Log.e("insiddderesp","herer");
         Log.e("responsefix",apiResponse.response.count.toString());
+
         val commentsRawData = apiResponse.response.items
         val profilesRawData = apiResponse.response.profiles
         val finalData = ArrayList<CommentData>()
@@ -269,7 +290,7 @@ class Repository(
                     commentRawData.text?:"",
                     commentRawData.attachments?.get(0)?.photo?.sizes?.last()?.url ?: "",
                     commentRawData.likes?.count ?:0,
-                    commentRawData.likes?.canLike != 1,
+                    commentRawData.likes?.canLike == 0 ,
                 )
             )
         }
@@ -278,17 +299,19 @@ class Repository(
     }
 
     fun sendPostToOwnWall(message: String, attachments: String): Single<SendPostResponse> {
-        return authNetworkService
+        return vkApiClient.getAuthRetrofitClient()
             .sendPostToOwnWall(message, attachments)
     }
 
     companion object {
         const val EXTENDED_TRUE = 1
         const val POST_TYPE = "post"
+        const val COMMENT_TYPE = "comment"
         const val DELETE_POST_TYPE = "wall"
         const val USER_PROFILE_INFO_FIELDS =
             "status,first_name,last_name,photo,about,bdate,city,country,career,education,followers_count,last_seen"
         const val USER_WALL_OWN_POSTS_COUNT = 100
         const val USER_WALL_POSTS_OWNER = "owner"
+        const val TRUE_INT = 1
     }
 }

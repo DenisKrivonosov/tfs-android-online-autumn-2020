@@ -1,10 +1,11 @@
 package ru.krivonosovdenis.fintechapp.presentation.appsettings
 
+import moxy.InjectViewState
 import ru.krivonosovdenis.fintechapp.data.Repository
-import ru.krivonosovdenis.fintechapp.presentation.base.mvp.presenter.RxPresenter
-import ru.krivonosovdenis.fintechapp.presentation.postdetails.PostDetailsView
+import ru.krivonosovdenis.fintechapp.presentation.base.mvp.presenter.BaseRxPresenter
 
+@InjectViewState
 class AppSettingsPresenter(
     private val repository: Repository
-) : RxPresenter<AppSettingsView>(AppSettingsView::class.java) {
+) : BaseRxPresenter<AppSettingsView>() {
 }

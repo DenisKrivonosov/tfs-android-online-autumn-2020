@@ -1,8 +1,7 @@
 package ru.krivonosovdenis.fintechapp.interfaces
 
-import ru.krivonosovdenis.fintechapp.dataclasses.InfoRepresentationClass
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
 
 interface LikedPostsActions {
-    fun onPostClicked(post: PostFullData)
+    fun onPostClicked(post: PostData)
 }

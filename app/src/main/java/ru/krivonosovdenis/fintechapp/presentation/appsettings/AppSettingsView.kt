@@ -1,4 +1,6 @@
 package ru.krivonosovdenis.fintechapp.presentation.appsettings
 
-interface AppSettingsView {
+import moxy.MvpView
+
+interface AppSettingsView:MvpView {
 }

@@ -5,16 +5,16 @@ import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import moxy.InjectViewState
 import ru.krivonosovdenis.fintechapp.data.Repository
 import ru.krivonosovdenis.fintechapp.dataclasses.CommentData
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
-import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileMainInfo
-import ru.krivonosovdenis.fintechapp.di.GlobalDI
-import ru.krivonosovdenis.fintechapp.presentation.base.mvp.presenter.RxPresenter
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
+import ru.krivonosovdenis.fintechapp.presentation.base.mvp.presenter.BaseRxPresenter
 
+@InjectViewState
 class PostDetailsPresenter(
     private val repository: Repository
-) : RxPresenter<PostDetailsView>(PostDetailsView::class.java) {
+) : BaseRxPresenter<PostDetailsView>() {
 
     fun subscribeOnPostDetailsFromDb(postId: Int, sourceId: Int) {
         repository.getPostFromDb(postId, sourceId)
@@ -22,9 +22,12 @@ class PostDetailsPresenter(
             .subscribeOn(Schedulers.io())
             .subscribeBy(
                 onNext = {
-                    view.renderPostDetails(it)
+                    Log.e("postUpdated",it.likesCount.toString());
+                    Log.e("postUpdated",it.isLiked.toString());
+                    viewState.renderPostDetails(it)
                 }, onError = {
-                    view.showDbLoadingErrorView()
+                    Log.e("error1",it.stackTraceToString())
+                    viewState.showDbLoadingErrorView()
                 }
             )
             .disposeOnFinish()
@@ -36,34 +39,123 @@ class PostDetailsPresenter(
             .subscribeOn(Schedulers.io())
             .subscribeBy(
                 onNext = {
-                    Log.e("new_post_comments",it.count().toString())
-                    Log.e("new_post_comments",it[0].commenterAvatar)
-                    view.renderPostComments(it)
+                    viewState.renderPostComments(it)
                 }, onError = {
-                    view.showDbLoadingErrorView()
+                    Log.e("error2",it.stackTraceToString())
+                    viewState.showDbLoadingErrorView()
                 }
             )
             .disposeOnFinish()
     }
 
-    fun loadPostCommentsFromApiAndInsertIntoDB(postId: Int, ownerId: Int){
-        repository.getPostCommentsFromApi(postId,ownerId)
+    fun loadPostCommentsFromApiAndInsertIntoDB(postId: Int, ownerId: Int) {
+        repository.getPostCommentsFromApi(postId, ownerId)
             .flatMapCompletable {
                 Completable.fromAction {
-                    repository.deleteAllPostCommentsAndInsertIntoDb(postId,ownerId,it as ArrayList<CommentData>)
+                    repository.deleteAllPostCommentsAndInsertIntoDb(
+                        postId,
+                        ownerId,
+                        it as ArrayList<CommentData>
+                    )
                 }
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doAfterTerminate {
-                view.setRefreshing(false)
-                view.showPostView()
+                viewState.setRefreshing(false)
+                viewState.showPostView()
             }
-            .subscribeBy (
+            .subscribeBy(
                 onComplete = {},
                 onError = {
-                    Log.e("postDetailsError",it.toString());
-                    view.showLoadDataFromNetworkErrorView()
+                    Log.e("error3",it.stackTraceToString())
+                    viewState.showLoadDataFromNetworkErrorView()
+                }
+            )
+            .disposeOnFinish()
+    }
+
+    fun likePostOnApiAndDb(post: PostData) {
+        repository.likePostApi(post)
+            .flatMapCompletable {
+                repository.setPostIsLikedInDb(
+                    post.copy(
+                        likesCount = it.response.likes,
+                        isLiked = true
+                    )
+                )
+            }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onComplete = {},
+                onError = {
+                    viewState.showPostUpdateErrorToast()
+                }
+            )
+            .disposeOnFinish()
+    }
+
+    fun dislikePostOnApiAndDb(post: PostData) {
+        repository.dislikePostApi(post)
+            .flatMapCompletable {
+                repository.setPostIsLikedInDb(
+                    post.copy(
+                        likesCount = it.response.likes,
+                        isLiked = false
+                    )
+                )
+            }
+
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onComplete = {},
+                onError = {
+                    viewState.showPostUpdateErrorToast()
+                }
+            )
+            .disposeOnFinish()
+    }
+
+    fun likeCommentOnApiAndDb(comment: CommentData) {
+        repository.likeCommentApi(comment)
+            .flatMapCompletable {
+                repository.setCommentIsLikedInDb(
+                    comment.copy(
+                        likesCount = it.response.likes,
+                        isLiked = true
+                    )
+                )
+            }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onComplete = {},
+                onError = {
+                    viewState.showCommentUpdateErrorToast()
+                }
+            )
+            .disposeOnFinish()
+    }
+
+    fun dislikeCommentOnApiAndDb(comment: CommentData) {
+        repository.dislikeCommentApi(comment)
+            .flatMapCompletable {
+                repository.setCommentIsLikedInDb(
+                    comment.copy(
+                        likesCount = it.response.likes,
+                        isLiked = false
+                    )
+                )
+            }
+
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onComplete = {},
+                onError = {
+                    viewState.showCommentUpdateErrorToast()
                 }
             )
             .disposeOnFinish()

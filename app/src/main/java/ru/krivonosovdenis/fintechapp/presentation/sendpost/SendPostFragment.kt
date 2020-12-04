@@ -1,9 +1,9 @@
 package ru.krivonosovdenis.fintechapp.presentation.sendpost
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,54 +11,69 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.checkSelfPermission
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isGone
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_send_post.*
-import kotlinx.android.synthetic.main.post_details.*
 import kotlinx.android.synthetic.main.send_post_toolbar.*
+import moxy.MvpAppCompatFragment
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
+import ru.krivonosovdenis.fintechapp.ApplicationClass
 import ru.krivonosovdenis.fintechapp.R
-import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileMainInfo
-import ru.krivonosovdenis.fintechapp.di.GlobalDI
-import ru.krivonosovdenis.fintechapp.presentation.base.mvp.MvpFragment
+import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileData
 import ru.krivonosovdenis.fintechapp.presentation.mainactivity.MainActivity
+import javax.inject.Inject
 
-
-class SendPostFragment : MvpFragment<SendPostView, SendPostPresenter>(), SendPostView {
-    private val compositeDisposable = CompositeDisposable()
-
+class SendPostFragment : MvpAppCompatFragment(), SendPostView {
     private val imagesArray = ArrayList<String>()
+
+    @Inject
+    @InjectPresenter
+    lateinit var presenter: SendPostPresenter
+
+    @ProvidePresenter
+    fun provide() = presenter
 
     private val textWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
         }
+
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         }
+
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if(s==null ||  s.count()==0 ||s=="" || s.trim{it <= ' '}.replace("\\s".toRegex(),"")=="" ){
-                Log.e("zerozero","1233");
+            if (s == null || s.count() == 0 || s == "" || s.trim { it <= ' ' }
+                    .replace("\\s".toRegex(), "") == "") {
+                Log.e("zerozero", "1233");
                 sendPost.isClickable = false
                 sendPost.setBackgroundResource(R.drawable.send_post_done_inactive_icon)
                 return
-            }
-            else {
-                Log.e("zerozero","12334");
+            } else {
+                Log.e("zerozero", "12334");
                 sendPost.isClickable = true
                 sendPost.setBackgroundResource(R.drawable.send_post_done_active_icon)
             }
         }
     }
 
-    override fun getPresenter(): SendPostPresenter = GlobalDI.INSTANCE.sendPostPresenter
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (activity?.applicationContext as ApplicationClass).addSendPostComponent()
+        (activity?.applicationContext as ApplicationClass).sendPostComponent?.inject(this)
+        (activity as MainActivity).hideBottomSettings()
+        (activity as MainActivity).hideGlobalToolbar()
+    }
 
-    override fun getMvpView(): SendPostView = this
+    override fun onDetach() {
+        (activity?.applicationContext as ApplicationClass).clearSendPostComponent()
+        (activity as MainActivity).showGlobalToolbar()
+        super.onDetach()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,46 +83,50 @@ class SendPostFragment : MvpFragment<SendPostView, SendPostPresenter>(), SendPos
         return inflater.inflate(R.layout.fragment_send_post, container, false)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        compositeDisposable.clear()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as MainActivity).postsBottomNavigation.isGone = true
-        val vkUserId = arguments!!.getInt(VK_USER_ID)
-        getPresenter().getUserDataFromDb(vkUserId)
+        val vkUserId = requireArguments().getInt(VK_USER_ID)
+        presenter.getUserDataFromDb(vkUserId)
     }
-
 
     override fun showSendPostSuccessView() {
         sendPost.isClickable = false
-        Toast.makeText(requireContext(), resources.getString(R.string.send_post_to_wall_success), Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            requireContext(),
+            resources.getString(R.string.send_post_to_wall_success),
+            Toast.LENGTH_SHORT
+        ).show()
+        (activity as MainActivity).showGlobalToolbar()
+        (activity as MainActivity).showUserProfileFragment()
     }
 
     override fun showSendPostErrorView() {
-        Toast.makeText(requireContext(), resources.getString(R.string.send_post_to_wall_error), Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            requireContext(),
+            resources.getString(R.string.send_post_to_wall_error),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
-    override fun showSendPostEditorView(userData: UserProfileMainInfo) {
+    override fun showSendPostEditorView(userData: UserProfileData) {
         Glide.with(activity as MainActivity)
             .load(userData.photo)
             .centerCrop()
             .into(userAvatar)
-        toolbarBackButton.setOnClickListener{
+        toolbarBackButton.setOnClickListener {
             (activity as MainActivity).onBackPressed()
         }
         userName.text = "${userData.firstName} ${userData.lastName}"
         sendPost.setOnClickListener {
-            getPresenter().sendPostToBack(postMessageEditText.text.toString(),"")
+            sendPostOnApi()
         }
-        addImagesToPost.setOnClickListener{
+        addImagesToPost.setOnClickListener {
             checkReadStoragePermission()
         }
         postMessageEditText.addTextChangedListener(textWatcher)
-
     }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -137,7 +156,11 @@ class SendPostFragment : MvpFragment<SendPostView, SendPostPresenter>(), SendPos
     }
 
     private fun checkReadStoragePermission() {
-        if (checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (checkSelfPermission(
+                requireContext(),
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             choseImageFromGallery()
             return
         }
@@ -147,7 +170,7 @@ class SendPostFragment : MvpFragment<SendPostView, SendPostPresenter>(), SendPos
         )
     }
 
-    private fun choseImageFromGallery(){
+    private fun choseImageFromGallery() {
         val openGalleryIntent = Intent(Intent.ACTION_PICK)
         openGalleryIntent.type = "image/*"
         startActivityForResult(openGalleryIntent, REQUEST_IMAGE_FROM_GALLERY_CODE)
@@ -170,7 +193,27 @@ class SendPostFragment : MvpFragment<SendPostView, SendPostPresenter>(), SendPos
     }
 
     override fun showSendPostEditorInitErrorView() {
-        TODO("Not yet implemented")
+        Toast.makeText(
+            requireContext(),
+            resources.getString(R.string.toolbar_loading_error),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun sendPostOnApi() {
+        if (!(requireActivity().application as ApplicationClass).isNetworkAvailableVariable) {
+            networkIsNotAvailableMessage(resources.getString(R.string.network_is_not_available_can_not_perform_action))
+        } else {
+            presenter.sendPostToBack(postMessageEditText.text.toString(), "")
+        }
+    }
+
+    private fun networkIsNotAvailableMessage(toastText: String) {
+        Toast.makeText(
+            requireContext(),
+            toastText,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     companion object {
@@ -185,6 +228,4 @@ class SendPostFragment : MvpFragment<SendPostView, SendPostPresenter>(), SendPos
             }
         }
     }
-
-
 }

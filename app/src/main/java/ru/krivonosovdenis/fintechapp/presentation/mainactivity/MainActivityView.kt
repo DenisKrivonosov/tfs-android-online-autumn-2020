@@ -1,14 +1,23 @@
 package ru.krivonosovdenis.fintechapp.presentation.mainactivity
 
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
+import moxy.MvpView
+import moxy.viewstate.strategy.OneExecutionStateStrategy
+import moxy.viewstate.strategy.StateStrategyType
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
 
-interface MainActivityView {
+interface MainActivityView:MvpView {
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun openPostDetails(post: PostData)
 
-    fun openPostDetails(post: PostFullData)
-
+    @StateStrategyType(OneExecutionStateStrategy::class)
     fun showBottomNavigationTabs()
 
+    @StateStrategyType(OneExecutionStateStrategy::class)
     fun setLikedPostsVisibility(visibilityFlag: Boolean)
 
+    @StateStrategyType(OneExecutionStateStrategy::class)
     fun showNewPostFragment(vkUserId:Int)
+
+    @StateStrategyType(OneExecutionStateStrategy::class)
+    fun showSettingsFragment()
 }

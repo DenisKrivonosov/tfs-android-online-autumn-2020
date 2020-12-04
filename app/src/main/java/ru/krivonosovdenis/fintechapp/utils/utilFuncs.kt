@@ -3,7 +3,7 @@ package ru.krivonosovdenis.fintechapp.utils
 import android.content.Context
 import android.util.TypedValue
 
-private const val ADDITIONAL_DELAY = 10000
+private const val ADDITIONAL_DELAY = 18000
 fun Int.dpToPx(context: Context) = TypedValue.applyDimension(
     TypedValue.COMPLEX_UNIT_DIP,
     this.toFloat(),
@@ -14,7 +14,8 @@ fun Int.dpToPx(context: Context) = TypedValue.applyDimension(
 //отдается более понятная для человека форма (сколько времени прошло с момента публикации)
 //параметр ADDITIONAL_DELAY  - дополнительная поправка. Дело в том, что Вконтакте отдает время
 //поста, которое иногда оказывается больше текущей даты в андроид устройстве. Чтобы не отображать
-//пользователю, что пос
+//пользователю, что пост из будущего - добавляем задержку по времени
+//Также эту штуку я не переводил на английский язык
 fun humanizeDate(currentDate: Long, postDate: Long): String {
     var secondsDiff = (currentDate + ADDITIONAL_DELAY - postDate) / 1000
     if (secondsDiff < 0) {

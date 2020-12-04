@@ -13,6 +13,12 @@
     <string name="bottom_nav_news">Feed</string>
     <string name="bottom_nav_news_liked">Liked</string>
     <string name="bottom_nav_profile_tab">Profile</string>
+    <string name="save_app_theme_selection">Save app theme</string>
+    <string name="save_app_theme_selection_summary">App theme choice will be stored</string>
+    <string name="open_app_system_settings">Open app system settings</string>
+    <string name="inner_settings">Inner settings</string>
+    <string name="outer_settings">Outer settings</string>
+    <string name="open_app_system_settings_summary">Open app system settings, clear cache, grant permissions, etc.</string>
     <string name="tools_post_text">"They don't have metric system. They call it royal cheese. They don't have metric system. They call it royal cheese. They don't have metric system. They call it royal cheese. They don't have metric system. They call it royal cheese. They don't have metric system. They call it royal cheese. They don't have metric system. They call it royal cheese. They don't have metric system. They call it royal cheese. They don't have metric system. They call it royal cheese. "</string>
     <string name="tools_post_likes_count">666</string>
     <string name="tools_post_comments_count">49</string>
@@ -23,6 +29,7 @@
     <string name="get_data_alert_dialog_positive_button_text">Yes</string>
     <string name="vk_login_alert_dialog_title_text">Error</string>
     <string name="vk_login_alert_dialog_message_text">An error occurred while log in Vk account. Would you like to try again?</string>
+    <string name="vk_login_alert_dialog_no_network_no_token_text">Problems with network connection has been detected. Try to use app later</string>
     <string name="vk_login_alert_dialog_negative_button_text">No</string>
     <string name="vk_login_alert_dialog_positive_button_text">Yes</string>
     <string name="read_permissions_check_alert_dialog_message_text">Seems like you have not gained permission to read data from gallery. Without this permission we can not add image to your post. Trying again?</string>
@@ -31,11 +38,14 @@
     <string name="grant_permissions_check_alert_dialog_positive_button_text">Yes</string>
     <string name="search_edit_text_hint">Search</string>
     <string name="init_loading_text">Working</string>
+    <string name="saved_nothing_text">No posts here, my friend.</string>
+    <string name="saved_nothing_image_desc">List of saved posts is e,pty</string>
     <string name="error_view_load_posts_error_text">Ann error occurred while loading data. Please, try again later!</string>
     <string name="error_view_smile_text">Server is unavailable. Try again later</string>
     <string name="db_loading_error">An error occurred while processing inner data. Please, contact developers of this app</string>
     <string name="db_error_text">Ann error occurred while processing data base request. Contact to our developer team</string>
     <string name="post_update_error_text">An error occurred while updating post. Displayed data may be not correct</string>
+    <string name="comment_update_error_text">An error occurred while updating comment. Displayed data may be not correct</string>
     <string name="image_saved_toast_text">An image saved to your gallery</string>
     <string name="likes_count">Likes count on comment</string>
     <string name="city">City:</string>
@@ -48,5 +58,8 @@
     <string name="add_image">Add image</string>
     <string name="what_new">What\'s new</string>
     <string name="send_post_to_wall_error">An error occurred while sending post to server. Please, try again later.</string>
-    <string name="send_post_to_wall_success">post has been sent to server</string>
+    <string name="send_post_to_wall_success">post has been created</string>
+    <string name="toolbar_loading_error">An error occurred while loading info about user</string>
+    <string name="network_is_not_available_show_cached">Problems with network connection has been detected. Cached info will be shown</string>
+    <string name="network_is_not_available_can_not_perform_action">Problems with network connection has been detected. Can not perform this action</string>
 </resources>

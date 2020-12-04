@@ -5,19 +5,18 @@ import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import moxy.InjectViewState
 import ru.krivonosovdenis.fintechapp.data.Repository
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
-import ru.krivonosovdenis.fintechapp.di.GlobalDI
-import ru.krivonosovdenis.fintechapp.presentation.base.mvp.presenter.RxPresenter
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
+import ru.krivonosovdenis.fintechapp.presentation.base.mvp.presenter.BaseRxPresenter
 
+@InjectViewState
 class PostsFeedPresenter(
     private val repository: Repository
-) : RxPresenter<PostsFeedView>(PostsFeedView::class.java) {
+) : BaseRxPresenter<PostsFeedView>() {
+
 
     fun loadPostsFromApiAndInsertIntoDB() {
-        if (GlobalDI.INSTANCE.isFirstAllPostsFragmentOpen) {
-            view.showLoadingView()
-        }
         repository.getFeedPostsFromApi()
             .flatMapCompletable {
                 Completable.fromAction {
@@ -27,9 +26,8 @@ class PostsFeedPresenter(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doAfterTerminate {
-                GlobalDI.INSTANCE.isFirstAllPostsFragmentOpen = false
-                view.setRefreshing(false)
-                view.showPostsView()
+                viewState.setRefreshing(false)
+                viewState.showPostsView()
             }
             .subscribe()
             .disposeOnFinish()
@@ -41,18 +39,23 @@ class PostsFeedPresenter(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onNext = {
+                    Log.e("POSTSCOUNT",it.count().toString());
                     if (it.count() > 0) {
-                        view.showPosts(it)
+                        viewState.showPosts(it)
+                    }
+                    else {
+                        viewState.showLoadingView()
                     }
                 },
                 onError = {
-                    view.showDbGetFeedErrorView()
+                    Log.e("ERROR", it.stackTraceToString())
+                    viewState.showDbGetFeedErrorView()
                 }
             )
             .disposeOnFinish()
     }
 
-    fun deletePostOnApiAndDb(post: PostFullData) {
+    fun deletePostOnApiAndDb(post: PostData) {
         repository.deletePostFromFeedApi(post)
             .flatMapCompletable {
                 repository.deletePostFromDb(post)
@@ -62,13 +65,13 @@ class PostsFeedPresenter(
             .subscribeBy(
                 onComplete = {},
                 onError = {
-                    view.showPostUpdateErrorToast()
+                    viewState.showPostUpdateErrorToast()
                 }
             )
             .disposeOnFinish()
     }
 
-    fun likePostOnApiAndDb(post: PostFullData) {
+    fun likePostOnApiAndDb(post: PostData) {
         repository.likePostApi(post)
             .flatMapCompletable {
                 repository.setPostIsLikedInDb(
@@ -83,13 +86,13 @@ class PostsFeedPresenter(
             .subscribeBy(
                 onComplete = {},
                 onError = {
-                    view.showPostUpdateErrorToast()
+                    viewState.showPostUpdateErrorToast()
                 }
             )
             .disposeOnFinish()
     }
 
-    fun dislikePostOnApiAndDb(post: PostFullData) {
+    fun dislikePostOnApiAndDb(post: PostData) {
         repository.dislikePostApi(post)
             .flatMapCompletable {
                 repository.setPostIsLikedInDb(
@@ -105,7 +108,7 @@ class PostsFeedPresenter(
             .subscribeBy(
                 onComplete = {},
                 onError = {
-                    view.showPostUpdateErrorToast()
+                    viewState.showPostUpdateErrorToast()
                 }
             )
             .disposeOnFinish()

@@ -3,13 +3,14 @@ package ru.krivonosovdenis.fintechapp.presentation.sendpost
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import moxy.InjectViewState
 import ru.krivonosovdenis.fintechapp.data.Repository
-import ru.krivonosovdenis.fintechapp.presentation.base.mvp.presenter.RxPresenter
-import ru.krivonosovdenis.fintechapp.presentation.postdetails.PostDetailsView
+import ru.krivonosovdenis.fintechapp.presentation.base.mvp.presenter.BaseRxPresenter
 
+@InjectViewState
 class SendPostPresenter(
     private val repository: Repository
-) : RxPresenter<SendPostView>(SendPostView::class.java)  {
+) : BaseRxPresenter<SendPostView>() {
 
     fun getUserDataFromDb(vkUserId: Int) {
         repository.getUserInfoFromDb(vkUserId)
@@ -17,9 +18,9 @@ class SendPostPresenter(
             .subscribeOn(Schedulers.io())
             .subscribeBy(
                 onSuccess = {
-                    view.showSendPostEditorView(it)
+                    viewState.showSendPostEditorView(it)
                 }, onError = {
-                    view.showSendPostEditorInitErrorView()
+                    viewState.showSendPostEditorInitErrorView()
                 }
             )
             .disposeOnFinish()
@@ -31,9 +32,9 @@ class SendPostPresenter(
             .subscribeOn(Schedulers.io())
             .subscribeBy(
                 onSuccess = {
-                    view.showSendPostSuccessView()
+                    viewState.showSendPostSuccessView()
                 }, onError = {
-                    view.showSendPostErrorView()
+                    viewState.showSendPostErrorView()
                 }
             )
             .disposeOnFinish()

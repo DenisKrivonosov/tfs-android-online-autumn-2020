@@ -5,24 +5,23 @@ import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import moxy.InjectViewState
 import ru.krivonosovdenis.fintechapp.data.Repository
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
-import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileMainInfo
-import ru.krivonosovdenis.fintechapp.di.GlobalDI
-import ru.krivonosovdenis.fintechapp.presentation.base.mvp.presenter.RxPresenter
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
+import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileData
+import ru.krivonosovdenis.fintechapp.presentation.base.mvp.presenter.BaseRxPresenter
 
+
+@InjectViewState
 class UserProfilePresenter(
     private val repository: Repository
-): RxPresenter<UserProfileView>(UserProfileView::class.java) {
+): BaseRxPresenter<UserProfileView>() {
     fun loadUserProfileAndPostsInfoFromApiAndInsertIntoDB(){
-        if (GlobalDI.INSTANCE.isFirstUserProfileFragmentOpen) {
-            view.showLoadingView()
-        }
         repository.getUserProfileAndWallFromApi()
             .flatMapCompletable {
                 Completable.fromAction {
-                    val userProfile = it.first() as UserProfileMainInfo
-                    val wallPostItem = it[1] as PostFullData
+                    val userProfile = it.first() as UserProfileData
+                    val wallPostItem = it[1] as PostData
                     Log.e("userProfile",userProfile.firstName);
                     Log.e("userWallPost",wallPostItem.text)
                     repository.deleteAllUserProfileInfoAndPostsAndInsertIntoDb(it)
@@ -31,15 +30,14 @@ class UserProfilePresenter(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doAfterTerminate {
-                GlobalDI.INSTANCE.isFirstUserProfileFragmentOpen = false
-                view.setRefreshing(false)
-                view.showProfileInfo()
+                viewState.setRefreshing(false)
+                viewState.showProfileInfo()
             }
             .subscribeBy (
                 onComplete = {},
                 onError = {
                     Log.e("userProfileError",it.stackTraceToString());
-                    view.showLoadDataFromNetworkErrorView()
+                    viewState.showLoadDataFromNetworkErrorView()
                 }
             )
             .disposeOnFinish()
@@ -52,12 +50,18 @@ class UserProfilePresenter(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onNext = {
-                    Log.e("userProfileSucces",it.firstName);
-                    view.renderProfileAndShow(it)
+                    if(it==null){
+                        viewState.showLoadingView()
+                    }
+                    else {
+                        Log.e("userProfileSucces",it.firstName);
+                        viewState.renderProfileAndShow(it)
+                    }
+
                 },
                 onError = {
                     Log.e("userProfileError",it.stackTraceToString());
-                    view.showErrorView()
+                    viewState.showErrorView()
                 }
             )
             .disposeOnFinish()
@@ -71,17 +75,17 @@ class UserProfilePresenter(
             .subscribeBy(
                 onNext = {
                     if (it.count() > 0) {
-                        view.renderUserPostsAndShow(it)
+                        viewState.renderUserPostsAndShow(it)
                     }
                 },
                 onError = {
-                    view.showErrorView()
+                    viewState.showErrorView()
                 }
             )
             .disposeOnFinish()
     }
 
-    fun likePostOnApiAndDb(post: PostFullData) {
+    fun likePostOnApiAndDb(post: PostData) {
         repository.likePostApi(post)
             .flatMapCompletable {
                 repository.setPostIsLikedInDb(
@@ -96,13 +100,13 @@ class UserProfilePresenter(
             .subscribeBy(
                 onComplete = {},
                 onError = {
-                    view.showPostUpdateErrorToast()
+                    viewState.showPostUpdateErrorToast()
                 }
             )
             .disposeOnFinish()
     }
 
-    fun dislikePostOnApiAndDb(post: PostFullData) {
+    fun dislikePostOnApiAndDb(post: PostData) {
         repository.dislikePostApi(post)
             .flatMapCompletable {
                 repository.setPostIsLikedInDb(
@@ -118,7 +122,7 @@ class UserProfilePresenter(
             .subscribeBy(
                 onComplete = {},
                 onError = {
-                    view.showPostUpdateErrorToast()
+                    viewState.showPostUpdateErrorToast()
                 }
             )
             .disposeOnFinish()

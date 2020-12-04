@@ -3,12 +3,14 @@ package ru.krivonosovdenis.fintechapp.presentation.mainactivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import moxy.InjectViewState
 import ru.krivonosovdenis.fintechapp.data.Repository
-import ru.krivonosovdenis.fintechapp.presentation.base.mvp.presenter.RxPresenter
+import ru.krivonosovdenis.fintechapp.presentation.base.mvp.presenter.BaseRxPresenter
 
+@InjectViewState
 class MainActivityPresenter(
     private val repository: Repository
-) : RxPresenter<MainActivityView>(MainActivityView::class.java) {
+) : BaseRxPresenter<MainActivityView>() {
 
     fun subscribeBottomTabsOnDb() {
         repository.getLikedPostsCount()
@@ -16,7 +18,7 @@ class MainActivityPresenter(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onNext = {
-                    view.setLikedPostsVisibility(it > 0)
+                    viewState.setLikedPostsVisibility(it > 0)
                 }
             )
             .disposeOnFinish()

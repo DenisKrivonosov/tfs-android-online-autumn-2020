@@ -24,11 +24,10 @@ import org.joda.time.format.DateTimeFormat
 import ru.krivonosovdenis.fintechapp.R
 import ru.krivonosovdenis.fintechapp.dataclasses.CommentData
 import ru.krivonosovdenis.fintechapp.dataclasses.InfoRepresentationClass
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
-import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileMainInfo
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
+import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileData
 import ru.krivonosovdenis.fintechapp.interfaces.CommonAdapterActions
 import ru.krivonosovdenis.fintechapp.utils.humanizeDate
-
 
 class CommonRVAdapter(
     private val callbackInterface: CommonAdapterActions,
@@ -36,18 +35,12 @@ class CommonRVAdapter(
     RecyclerView.Adapter<CommonRVAdapter.BaseViewHolder>(), ItemTouchHelperAdapter,
     DecorationTypeProvider {
 
-    companion object {
-        private const val VIEW_HOLDER_POST_WITHOUT_PHOTO = 1
-        private const val VIEW_HOLDER_POST_WITH_PHOTO = 2
-        private const val VIEW_HOLDER_USER_INFO = 3
-    }
-
     private val differ = AsyncListDiffer(this, DiffCallback())
     var dataUnits: MutableList<InfoRepresentationClass>
         set(value) {
             differ.submitList(value)
         }
-        get() = differ.currentList as MutableList<InfoRepresentationClass>
+        get() = differ.currentList
 
     private val dateFormatWithYear = DateTimeFormat.forPattern("dd MMMM YYYY")
     private val dateFormatWithoutYear = DateTimeFormat.forPattern("dd MMMM")
@@ -83,7 +76,7 @@ class CommonRVAdapter(
         }
         if (viewType != VIEW_HOLDER_USER_INFO) {
             view.setOnClickListener {
-                callbackInterface.onPostClicked(dataUnits[viewHolder.adapterPosition] as PostFullData)
+                callbackInterface.onPostClicked(dataUnits[viewHolder.adapterPosition] as PostData)
             }
         }
         return viewHolder
@@ -98,7 +91,7 @@ class CommonRVAdapter(
         val currentDate = LocalDate().toDateTimeAtCurrentTime().millis
         when (viewHolder.itemViewType) {
             VIEW_HOLDER_POST_WITHOUT_PHOTO -> {
-                val post = dataUnits[position] as PostFullData
+                val post = dataUnits[position] as PostData
                 Glide.with(context)
                     .load(post.posterAvatar)
                     .centerCrop()
@@ -126,28 +119,18 @@ class CommonRVAdapter(
                 viewHolder.containerView.postActionLike.setOnClickListener {
                     when (post.isLiked) {
                         true -> {
-                            callbackInterface.onPostDisliked(dataUnits[position] as PostFullData)
+                            callbackInterface.onPostDisliked(post)
                         }
                         false -> {
 
-                            callbackInterface.onPostLiked(dataUnits[position] as PostFullData)
+                            callbackInterface.onPostLiked(post)
 
-                        }
-                    }
-                }
-                viewHolder.containerView.postLikesCounter.setOnClickListener {
-                    when (post.isLiked) {
-                        true -> {
-                            callbackInterface.onPostDisliked(dataUnits[position] as PostFullData)
-                        }
-                        false -> {
-                            callbackInterface.onPostLiked(dataUnits[position] as PostFullData)
                         }
                     }
                 }
             }
             VIEW_HOLDER_POST_WITH_PHOTO -> {
-                val post = dataUnits[position] as PostFullData
+                val post = dataUnits[position] as PostData
                 Glide.with(context)
                     .load(post.posterAvatar)
                     .centerCrop()
@@ -178,26 +161,16 @@ class CommonRVAdapter(
                 viewHolder.containerView.postActionLike.setOnClickListener {
                     when (post.isLiked) {
                         true -> {
-                            callbackInterface.onPostDisliked(dataUnits[position] as PostFullData)
+                            callbackInterface.onPostDisliked(post)
                         }
                         false -> {
-                            callbackInterface.onPostLiked(dataUnits[position] as PostFullData)
-                        }
-                    }
-                }
-                viewHolder.containerView.postLikesCounter.setOnClickListener {
-                    when (post.isLiked) {
-                        true -> {
-                            callbackInterface.onPostDisliked(dataUnits[position] as PostFullData)
-                        }
-                        false -> {
-                            callbackInterface.onPostLiked(dataUnits[position] as PostFullData)
+                            callbackInterface.onPostLiked(post)
                         }
                     }
                 }
             }
             VIEW_HOLDER_USER_INFO -> {
-                val userData = dataUnits[position] as UserProfileMainInfo
+                val userData = dataUnits[position] as UserProfileData
                 Glide.with(context)
                     .load(userData.photo)
                     .centerCrop()
@@ -245,18 +218,18 @@ class CommonRVAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return when (val data = dataUnits[position]) {
-            is UserProfileMainInfo -> VIEW_HOLDER_USER_INFO
-            is PostFullData -> if (data.photo != null) VIEW_HOLDER_POST_WITH_PHOTO else VIEW_HOLDER_POST_WITHOUT_PHOTO
+            is UserProfileData -> VIEW_HOLDER_USER_INFO
+            is PostData -> if (data.photo != null) VIEW_HOLDER_POST_WITH_PHOTO else VIEW_HOLDER_POST_WITHOUT_PHOTO
             is CommentData -> throw java.lang.IllegalArgumentException("адаптер не поддерживает данные этого типа")
         }
     }
 
     override fun onItemDismiss(position: Int) {
         val dataUnit = dataUnits[position]
-        if (dataUnit is UserProfileMainInfo) {
+        if (dataUnit is UserProfileData) {
             return
         }
-        callbackInterface.onPostDismiss(dataUnit as PostFullData)
+        callbackInterface.onPostDismiss(dataUnit as PostData)
         val innerPosts = dataUnits.toMutableList()
         innerPosts.removeAt(position)
         dataUnits = innerPosts
@@ -264,10 +237,10 @@ class CommonRVAdapter(
 
     override fun onItemLiked(position: Int) {
         when (dataUnits[position]) {
-            is UserProfileMainInfo -> return
-            is PostFullData -> {
-                callbackInterface.onPostLiked(dataUnits[position] as PostFullData)
-                (dataUnits[position] as PostFullData).isLiked = true
+            is UserProfileData -> return
+            is PostData -> {
+                callbackInterface.onPostLiked(dataUnits[position] as PostData)
+                (dataUnits[position] as PostData).isLiked = true
                 notifyItemChanged(position)
             }
         }
@@ -281,9 +254,9 @@ class CommonRVAdapter(
             return PostsListDecorationType.Space
         }
 
-        if (position == 0 && dataUnits[0] is PostFullData) {
+        if (position == 0 && dataUnits[0] is PostData) {
             return PostsListDecorationType.WithText(
-                (dataUnits[0] as PostFullData).date.toString(
+                (dataUnits[0] as PostData).date.toString(
                     dateFormatWithoutYear
                 )
             )
@@ -294,13 +267,13 @@ class CommonRVAdapter(
         val current = dataUnits[position]
         val previous = dataUnits[position - 1]
         return when {
-            current is UserProfileMainInfo ->
+            current is UserProfileData ->
                 PostsListDecorationType.Space
-            current is PostFullData && previous is UserProfileMainInfo -> {
+            current is PostData && previous is UserProfileData -> {
                 PostsListDecorationType.WithText(current.date.toString(dateFormatWithoutYear))
             }
-            (current as PostFullData).date.dayOfYear()
-                .get() == (previous as PostFullData).date.dayOfYear().get()
+            (current as PostData).date.dayOfYear()
+                .get() == (previous as PostData).date.dayOfYear().get()
                     && current.date.year().get() == previous.date.year()
                 .get() -> PostsListDecorationType.Space
             current.date.year().get() != previous.date.year()
@@ -333,4 +306,9 @@ class CommonRVAdapter(
     class UserProfileInfoViewHolder(override val containerView: View) :
         BaseViewHolder(containerView)
 
+    companion object {
+        private const val VIEW_HOLDER_POST_WITHOUT_PHOTO = 1
+        private const val VIEW_HOLDER_POST_WITH_PHOTO = 2
+        private const val VIEW_HOLDER_USER_INFO = 3
+    }
 }

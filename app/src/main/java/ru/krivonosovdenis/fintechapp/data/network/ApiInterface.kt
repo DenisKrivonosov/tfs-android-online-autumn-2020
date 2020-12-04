@@ -7,8 +7,8 @@ import ru.krivonosovdenis.fintechapp.dataclasses.getgroupsdataclasses.GroupsApiR
 import ru.krivonosovdenis.fintechapp.dataclasses.getpostcommentsdataclasses.PostCommentsResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.newsfeeddataclasses.NewsfeedApiResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.postdeletedataclasses.PostDeleteResponse
-import ru.krivonosovdenis.fintechapp.dataclasses.postdislikedataclasses.PostDislikeResponse
-import ru.krivonosovdenis.fintechapp.dataclasses.postlikedataclasses.PostLikeResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.objectdislikedataclasses.ObjectDislikeResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.objectlikedataclasses.ObjectLikeResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.sendpostdataclasses.SendPostResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userfullinfodataclasses.UserFullInfoResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userwallpostsdataclasses.UserWallPostsResponse
@@ -30,14 +30,14 @@ interface ApiInterface {
         @Query("type") type: String,
         @Query("owner_id") ownerId: Int,
         @Query("item_id") itemId: Int,
-    ): Single<PostLikeResponse>
+    ): Single<ObjectLikeResponse>
 
     @GET("likes.delete")
     fun removeLike(
         @Query("type") type: String,
         @Query("owner_id") ownerId: Int,
         @Query("item_id") itemId: Int,
-    ): Single<PostDislikeResponse>
+    ): Single<ObjectDislikeResponse>
 
     @GET("newsfeed.ignoreItem")
     fun deletePostFromFeed(
@@ -49,6 +49,7 @@ interface ApiInterface {
     //POST DETAILS TAB
     @GET("wall.getComments")
     fun getPostComments(
+        @Query("need_likes") needLikes: Int,
         @Query("type") type: String,
         @Query("post_id") postId: Int,
         @Query("owner_id") ownerId: Int,

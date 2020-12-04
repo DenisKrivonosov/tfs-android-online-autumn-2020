@@ -1,10 +1,10 @@
 package ru.krivonosovdenis.fintechapp.interfaces
 
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
 
 interface CommonAdapterActions {
-    fun onPostDismiss(post: PostFullData)
-    fun onPostLiked(post:PostFullData)
-    fun onPostDisliked(post:PostFullData)
-    fun onPostClicked(post: PostFullData)
+    fun onPostDismiss(post: PostData)
+    fun onPostLiked(post:PostData)
+    fun onPostDisliked(post:PostData)
+    fun onPostClicked(post: PostData)
 }

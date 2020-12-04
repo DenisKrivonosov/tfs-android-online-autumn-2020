@@ -1,36 +1,56 @@
 package ru.krivonosovdenis.fintechapp.presentation.likedposts
 
+
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
+import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.fragment_liked_posts.*
+import moxy.MvpAppCompatFragment
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
+import ru.krivonosovdenis.fintechapp.ApplicationClass
 import ru.krivonosovdenis.fintechapp.R
 import ru.krivonosovdenis.fintechapp.dataclasses.InfoRepresentationClass
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
-import ru.krivonosovdenis.fintechapp.di.GlobalDI
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
 import ru.krivonosovdenis.fintechapp.interfaces.CommonAdapterActions
 import ru.krivonosovdenis.fintechapp.interfaces.LikedPostsActions
-import ru.krivonosovdenis.fintechapp.presentation.base.mvp.MvpFragment
 import ru.krivonosovdenis.fintechapp.presentation.mainactivity.MainActivity
 import ru.krivonosovdenis.fintechapp.rvcomponents.CommonRVAdapter
-//import ru.krivonosovdenis.fintechapp.rvcomponents.LikedPostsAdapter
 import ru.krivonosovdenis.fintechapp.rvcomponents.PostsListItemDecoration
+import javax.inject.Inject
 
-class LikedPostsFragment : MvpFragment<LikedPostsView, LikedPostsPresenter>(), LikedPostsView,
+class LikedPostsFragment : MvpAppCompatFragment(), LikedPostsView,
     CommonAdapterActions,
     LikedPostsActions {
 
     private lateinit var rvAdapter: CommonRVAdapter
 
-    override fun getPresenter(): LikedPostsPresenter = GlobalDI.INSTANCE.allLikedPostsPresenter
+    @Inject
+    @InjectPresenter
+    lateinit var presenter: LikedPostsPresenter
 
-    override fun getMvpView(): LikedPostsView = this
+    @ProvidePresenter
+    fun provide() = presenter
+
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (activity?.applicationContext as ApplicationClass).addLikedPostsComponent()
+        (activity?.applicationContext as ApplicationClass).likedPostsComponent?.inject(this)
+        (activity as MainActivity).showBottomSettings()
+    }
+
+    override fun onDetach() {
+        (activity?.applicationContext as ApplicationClass).clearLikedPostsComponent()
+        super.onDetach()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,7 +69,7 @@ class LikedPostsFragment : MvpFragment<LikedPostsView, LikedPostsPresenter>(), L
             adapter = rvAdapter
             addItemDecoration(PostsListItemDecoration())
         }
-        getPresenter().subscribeOnAllLikedPostsFromDB()
+        presenter.subscribeOnAllLikedPostsFromDB()
     }
 
     override fun showGetPostErrorDialog() {
@@ -63,45 +83,88 @@ class LikedPostsFragment : MvpFragment<LikedPostsView, LikedPostsPresenter>(), L
             .setPositiveButton(
                 R.string.get_data_alert_dialog_positive_button_text
             ) { _, _ ->
-                getPresenter().subscribeOnAllLikedPostsFromDB()
+                presenter.subscribeOnAllLikedPostsFromDB()
             }
             .create().show()
+    }
+
+    override fun showPostUpdateErrorToast() {
+        Toast.makeText(
+            requireContext(),
+            resources.getString(R.string.post_update_error_text),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     override fun showPosts(posts: List<InfoRepresentationClass>) {
         likedPostsView.isVisible = true
         errorView.isGone = true
+        zeroSavedPostsView.isGone = true
         rvAdapter.dataUnits = posts.toMutableList()
     }
 
     override fun showPostsView() {
         likedPostsView.isVisible = true
         errorView.isGone = true
+        zeroSavedPostsView.isGone = true
     }
 
     override fun showErrorView() {
         likedPostsView.isGone = true
         errorView.isVisible = true
+        zeroSavedPostsView.isGone = true
+    }
+
+    override fun showEmptyLikedPostsView() {
+        likedPostsView.isGone = true
+        errorView.isGone = true
+        zeroSavedPostsView.isVisible = true
     }
 
 //    override fun onPostClicked(post: PostFullData) {
 //    }
 
-    override fun onPostDismiss(data: PostFullData) {
-        TODO("Not yet implemented")
+    override fun onPostDismiss(post: PostData) {
+       // нет реализации здесь. Пост не может быть задисмищен
     }
 
-    override fun onPostLiked(data: PostFullData) {
-        TODO("Not yet implemented")
+    override fun onPostLiked(post: PostData) {
+        likePostOnApi(post)
     }
 
-    override fun onPostDisliked(post: PostFullData) {
-        TODO("Not yet implemented")
+    override fun onPostDisliked(post: PostData) {
+        dislikePostOnApi(post)
     }
 
-    override fun onPostClicked(data: PostFullData) {
-        (activity as MainActivity).openPostDetails(data)
+    override fun onPostClicked(post: PostData) {
+        (activity as MainActivity).openPostDetails(post)
 
+    }
+
+    private fun likePostOnApi(post:PostData){
+        if(!(requireActivity().application as ApplicationClass).isNetworkAvailableVariable){
+            networkIsNotAvailableMessage(resources.getString(R.string.network_is_not_available_can_not_perform_action))
+        }
+        else{
+            presenter.likePostOnApiAndDb(post)
+        }
+    }
+
+    private fun dislikePostOnApi(post:PostData){
+        if(!(requireActivity().application as ApplicationClass).isNetworkAvailableVariable){
+            networkIsNotAvailableMessage(resources.getString(R.string.network_is_not_available_can_not_perform_action))
+        }
+        else{
+            presenter.dislikePostOnApiAndDb(post)
+        }
+    }
+
+    private fun networkIsNotAvailableMessage(toastText:String){
+        Toast.makeText(
+            requireContext(),
+            toastText,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     companion object {

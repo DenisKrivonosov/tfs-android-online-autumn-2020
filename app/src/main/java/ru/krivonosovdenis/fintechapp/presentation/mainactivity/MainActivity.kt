@@ -1,15 +1,17 @@
 package ru.krivonosovdenis.fintechapp.presentation.mainactivity
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.annotation.NonNull
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.preference.PreferenceManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vk.api.sdk.VK
@@ -17,65 +19,86 @@ import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKScope
 import kotlinx.android.synthetic.main.activity_main.*
+import moxy.MvpAppCompatActivity
+import moxy.presenter.ProvidePresenter
+import ru.krivonosovdenis.fintechapp.ApplicationClass
 import ru.krivonosovdenis.fintechapp.R
-import ru.krivonosovdenis.fintechapp.data.network.VkApiClient
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
-import ru.krivonosovdenis.fintechapp.di.GlobalDI
-import ru.krivonosovdenis.fintechapp.presentation.postsfeed.PostsFeedFragment
-import ru.krivonosovdenis.fintechapp.presentation.base.mvp.MvpActivity
+import ru.krivonosovdenis.fintechapp.SessionManager
+import ru.krivonosovdenis.fintechapp.data.network.interceptors.VkTokenInterceptor
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
+import ru.krivonosovdenis.fintechapp.presentation.appsettings.AppSettingsFragment
 import ru.krivonosovdenis.fintechapp.presentation.initloading.InitLoadingFragment
 import ru.krivonosovdenis.fintechapp.presentation.likedposts.LikedPostsFragment
 import ru.krivonosovdenis.fintechapp.presentation.postdetails.PostDetailsFragment
+import ru.krivonosovdenis.fintechapp.presentation.postsfeed.PostsFeedFragment
 import ru.krivonosovdenis.fintechapp.presentation.sendpost.SendPostFragment
 import ru.krivonosovdenis.fintechapp.presentation.userprofile.UserProfileFragment
 import java.util.*
+import javax.inject.Inject
 
-
-class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), MainActivityView,
+class MainActivity : MvpAppCompatActivity(), MainActivityView,
     BottomNavigationView.OnNavigationItemSelectedListener {
 
-    companion object {
-        const val ALL_POSTS_LIST = "all_posts_list"
-        const val LIKED_POSTS_LIST = "liked_posts_list"
-        const val POST_DETAILS = "post_details"
-        const val INIT_LOADING = "init_loading"
-    }
+    @Inject
+    lateinit var sessionManager: SessionManager
 
-    override fun getPresenter(): MainActivityPresenter = GlobalDI.INSTANCE.mainActivityPresenter
+    @Inject
+//    @InjectPresenter
+    lateinit var presenter: MainActivityPresenter
 
-    override fun getMvpView(): MainActivityView = this
+    @ProvidePresenter
+    fun provide() = presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        //TODO добавить проверку на то, что у меня проставлен флаг, отвечающий за постоянный
-        //ночной или постоянный дневной режим
-//        AppCompatDelegate.setDefaultNightMode(
-//            AppCompatDelegate.MODE_NIGHT_AUTO);
         super.onCreate(savedInstanceState)
+        setAppTheme()
+        (applicationContext as ApplicationClass).addMainActivityComponent()
+        (applicationContext as ApplicationClass).mainActivityComponent?.inject(this)
         setContentView(R.layout.activity_main)
         setSupportActionBar(appGlobalToolbar)
         postsBottomNavigation.setOnNavigationItemSelectedListener(this)
         postsBottomNavigation.menu.findItem(R.id.actionAllPosts).isChecked = true
-        getPresenter().subscribeBottomTabsOnDb()
+        presenter.subscribeBottomTabsOnDb()
         if (!VK.isLoggedIn()) {
-            showInitLoadingFragment()
-            openVkLogin()
+            if(!(application as ApplicationClass).isNetworkAvailableVariable){
+                showNoNetworkNoVkTokenAlert()
+            }
+            else{
+                showInitLoadingFragment()
+                openVkLogin()
+            }
+
         } else {
-            showAllPostsFragment()
+            VkTokenInterceptor.vkToken = sessionManager.getToken()
+            if (savedInstanceState == null) {
+                showAllPostsFragment()
+            }
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.toolbar_menu, menu)
-        val nightMode = AppCompatDelegate.getDefaultNightMode()
-        if (nightMode == AppCompatDelegate.MODE_NIGHT_YES) {
-            menu.findItem(R.id.changeNightMode).apply {
-                setIcon(R.drawable.toolbar_sun_icon)
-                setTitle(R.string.toolbar_menu_set_light_theme)
+        when (getCurrentAppTheme()) {
+            //Дневной режим
+            Configuration.UI_MODE_NIGHT_NO -> {
+                menu.findItem(R.id.changeNightMode).apply {
+                    setIcon(R.drawable.toolbar_moon_icon)
+                    setTitle(R.string.toolbar_menu_set_dark_theme)
+                }
             }
-        } else {
-            menu.findItem(R.id.changeNightMode).apply {
-                setIcon(R.drawable.toolbar_moon_icon)
-                setTitle(R.string.toolbar_menu_set_dark_theme)
+            //Ночной режим
+            Configuration.UI_MODE_NIGHT_YES -> {
+                menu.findItem(R.id.changeNightMode).apply {
+                    setIcon(R.drawable.toolbar_sun_icon)
+                    setTitle(R.string.toolbar_menu_set_light_theme)
+                }
+            }
+            //по дефолту ночной режим
+            else -> {
+                menu.findItem(R.id.changeNightMode).apply {
+                    setIcon(R.drawable.toolbar_moon_icon)
+                    setTitle(R.string.toolbar_menu_set_dark_theme)
+                }
             }
         }
         return true
@@ -84,18 +107,11 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
     override fun onOptionsItemSelected(@NonNull item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.changeNightMode -> {
-                val nightMode = AppCompatDelegate.getDefaultNightMode()
-                if (nightMode == AppCompatDelegate.MODE_NIGHT_YES) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                }
-                recreate()
+                changeAppTheme()
             }
             R.id.settings -> {
-                //TODO add action to settings
+                showSettingsFragment()
             }
-
         }
         return super.onOptionsItemSelected(item)
     }
@@ -103,9 +119,9 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
-                GlobalDI.INSTANCE.sessionManager.storeSessionToken(token.accessToken)
+                sessionManager.storeSessionToken(token.accessToken)
                 Log.e("mainActivity", "token:${token.accessToken}")
-                VkApiClient.accessToken = token.accessToken
+                VkTokenInterceptor.vkToken = token.accessToken
                 showAllPostsFragment()
             }
 
@@ -136,7 +152,6 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
                 showLikedPostsFragment()
             }
             R.id.actionUserProfile -> {
-                Log.e("show_user_profile", "true1");
                 showUserProfileFragment()
             }
         }
@@ -144,34 +159,27 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
     }
 
     private fun showLikedPostsFragment() {
-        postsBottomNavigation.isVisible = true
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, LikedPostsFragment.newInstance(), LIKED_POSTS_LIST)
             .commit()
     }
 
-
     private fun showAllPostsFragment() {
-        postsBottomNavigation.isVisible = true
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, PostsFeedFragment.newInstance(), ALL_POSTS_LIST)
             .commit()
     }
 
-    private fun showUserProfileFragment() {
-        Log.e("show_user_profile", "true2");
-        postsBottomNavigation.isVisible = true
+    fun showUserProfileFragment() {
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, UserProfileFragment.newInstance())
             .commit()
     }
 
-    override fun showNewPostFragment(vkUserId:Int) {
-        hideGlobalToolbar()
-        postsBottomNavigation.isVisible = true
+    override fun showNewPostFragment(vkUserId: Int) {
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, SendPostFragment.newInstance(vkUserId))
@@ -179,37 +187,56 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
             .commit()
     }
 
+    override fun showSettingsFragment() {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, AppSettingsFragment.newInstance())
+            .addToBackStack(null)
+            .commit()
+    }
+
     private fun showInitLoadingFragment() {
-        postsBottomNavigation.isVisible = false
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, InitLoadingFragment.newInstance(), INIT_LOADING)
             .commit()
     }
 
-//    fun setLocale(activity: Activity, languageCode: String?) {
-//        val locale = Locale(languageCode)
-//        Locale.setDefault(locale)
-//        val resources: Resources = activity.resources
-//        val config: Configuration = resources.configuration
-//        config.setLocale(locale)
-//        resources.updateConfiguration(config, resources.displayMetrics)
-//    }
-
-    fun showGlobalToolbar(){
-        appGlobalToolbar.isVisible = true
-    }
-    fun hideGlobalToolbar(){
-        appGlobalToolbar.isGone = true
+    fun hideGlobalToolbar() {
+        if (appGlobalToolbar != null) {
+            appGlobalToolbar.isGone = true
+        }
     }
 
+    fun showGlobalToolbar() {
+        if (appGlobalToolbar != null) {
+            appGlobalToolbar.isVisible = true
+        }
+    }
+
+    fun hideBottomSettings() {
+        if (postsBottomNavigation != null) {
+            postsBottomNavigation.isVisible = false
+        }
+    }
+
+    fun showBottomSettings() {
+        if (postsBottomNavigation != null) {
+            postsBottomNavigation.isVisible = true
+        }
+    }
+
+    override fun onDestroy() {
+        (applicationContext as ApplicationClass).clearMainActivityComponent()
+        super.onDestroy()
+    }
 
     private fun openVkLogin() {
         VK.login(this, arrayListOf(VKScope.WALL, VKScope.FRIENDS))
     }
 
     fun showVkLoginErrorAlert() {
-        MaterialAlertDialogBuilder(this,R.style.AlertDialogStyle)
+        MaterialAlertDialogBuilder(this, R.style.AlertDialogStyle)
             .setTitle(getString(R.string.vk_login_alert_dialog_title_text))
             .setMessage(getString(R.string.vk_login_alert_dialog_message_text))
             .setCancelable(false)
@@ -224,7 +251,20 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
             .create().show()
     }
 
-    override fun openPostDetails(post: PostFullData) {
+    private fun showNoNetworkNoVkTokenAlert(){
+        MaterialAlertDialogBuilder(this, R.style.AlertDialogStyle)
+            .setTitle(getString(R.string.vk_login_alert_dialog_title_text))
+            .setMessage(getString(R.string.vk_login_alert_dialog_no_network_no_token_text))
+            .setCancelable(false)
+            .setPositiveButton(
+                R.string.vk_login_alert_dialog_positive_button_text
+            ) { _, _ ->
+                this@MainActivity.finish()
+            }
+            .create().show()
+    }
+
+    override fun openPostDetails(post: PostData) {
         val postDetailsFragment =
             PostDetailsFragment.newInstance(post.postId, post.sourceId)
         supportFragmentManager
@@ -242,4 +282,104 @@ class MainActivity : MvpActivity<MainActivityView, MainActivityPresenter>(), Mai
         postsBottomNavigation.menu.findItem(R.id.actionLikedPosts).isVisible = visibilityFlag
     }
 
+    private fun setAppTheme() {
+        val defaultSharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(this)
+        val isAppThemeForceSaved = defaultSharedPreferences.getBoolean(PREF_SAVE_APP_THEME, false)
+        //если в настройках явно не указано, что надо запомнить тему - следим за темой, предоставляемой
+        //андроид системой
+        if (!isAppThemeForceSaved) {
+            Log.e("setAppTheme", "not_forced_1");
+            return
+        }
+        val appThemeSharedPref =
+            this@MainActivity.getSharedPreferences(APP_THEME_PREF_NAME, PREF_PRIVATE_MODE)
+
+        when (appThemeSharedPref.getString(
+            PREF_APP_THEME_SELECTED,
+            PREF_APP_THEME_SELECTED_DUNNO
+        )) {
+            PREF_APP_THEME_SELECTED_DAY -> {
+                Log.e("setAppTheme", "selected day set day");
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+            PREF_APP_THEME_SELECTED_NIGHT -> {
+                Log.e("setAppTheme", "selected night set night");
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+            else -> {
+                Log.e("setAppTheme", "selected dunno set dunno");
+            }
+        }
+    }
+
+    private fun getCurrentAppTheme(): Int {
+        val defaultSharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(this)
+        val isAppThemeForceSaved = defaultSharedPreferences.getBoolean(PREF_SAVE_APP_THEME, false)
+        Log.e("getCurrentNitMdForced", isAppThemeForceSaved.toString());
+        if (!isAppThemeForceSaved) {
+            return (resources.configuration.uiMode
+                    and Configuration.UI_MODE_NIGHT_MASK)
+        }
+
+        val appThemeSharedPref =
+            this@MainActivity.getSharedPreferences(APP_THEME_PREF_NAME, PREF_PRIVATE_MODE)
+        val appThemeSelected =
+            appThemeSharedPref.getString(PREF_APP_THEME_SELECTED, PREF_APP_THEME_SELECTED_DUNNO)
+        return if (appThemeSelected == PREF_APP_THEME_SELECTED_DAY) {
+            Log.e("getCurrentNightMode", "day");
+            Configuration.UI_MODE_NIGHT_NO
+        } else {
+            Log.e("getCurrentNightMode", "night");
+            Configuration.UI_MODE_NIGHT_YES
+        }
+    }
+
+    private fun changeAppTheme() {
+        val appThemeSharedPref =
+            this@MainActivity.getSharedPreferences(APP_THEME_PREF_NAME, PREF_PRIVATE_MODE)
+        val editor = appThemeSharedPref.edit()
+        when (getCurrentAppTheme()) {
+            //Дневной режим
+            Configuration.UI_MODE_NIGHT_NO -> {
+                Log.e("updateAppTHm", "setNight1");
+                editor.clear()
+                editor.putString(PREF_APP_THEME_SELECTED, PREF_APP_THEME_SELECTED_NIGHT)
+                editor.apply()
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+            //Ночной режим
+            Configuration.UI_MODE_NIGHT_YES -> {
+                Log.e("updateAppTHm", "setDay2");
+                editor.clear()
+                editor.putString(PREF_APP_THEME_SELECTED, PREF_APP_THEME_SELECTED_DAY)
+                editor.apply()
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+            //дневной режим
+            else -> {
+                Log.e("updateAppTHm", "setNight2");
+                editor.clear()
+                editor.putString(PREF_APP_THEME_SELECTED, PREF_APP_THEME_SELECTED_NIGHT)
+                editor.apply()
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+        }
+
+    }
+
+    companion object {
+        const val ALL_POSTS_LIST = "all_posts_list"
+        const val LIKED_POSTS_LIST = "liked_posts_list"
+        const val POST_DETAILS = "post_details"
+        const val INIT_LOADING = "init_loading"
+        const val APP_THEME_PREF_NAME = "APP_THEME_SHARED_PREF"
+        const val PREF_PRIVATE_MODE = 0
+        const val PREF_SAVE_APP_THEME = "saveAppTheme"
+        const val PREF_APP_THEME_SELECTED = "appThemeSelected"
+        const val PREF_APP_THEME_SELECTED_DAY = "day"
+        const val PREF_APP_THEME_SELECTED_NIGHT = "night"
+        const val PREF_APP_THEME_SELECTED_DUNNO = "dunno"
+    }
 }

@@ -10,11 +10,14 @@ import ru.krivonosovdenis.fintechapp.data.network.interceptors.VkApiVersionInter
 import ru.krivonosovdenis.fintechapp.data.network.interceptors.VkTokenInterceptor
 import java.util.concurrent.TimeUnit
 
-object VkApiClient {
-
-    private const val VK_URL: String = "https://api.vk.com/method/"
+class VkApiClient {
     var accessToken = ""
-    const val VK_API_VERSION = "5.124"
+
+    companion object {
+        private const val VK_URL: String = "https://api.vk.com/method/"
+
+        const val VK_API_VERSION = "5.124"
+    }
 
     private val gson = GsonBuilder()
         .setLenient()
@@ -31,8 +34,7 @@ object VkApiClient {
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(loggerInterceptor)
-            .addInterceptor(loggerInterceptor)
-            .addInterceptor(VkTokenInterceptor())
+            .addInterceptor(VkTokenInterceptor)
             .addInterceptor(VkApiVersionInterceptor())
             .build()
     }

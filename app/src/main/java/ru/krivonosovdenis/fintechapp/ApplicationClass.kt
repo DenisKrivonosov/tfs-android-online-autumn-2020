@@ -1,22 +1,141 @@
 package ru.krivonosovdenis.fintechapp
 
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.ConnectivityManager.NetworkCallback
+import android.net.Network
+import android.net.NetworkRequest
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.VKTokenExpiredHandler
-import ru.krivonosovdenis.fintechapp.data.db.ApplicationDatabase
-import ru.krivonosovdenis.fintechapp.data.network.VkApiClient
-import ru.krivonosovdenis.fintechapp.di.GlobalDI
+import ru.krivonosovdenis.fintechapp.di.*
+import javax.inject.Inject
+
 
 class ApplicationClass : Application() {
-    lateinit var appDataBase: ApplicationDatabase
+    var appComponent: AppComponent? = null
+    var mainActivityComponent: MainActivityComponent? = null
+    var postsFeedComponent: PostsFeedComponent? = null
+    var likedPostsComponent: LikedPostsComponent? = null
+    var postDetailsComponent: PostDetailsComponent? = null
+    var userProfileComponent: UserProfileComponent? = null
+    var sendPostComponent: SendPostComponent? = null
+    var appSettingsComponent: AppSettingsComponent? = null
+
+    var isNetworkAvailableVariable:Boolean = false
+
+
+    private var networkCallback: NetworkCallback? = null
+    @Inject
+    lateinit var connectivityManager:ConnectivityManager
+
+    @Inject
+    lateinit var sessionManager: SessionManager
+
+
+
     override fun onCreate() {
         super.onCreate()
-        instance = this
-        GlobalDI.init(this)
-
-        appDataBase = ApplicationDatabase.getInstance(applicationContext)
+        appComponent = DaggerAppComponent.builder().appModule(AppModule(applicationContext)).build()
+        appComponent?.inject(this)
+        registerConnectivityMonitoring()
         VK.addTokenExpiredHandler(tokenTracker)
-        VkApiClient.accessToken = SessionManager(applicationContext).getToken()
+    }
+
+
+    private fun registerConnectivityMonitoring() {
+        val networkCallback =
+            object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    super.onAvailable(network)
+                    Log.e("Network Avaialble","truuu");
+//                    listener.networkConnectivityChanged()
+                    isNetworkAvailableVariable = true
+                }
+
+                override fun onLost(network: Network) {
+                    super.onLost(network)
+                    Log.e("Network lost","truuu");
+//                    listener.networkConnectivityChanged()
+                    isNetworkAvailableVariable = false
+                }
+
+            }
+        this.networkCallback = networkCallback
+        connectivityManager.registerNetworkCallback(NetworkRequest.Builder().build(), networkCallback)
+    }
+
+
+
+    fun addMainActivityComponent() {
+        mainActivityComponent = DaggerMainActivityComponent.builder().appComponent(appComponent)
+            .build()
+    }
+
+    fun clearMainActivityComponent() {
+        mainActivityComponent = null
+    }
+
+
+    fun addPostsFeedComponent() {
+        postsFeedComponent = DaggerPostsFeedComponent.builder().appComponent(appComponent)
+            .build()
+    }
+
+    fun clearPostsFeedComponent() {
+        postsFeedComponent = null
+    }
+
+    fun addLikedPostsComponent() {
+        likedPostsComponent = DaggerLikedPostsComponent.builder().appComponent(appComponent)
+            .build()
+    }
+
+    fun clearLikedPostsComponent() {
+        likedPostsComponent = null
+    }
+
+    fun addPostDetailsComponent() {
+        postDetailsComponent = DaggerPostDetailsComponent.builder().appComponent(appComponent)
+            .build()
+    }
+
+    fun clearPostDetailsComponent() {
+        postDetailsComponent = null
+    }
+
+    fun addUserProfileComponent() {
+        userProfileComponent = DaggerUserProfileComponent.builder().appComponent(appComponent)
+            .build()
+    }
+
+    fun clearUserProfileComponent() {
+        userProfileComponent = null
+    }
+
+    fun addSendPostComponent() {
+        sendPostComponent = DaggerSendPostComponent.builder().appComponent(appComponent)
+            .build()
+    }
+
+    fun clearSendPostComponent() {
+        sendPostComponent = null
+    }
+
+    fun addAppSettingsComponent() {
+        appSettingsComponent = DaggerAppSettingsComponent.builder().appComponent(appComponent)
+            .build()
+    }
+
+    fun clearAppSettingsComponent() {
+        appSettingsComponent = null
+    }
+
+    fun isNetworkAvailable():Boolean{
+        return isNetworkAvailableVariable
     }
 
     private val tokenTracker = object : VKTokenExpiredHandler {
@@ -26,8 +145,4 @@ class ApplicationClass : Application() {
         }
     }
 
-    companion object {
-        lateinit var instance: ApplicationClass
-            private set
-    }
 }

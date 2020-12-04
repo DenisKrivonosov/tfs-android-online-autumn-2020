@@ -1,52 +1,61 @@
 package ru.krivonosovdenis.fintechapp.presentation.userprofile
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_user_profile.*
-import kotlinx.android.synthetic.main.fragment_user_profile.loadingView
+import moxy.MvpAppCompatFragment
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
+import ru.krivonosovdenis.fintechapp.ApplicationClass
 import ru.krivonosovdenis.fintechapp.R
 import ru.krivonosovdenis.fintechapp.dataclasses.InfoRepresentationClass
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
-import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileMainInfo
-import ru.krivonosovdenis.fintechapp.di.GlobalDI
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
+import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileData
 import ru.krivonosovdenis.fintechapp.interfaces.CommonAdapterActions
-import ru.krivonosovdenis.fintechapp.presentation.base.mvp.MvpFragment
 import ru.krivonosovdenis.fintechapp.presentation.mainactivity.MainActivity
 import ru.krivonosovdenis.fintechapp.rvcomponents.CommonRVAdapter
 import ru.krivonosovdenis.fintechapp.rvcomponents.PostsListItemDecoration
+import ru.krivonosovdenis.fintechapp.utils.postDelayedSafe
+import javax.inject.Inject
 
-class UserProfileFragment : MvpFragment<UserProfileView, UserProfilePresenter>(), UserProfileView,
+class UserProfileFragment : MvpAppCompatFragment(), UserProfileView,
     CommonAdapterActions, SwipeRefreshLayout.OnRefreshListener {
+    @Inject
+    @InjectPresenter
+    lateinit var presenter: UserProfilePresenter
+
+    @ProvidePresenter
+    fun provide() = presenter
 
     private lateinit var rvAdapter: CommonRVAdapter
     private var vkUserId = 0
-    private val compositeDisposable = CompositeDisposable()
 
-    override fun getPresenter() = GlobalDI.INSTANCE.userProfilePresenter
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (activity?.applicationContext as ApplicationClass).addUserProfileComponent()
+        (activity?.applicationContext as ApplicationClass).userProfileComponent?.inject(this)
+        (activity as MainActivity).hideBottomSettings()
+    }
 
-    override fun getMvpView(): UserProfileView = this
+    override fun onDetach() {
+        (activity?.applicationContext as ApplicationClass).clearUserProfileComponent()
+        super.onDetach()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        requireActivity().window.setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         return inflater.inflate(R.layout.fragment_user_profile, container, false)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        compositeDisposable.clear()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -59,19 +68,16 @@ class UserProfileFragment : MvpFragment<UserProfileView, UserProfilePresenter>()
             adapter = rvAdapter
             addItemDecoration(PostsListItemDecoration())
         }
-        if (GlobalDI.INSTANCE.isFirstUserProfileFragmentOpen) {
-            getPresenter().loadUserProfileAndPostsInfoFromApiAndInsertIntoDB()
-        }
-
         newPostFab.setOnClickListener {
             (activity as MainActivity).showNewPostFragment(vkUserId)
         }
-        getPresenter().subscribeOnUserInfoFromDB()
-        getPresenter().subscribeOnUserOwnPostsFromDB()
+        loadUserProfileAndPosts()
+        presenter.subscribeOnUserInfoFromDB()
+        presenter.subscribeOnUserOwnPostsFromDB()
     }
 
     override fun onRefresh() {
-        getPresenter().loadUserProfileAndPostsInfoFromApiAndInsertIntoDB()
+        loadUserProfileAndPosts()
     }
 
     override fun setRefreshing(isRefreshing: Boolean) {
@@ -79,10 +85,11 @@ class UserProfileFragment : MvpFragment<UserProfileView, UserProfilePresenter>()
     }
 
     override fun scrollViewToTop() {
-        //Похоже эта штука не работает из-за того, что добавление постов отрабатывает позже
-        //То есть оно скролится, но на первый пост из предыдущей коллекции постов
-        //буду разбираться.
-        userProfileView.scrollToPosition(0)
+        userProfileView.postDelayedSafe(100) {
+            userProfileView.smoothScrollToPosition(
+                0,
+            )
+        }
     }
 
     override fun showProfileInfo() {
@@ -113,29 +120,32 @@ class UserProfileFragment : MvpFragment<UserProfileView, UserProfilePresenter>()
         newPostFab.isVisible = false
     }
 
-    override fun renderProfileAndShow(userInfoData: UserProfileMainInfo) {
+    override fun renderProfileAndShow(userInfoData: UserProfileData) {
         vkUserId = userInfoData.userId
         val finalData = mutableListOf<InfoRepresentationClass>()
-        val adapterData = rvAdapter.dataUnits
-//        adapterData.removeAll{it is UserProfileMainInfo}
         finalData.add(userInfoData)
-        finalData.addAll(adapterData)
+        val postsData = rvAdapter.dataUnits.filterIsInstance<PostData>()
+        finalData.addAll(postsData)
         rvAdapter.dataUnits = finalData
+        userProfileView.postDelayedSafe(100) {
+            userProfileView.smoothScrollToPosition(
+                0,
+            )
+        }
         userProfileView.isVisible = true
         loadingView.isGone = true
         dbLoadingErrorView.isGone = true
         newPostFab.isVisible = true
     }
 
-    override fun renderUserPostsAndShow(posts: List<PostFullData>) {
+    override fun renderUserPostsAndShow(posts: List<PostData>) {
         val finalData = mutableListOf<InfoRepresentationClass>()
-        val userInfoData = rvAdapter.dataUnits.find { it is UserProfileMainInfo }
-        if(userInfoData!=null){
+        val userInfoData = rvAdapter.dataUnits.find { it is UserProfileData }
+        if (userInfoData != null) {
             finalData.add(userInfoData)
         }
         finalData.addAll(posts)
         rvAdapter.dataUnits = finalData
-
         userProfileView.isVisible = true
         loadingView.isGone = true
         dbLoadingErrorView.isGone = true
@@ -143,31 +153,65 @@ class UserProfileFragment : MvpFragment<UserProfileView, UserProfilePresenter>()
     }
 
     override fun showPostUpdateErrorToast() {
-        Toast.makeText(requireContext(), resources.getString(R.string.post_update_error_text), Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            requireContext(),
+            resources.getString(R.string.post_update_error_text),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
-    override fun onPostDismiss(post: PostFullData) {
+    override fun onPostDismiss(post: PostData) {
         //В общем этот метод здесь не реализован. Вышла накладочка с архитектурой и солидом в частности
     }
 
-    override fun onPostLiked(post: PostFullData) {
-        getPresenter().likePostOnApiAndDb(post)
+    override fun onPostLiked(post: PostData) {
+        likePostOnApi(post)
     }
 
-    override fun onPostDisliked(post: PostFullData) {
-        getPresenter().dislikePostOnApiAndDb(post)
+    override fun onPostDisliked(post: PostData) {
+        dislikePostOnApi(post)
     }
 
-    override fun onPostClicked(post: PostFullData) {
+    private fun likePostOnApi(post: PostData) {
+        if (!(requireActivity().application as ApplicationClass).isNetworkAvailableVariable) {
+            networkIsNotAvailableMessage(resources.getString(R.string.network_is_not_available_can_not_perform_action))
+        } else {
+            presenter.likePostOnApiAndDb(post)
+        }
+    }
+
+    private fun dislikePostOnApi(post: PostData) {
+        if (!(requireActivity().application as ApplicationClass).isNetworkAvailableVariable) {
+            networkIsNotAvailableMessage(resources.getString(R.string.network_is_not_available_can_not_perform_action))
+        } else {
+            presenter.dislikePostOnApiAndDb(post)
+        }
+    }
+
+    private fun loadUserProfileAndPosts() {
+        if (!(requireActivity().application as ApplicationClass).isNetworkAvailableVariable) {
+            networkIsNotAvailableMessage(resources.getString(R.string.network_is_not_available_show_cached))
+            userProfileSwipeRefreshLayout.isRefreshing = false
+        } else {
+            presenter.loadUserProfileAndPostsInfoFromApiAndInsertIntoDB()
+        }
+    }
+
+    private fun networkIsNotAvailableMessage(toastText: String) {
+        Toast.makeText(
+            requireContext(),
+            toastText,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    override fun onPostClicked(post: PostData) {
         (activity as MainActivity).openPostDetails(post)
     }
 
-
     companion object {
         fun newInstance(): UserProfileFragment {
-            return UserProfileFragment().apply {
-//                }
-            }
+            return UserProfileFragment()
         }
     }
 }

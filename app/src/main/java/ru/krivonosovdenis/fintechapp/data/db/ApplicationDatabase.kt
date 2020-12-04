@@ -6,14 +6,14 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import ru.krivonosovdenis.fintechapp.dataclasses.CommentData
-import ru.krivonosovdenis.fintechapp.dataclasses.PostFullData
-import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileMainInfo
+import ru.krivonosovdenis.fintechapp.dataclasses.PostData
+import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileData
 
-@Database(entities = [PostFullData::class, UserProfileMainInfo::class, CommentData::class], version = 8)
+@Database(entities = [PostData::class, UserProfileData::class, CommentData::class], version = 8)
 @TypeConverters(Converters::class)
 abstract class ApplicationDatabase : RoomDatabase() {
 
-    abstract fun feedPostsDao(): FeedPostsDao
+    abstract fun commonDao(): CommonDao
 
     companion object {
         private var INSTANCE: ApplicationDatabase? = null
