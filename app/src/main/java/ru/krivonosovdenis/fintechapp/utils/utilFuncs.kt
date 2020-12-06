@@ -46,4 +46,3 @@ fun humanizeDate(currentDate: Long, postDate: Long): String {
         else -> "$secondsDiff"
     }
 }
-

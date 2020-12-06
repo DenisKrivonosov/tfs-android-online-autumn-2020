@@ -3,8 +3,7 @@ package ru.krivonosovdenis.fintechapp.di
 import dagger.Module
 import dagger.Provides
 import ru.krivonosovdenis.fintechapp.data.Repository
-import ru.krivonosovdenis.fintechapp.presentation.likedposts.LikedPostsPresenter
-import ru.krivonosovdenis.fintechapp.presentation.postsfeed.PostsFeedPresenter
+import ru.krivonosovdenis.fintechapp.ui.likedposts.LikedPostsPresenter
 
 @Module
 class LikedPostsModule {

@@ -1,10 +1,10 @@
 package ru.krivonosovdenis.fintechapp.di
 
 import dagger.Component
-import ru.krivonosovdenis.fintechapp.presentation.postdetails.PostDetailsFragment
+import ru.krivonosovdenis.fintechapp.ui.postdetails.PostDetailsFragment
 
-@Component(dependencies = [AppComponent::class],modules = [PostDetailsModule::class])
+@Component(dependencies = [AppComponent::class], modules = [PostDetailsModule::class])
 @PostDetailsScope
 interface PostDetailsComponent {
-    fun inject(postDetailsFragment:PostDetailsFragment)
+    fun inject(postDetailsFragment: PostDetailsFragment)
 }

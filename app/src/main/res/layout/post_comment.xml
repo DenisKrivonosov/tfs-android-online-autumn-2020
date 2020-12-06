@@ -5,15 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
-    android:paddingBottom="20dp"
-    android:background="?attr/cardBackgroundColor">
+    android:background="?attr/cardBackgroundColor"
+    android:paddingBottom="20dp">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/commenterAvatar"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
         android:src="?attr/postLoadingViewColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -25,15 +25,15 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="15dp"
         android:layout_marginEnd="10dp"
+        android:layout_marginBottom="15dp"
         android:ellipsize="end"
-        android:textStyle="bold"
         android:fontFamily="sans-serif-black"
         android:maxLines="1"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/commenterAvatar"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         tools:text="Человеек Пароход" />
 
     <TextView
@@ -45,8 +45,8 @@
         android:layout_marginEnd="10dp"
         android:ellipsize="end"
         android:maxLines="10"
-        app:layout_constraintStart_toEndOf="@id/commenterAvatar"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/commenterAvatar"
         app:layout_constraintTop_toBottomOf="@id/commenterName"
         tools:text="Самый быстрый Человеек Пароход пароходович закупил самый быстрый пароход из всех пароходов вот те раз" />
 
@@ -57,10 +57,11 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="60dp"
+        android:textColor="?attr/subtitleTextColor"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toEndOf="@id/commenterAvatar"
-        tools:text="100 лет назад"
-        app:layout_constraintTop_toBottomOf="@id/commentText"/>
+        app:layout_constraintTop_toBottomOf="@id/commentText"
+        tools:text="100 лет назад" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/likesLayoutGroup"
@@ -71,15 +72,19 @@
 
     <ImageView
         android:id="@+id/likeIcon"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="5dp"
-        app:layout_constraintTop_toBottomOf="@id/commentText"
-        app:layout_constraintEnd_toStartOf="@id/commentLikesCount"
+        android:layout_marginTop="5dp"
         android:contentDescription="@string/likes_count"
-        />
+        android:cropToPadding="true"
+        android:paddingStart="10dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="5dp"
+        android:paddingBottom="10dp"
+        android:scaleType="centerInside"
+        app:layout_constraintEnd_toStartOf="@id/commentLikesCount"
+        app:layout_constraintTop_toBottomOf="@id/commentText" />
 
     <TextView
         android:id="@+id/commentLikesCount"
@@ -87,10 +92,9 @@
         android:layout_height="20dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="10dp"
-        app:layout_constraintTop_toBottomOf="@id/commentText"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:text="@string/tools_post_likes_count"
-        tools:layout_editor_absoluteY="130dp" />
-
+        app:layout_constraintTop_toBottomOf="@id/commentText"
+        tools:layout_editor_absoluteY="130dp"
+        tools:text="@string/tools_post_likes_count" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

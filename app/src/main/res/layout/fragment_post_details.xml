@@ -10,20 +10,57 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".presentation.mainactivity.MainActivity">
+        tools:context=".ui.mainactivity.MainActivity">
 
-        <androidx.recyclerview.widget.RecyclerView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/postDetailsAndCommentsView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:context=".presentation.mainactivity.MainActivity"
-            tools:listitem="@layout/user_profile_info_layout"
-            tools:visibility="gone"
-            />
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/postDetailsAndCommentsRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/commentInputET"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:context=".ui.mainactivity.MainActivity"
+                tools:listitem="@layout/user_profile_info_layout" />
+
+            <EditText
+                android:id="@+id/commentInputET"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="text"
+                android:gravity="top"
+                android:hint="@string/send_comment_hint"
+                android:inputType="textMultiLine"
+                android:maxLines="5"
+                android:minLines="1"
+                android:paddingStart="30dp"
+                android:paddingTop="20dp"
+                android:paddingEnd="50dp"
+                android:paddingBottom="20dp"
+                android:textColorHint="?attr/colorOnPrimary"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <ImageButton
+                android:id="@+id/sendComment"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/send_comment_inactive_icon"
+                android:clickable="false"
+                android:contentDescription="@string/send_comment_desc"
+                android:padding="15dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
             android:id="@+id/loadingView"
@@ -58,23 +95,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </LinearLayout>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/dbLoadingErrorView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
-            tools:visibility="visible">
+            tools:visibility="gone">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/db_loading_error"
-                android:textSize="35sp"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
-                app:layout_constraintTop_toTopOf="parent"
+                android:text="@string/db_loading_error"
+                android:textSize="35sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>

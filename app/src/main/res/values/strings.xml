@@ -2,6 +2,7 @@
     <string name="app_name">FinTechVkCloneApp</string>
     <string name="tools_poster_name">Приколы из одноклассников</string>
     <string name="tools_post_date">35 минут назад</string>
+    <string name="ok">Ок</string>
     <string name="post_image_description">Картинка, прикрепленная к посту</string>
     <string name="like_post_description">Поставить лайк посту</string>
     <string name="comment_post_description">Прокомментировать пост</string>
@@ -16,7 +17,7 @@
     <string name="open_app_system_settings">Открыть системные настройки</string>
     <string name="inner_settings">Внутренние настройки</string>
     <string name="outer_settings">Внешние настройки</string>
-    <string name="open_app_system_settings_summary">Открыть системные настройки, рпедоставить разрешения, почистить кэш, и т.д.</string>
+    <string name="open_app_system_settings_summary">Открыть системные настройки, предоставить разрешения, почистить кэш, и т.д.</string>
     <string name="bottom_nav_profile_tab">Профиль</string>
     <string name="tools_post_text">Съешь ещё этих мягких французских булок, да выпей же чаю. Съешь ещё этих мягких французских булок, да выпей же чаю.  Съешь ещё этих мягких французских булок, да выпей же чаю. </string>
     <string name="tools_post_likes_count">666</string>
@@ -41,10 +42,12 @@
     <string name="saved_nothing_image_desc">Список сохраненных постов пуст</string>
     <string name="error_view_load_posts_error_text">Произошла ошибка при загрузке данных, попробуйте позже. Попробуйте позже</string>
     <string name="error_view_smile_text">Сервер недоступен. Попробуйте позже</string>
-    <string name="db_loading_error">Произошла ошибка при обработке базы данных внутри приложения. Пожалуйста, свяжитесь с разработчиками приложения и сообщите о найтеднной ошибке</string>
+    <string name="db_loading_error">Произошла ошибка при обработке базы данных внутри приложения. Пожалуйста, свяжитесь с разработчиками приложения и сообщите о найденной ошибке</string>
     <string name="db_error_text">Произошла ошибка при обращении к базе данных</string>
     <string name="post_update_error_text">Произошла ошибка при выполнении действия с постом. Текущие данные могут отображаться некорректно</string>
     <string name="comment_update_error_text">Произошла ошибка при выполнении действия с комментом. Текущие данные могут отображаться некорректно</string>
+    <string name="comment_send_success">Комментарий успешно добавлен</string>
+    <string name="comment_send_error_text">Произошла ошибка при отправке комментария. Повторите попытку позже</string>
     <string name="image_saved_toast_text">Картинка сохранена в галерею</string>
     <string name="likes_count">Число лайков на комментарии</string>
     <integer name="com_vk_sdk_AppId">7637409</integer>
@@ -54,11 +57,14 @@
     <string name="education_faculty">Факультет:</string>
     <string name="followers">Подписчики:</string>
     <string name="new_post">Новый пост</string>
+    <string name="close_post_creation">Закрыть экран создания поста</string>
     <string name="post">Отправить</string>
     <string name="add_image">Добавить изображение</string>
     <string name="what_new">Чего нового?</string>
     <string name="send_post_to_wall_error">Произошла ошибка при отправке поста</string>
     <string name="send_post_to_wall_success">Пост успешно создан</string>
+    <string name="send_comment_desc">Отправить комментарий</string>
+    <string name="send_comment_hint">Ваш комментарий..</string>
     <string name="toolbar_loading_error">Пороизошла ошибка при загрузке информации о пользователе</string>
     <string name="network_is_not_available_show_cached">Обнаружены проблемы с сетью. Вам будут показана закэшированная информация</string>
     <string name="network_is_not_available_can_not_perform_action">Обнаружены проблемы с сетью. Невозможно выполнить данное действие</string>

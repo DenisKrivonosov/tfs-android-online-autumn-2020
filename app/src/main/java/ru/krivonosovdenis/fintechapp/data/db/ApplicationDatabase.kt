@@ -9,7 +9,7 @@ import ru.krivonosovdenis.fintechapp.dataclasses.CommentData
 import ru.krivonosovdenis.fintechapp.dataclasses.PostData
 import ru.krivonosovdenis.fintechapp.dataclasses.UserProfileData
 
-@Database(entities = [PostData::class, UserProfileData::class, CommentData::class], version = 8)
+@Database(entities = [PostData::class, UserProfileData::class, CommentData::class], version = 9)
 @TypeConverters(Converters::class)
 abstract class ApplicationDatabase : RoomDatabase() {
 
@@ -18,6 +18,9 @@ abstract class ApplicationDatabase : RoomDatabase() {
     companion object {
         private var INSTANCE: ApplicationDatabase? = null
 
+        const val POST_SOURCE_FEED = 0
+        const val POST_SOURCE_PROFILE = 1
+
         fun getInstance(context: Context): ApplicationDatabase {
             if (INSTANCE == null) {
                 synchronized(ApplicationDatabase::class) {
@@ -25,7 +28,6 @@ abstract class ApplicationDatabase : RoomDatabase() {
                         context.applicationContext,
                         ApplicationDatabase::class.java, "applicationDatabase.db"
                     ).build()
-
                 }
             }
             return INSTANCE!!

@@ -1,19 +1,14 @@
 package ru.krivonosovdenis.fintechapp
 
 import android.app.Application
-import android.content.Context
 import android.net.ConnectivityManager
 import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
 import android.net.NetworkRequest
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.VKTokenExpiredHandler
 import ru.krivonosovdenis.fintechapp.di.*
 import javax.inject.Inject
-
 
 class ApplicationClass : Application() {
     var appComponent: AppComponent? = null
@@ -25,17 +20,15 @@ class ApplicationClass : Application() {
     var sendPostComponent: SendPostComponent? = null
     var appSettingsComponent: AppSettingsComponent? = null
 
-    var isNetworkAvailableVariable:Boolean = false
-
+    var isNetworkAvailableVariable: Boolean = false
 
     private var networkCallback: NetworkCallback? = null
+
     @Inject
-    lateinit var connectivityManager:ConnectivityManager
+    lateinit var connectivityManager: ConnectivityManager
 
     @Inject
     lateinit var sessionManager: SessionManager
-
-
 
     override fun onCreate() {
         super.onCreate()
@@ -45,29 +38,26 @@ class ApplicationClass : Application() {
         VK.addTokenExpiredHandler(tokenTracker)
     }
 
-
     private fun registerConnectivityMonitoring() {
         val networkCallback =
             object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
                     super.onAvailable(network)
-                    Log.e("Network Avaialble","truuu");
-//                    listener.networkConnectivityChanged()
                     isNetworkAvailableVariable = true
                 }
 
                 override fun onLost(network: Network) {
                     super.onLost(network)
-                    Log.e("Network lost","truuu");
-//                    listener.networkConnectivityChanged()
                     isNetworkAvailableVariable = false
                 }
 
             }
         this.networkCallback = networkCallback
-        connectivityManager.registerNetworkCallback(NetworkRequest.Builder().build(), networkCallback)
+        connectivityManager.registerNetworkCallback(
+            NetworkRequest.Builder().build(),
+            networkCallback
+        )
     }
-
 
 
     fun addMainActivityComponent() {
@@ -134,14 +124,8 @@ class ApplicationClass : Application() {
         appSettingsComponent = null
     }
 
-    fun isNetworkAvailable():Boolean{
-        return isNetworkAvailableVariable
-    }
-
     private val tokenTracker = object : VKTokenExpiredHandler {
         override fun onTokenExpired() {
-            //Скорее всего эта штука не работает при текущей логике реализации запросов
-            //По идее надо парсить ответ
         }
     }
 

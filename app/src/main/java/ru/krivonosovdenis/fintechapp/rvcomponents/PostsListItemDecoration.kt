@@ -14,10 +14,6 @@ import ru.krivonosovdenis.fintechapp.utils.dpToPx
 class PostsListItemDecoration :
     RecyclerView.ItemDecoration() {
 
-    private companion object {
-        const val OFFSET = 15
-    }
-
     private var dateDecor: View? = null
 
     override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
@@ -26,10 +22,6 @@ class PostsListItemDecoration :
             parent.children.forEach { child ->
                 val childPosition = parent.getChildAdapterPosition(child)
                 val decorationType = adapter.getDecorationType(childPosition)
-
-                //По какой-то причине в списке лайкнутых постов не отрисовывается время в декораторе
-                // При этом текстовое значение сюда приходит корректно, но дата на канвасе не
-                //отображается
                 if (decorationType is PostsListDecorationType.WithText) {
                     val delimiterView = getDateDecor(parent)
                     delimiterView.dividerText.text = decorationType.text
@@ -87,15 +79,18 @@ class PostsListItemDecoration :
             parent.paddingLeft + parent.paddingRight,
             layoutParams.width
         )
-
         val childHeight = ViewGroup.getChildMeasureSpec(
             heightSpec,
             parent.paddingTop + parent.paddingBottom,
             layoutParams.height
         )
-
         measure(childWidth, childHeight)
         layout(0, 0, measuredWidth, measuredHeight)
         return this
+    }
+
+
+    private companion object {
+        const val OFFSET = 15
     }
 }

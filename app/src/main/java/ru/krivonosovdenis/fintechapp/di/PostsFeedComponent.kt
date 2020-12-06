@@ -1,10 +1,10 @@
 package ru.krivonosovdenis.fintechapp.di
 
 import dagger.Component
-import ru.krivonosovdenis.fintechapp.presentation.postsfeed.PostsFeedFragment
+import ru.krivonosovdenis.fintechapp.ui.postsfeed.PostsFeedFragment
 
-@Component(dependencies = [AppComponent::class],modules = [PostsFeedModule::class])
+@Component(dependencies = [AppComponent::class], modules = [PostsFeedModule::class])
 @PostsFeedScope
 interface PostsFeedComponent {
-    fun inject(postsFeedFragment:PostsFeedFragment)
+    fun inject(postsFeedFragment: PostsFeedFragment)
 }

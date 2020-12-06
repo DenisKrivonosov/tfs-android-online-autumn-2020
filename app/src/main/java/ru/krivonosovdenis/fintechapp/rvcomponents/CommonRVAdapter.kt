@@ -122,9 +122,7 @@ class CommonRVAdapter(
                             callbackInterface.onPostDisliked(post)
                         }
                         false -> {
-
                             callbackInterface.onPostLiked(post)
-
                         }
                     }
                 }
@@ -243,6 +241,7 @@ class CommonRVAdapter(
                 (dataUnits[position] as PostData).isLiked = true
                 notifyItemChanged(position)
             }
+            else -> throw java.lang.IllegalArgumentException("адаптер не поддерживает данные этого типа")
         }
     }
 
@@ -253,7 +252,6 @@ class CommonRVAdapter(
         if (dataUnits.isEmpty()) {
             return PostsListDecorationType.Space
         }
-
         if (position == 0 && dataUnits[0] is PostData) {
             return PostsListDecorationType.WithText(
                 (dataUnits[0] as PostData).date.toString(
@@ -291,10 +289,8 @@ class CommonRVAdapter(
             else -> {
                 PostsListDecorationType.Space
             }
-
         }
     }
-
 
     abstract class BaseViewHolder(override val containerView: View) :
         RecyclerView.ViewHolder(containerView), LayoutContainer

@@ -38,8 +38,6 @@ class SocNetworkPostDetails @JvmOverloads constructor(
         val postDateHeight = postDate.measuredHeight + postDate.marginTop + postDate.marginBottom
 
         totalHeight += max(poserAvatarHeight, posterNameHeight + postDateHeight)
-        //Так как в дальнейшем посты из вк могут приходить без текста или без картинки, надо этот
-        //момент учесть заранее
 
         measureChildWithMargins(postText, widthMeasureSpec, 0, heightMeasureSpec, totalHeight)
         totalHeight += postText.measuredHeight + postText.marginTop + postText.marginBottom

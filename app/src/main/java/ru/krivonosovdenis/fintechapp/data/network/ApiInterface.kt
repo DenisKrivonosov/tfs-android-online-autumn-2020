@@ -6,9 +6,10 @@ import retrofit2.http.Query
 import ru.krivonosovdenis.fintechapp.dataclasses.getgroupsdataclasses.GroupsApiResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.getpostcommentsdataclasses.PostCommentsResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.newsfeeddataclasses.NewsfeedApiResponse
-import ru.krivonosovdenis.fintechapp.dataclasses.postdeletedataclasses.PostDeleteResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.objectdislikedataclasses.ObjectDislikeResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.objectlikedataclasses.ObjectLikeResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.postdeletedataclasses.PostDeleteResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.sendcommentdataclasses.SendCommentResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.sendpostdataclasses.SendPostResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userfullinfodataclasses.UserFullInfoResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userwallpostsdataclasses.UserWallPostsResponse
@@ -55,6 +56,14 @@ interface ApiInterface {
         @Query("owner_id") ownerId: Int,
         @Query("extended") extended: Int,
     ): Single<PostCommentsResponse>
+
+    //та же фигня. Отправляю  get'ом, а не POST'ом
+    @GET("wall.createComment")
+    fun sendCommentToPost(
+        @Query("message") message: String,
+        @Query("post_id") postId: Int,
+        @Query("owner_id") ownerId: Int,
+    ): Single<SendCommentResponse>
 
 
     //PROFILE TAB

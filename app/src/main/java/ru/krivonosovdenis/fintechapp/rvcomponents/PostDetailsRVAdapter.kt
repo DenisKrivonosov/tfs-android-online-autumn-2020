@@ -1,6 +1,5 @@
 package ru.krivonosovdenis.fintechapp.rvcomponents
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -51,7 +50,6 @@ class PostDetailsRVAdapter(
                     parent,
                     false
                 )
-
             else -> throw IllegalArgumentException("это какой-то неправильный тип данных")
         }
         return when (viewType) {
@@ -87,7 +85,6 @@ class PostDetailsRVAdapter(
                     viewHolder.containerView.postImage.isGone = true
                     viewHolder.containerView.postActionShare.isGone = true
                 }
-                Log.e("post_is_liked", post.isLiked.toString())
                 viewHolder.containerView.postActionLike.background = if (post.isLiked) {
                     ResourcesCompat.getDrawable(
                         context.resources,
@@ -101,7 +98,6 @@ class PostDetailsRVAdapter(
                         context.theme
                     )
                 }
-
                 viewHolder.containerView.postActionLike.setOnClickListener {
                     when (post.isLiked) {
                         true -> {
@@ -112,9 +108,7 @@ class PostDetailsRVAdapter(
                         }
                     }
                 }
-
                 viewHolder.containerView.postLikesCounter.text = post.likesCount.toString()
-
                 if (!post.photo.isNullOrEmpty()) {
                     viewHolder.containerView.postActionShare.isVisible = true
                     viewHolder.containerView.postActionShare.setOnClickListener {
@@ -140,22 +134,13 @@ class PostDetailsRVAdapter(
                 viewHolder.containerView.commentDate.text =
                     humanizeDate(currentDate, comment.date.millis)
                 viewHolder.containerView.commentLikesCount.text = comment.likesCount.toString()
-                Log.e("comment_is_liked", comment.isLiked.toString())
-                viewHolder.containerView.likeIcon.background =
+                viewHolder.containerView.likeIcon.setImageResource(
                     if (comment.isLiked) {
-                        ResourcesCompat.getDrawable(
-                            context.resources,
-                            R.drawable.post_like_button_clicked_icon,
-                            context.theme
-                        )
+                        R.drawable.post_like_button_clicked_icon
                     } else {
-                        ResourcesCompat.getDrawable(
-                            context.resources,
-                            R.drawable.post_like_button_icon,
-                            context.theme
-                        )
+                        R.drawable.post_like_button_icon
                     }
-
+                )
                 viewHolder.containerView.likeIcon.setOnClickListener {
                     when (comment.isLiked) {
                         true -> {

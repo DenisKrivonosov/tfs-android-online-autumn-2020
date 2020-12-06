@@ -11,19 +11,8 @@ import ru.krivonosovdenis.fintechapp.data.network.interceptors.VkTokenIntercepto
 import java.util.concurrent.TimeUnit
 
 class VkApiClient {
-    var accessToken = ""
-
-    companion object {
-        private const val VK_URL: String = "https://api.vk.com/method/"
-
-        const val VK_API_VERSION = "5.124"
-    }
-
-    private val gson = GsonBuilder()
-        .setLenient()
-        .create()
+    private val gson = GsonBuilder().setLenient().create()
     private val gsonFactory: GsonConverterFactory = GsonConverterFactory.create(gson)
-
     private var authRetrofit: Retrofit? = null
 
     private fun getAuthHttpClient(): OkHttpClient {
@@ -50,5 +39,10 @@ class VkApiClient {
         } else {
             authRetrofit!!.create(ApiInterface::class.java)
         }
+    }
+
+    companion object {
+        private const val VK_URL: String = "https://api.vk.com/method/"
+        const val VK_API_VERSION = "5.124"
     }
 }

@@ -1,21 +1,19 @@
 package ru.krivonosovdenis.fintechapp.data
 
-import android.util.Log
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import org.joda.time.DateTime
 import ru.krivonosovdenis.fintechapp.data.db.ApplicationDatabase
-import ru.krivonosovdenis.fintechapp.data.db.DBConstants.POST_SOURCE_FEED
-import ru.krivonosovdenis.fintechapp.data.db.DBConstants.POST_SOURCE_PROFILE
 import ru.krivonosovdenis.fintechapp.data.network.VkApiClient
 import ru.krivonosovdenis.fintechapp.dataclasses.*
 import ru.krivonosovdenis.fintechapp.dataclasses.getgroupsdataclasses.GroupsApiResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.getpostcommentsdataclasses.PostCommentsResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.newsfeeddataclasses.NewsfeedApiResponse
-import ru.krivonosovdenis.fintechapp.dataclasses.postdeletedataclasses.PostDeleteResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.objectdislikedataclasses.ObjectDislikeResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.objectlikedataclasses.ObjectLikeResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.postdeletedataclasses.PostDeleteResponse
+import ru.krivonosovdenis.fintechapp.dataclasses.sendcommentdataclasses.SendCommentResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.sendpostdataclasses.SendPostResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userfullinfodataclasses.UserFullInfoResponse
 import ru.krivonosovdenis.fintechapp.dataclasses.userprofiledataclasses.userwallpostsdataclasses.UserWallPostsResponse
@@ -35,7 +33,7 @@ class Repository @Inject constructor(
         return dbConnection.commonDao().subscribeOnLikedPosts()
     }
 
-    fun getLikedPostsCount(): Flowable<Int> {
+    fun getLikedPostsCount(): Flowable<List<Int>> {
         return dbConnection.commonDao().subscribeOnFeedLikedCount()
     }
 
@@ -75,7 +73,7 @@ class Repository @Inject constructor(
         return dbConnection.commonDao().deleteAllFeedPostsAndInsert(posts)
     }
 
-    fun getUserInfoFlowableFromDb(): Flowable<UserProfileData> {
+    fun getUserInfoFlowableFromDb(): Flowable<List<UserProfileData>> {
         return dbConnection.commonDao().subscribeOnUserInfo()
     }
 
@@ -96,7 +94,11 @@ class Repository @Inject constructor(
         )
     }
 
-    fun deleteAllPostCommentsAndInsertIntoDb(postId:Int, ownerId:Int, comments:ArrayList<CommentData>){
+    fun deleteAllPostCommentsAndInsertIntoDb(
+        postId: Int,
+        ownerId: Int,
+        comments: ArrayList<CommentData>
+    ) {
         return dbConnection.commonDao().deleteAllPostCommentsAndInsertIntoDb(
             postId,
             ownerId,
@@ -104,14 +106,12 @@ class Repository @Inject constructor(
         )
     }
 
-
     //NETWORK REQUESTS
     //posts
     fun getFeedPostsFromApi(): Single<ArrayList<PostData>> {
         return vkApiClient.getAuthRetrofitClient().getNewsFeed()
             .flatMap { addGroupsInfoToPosts(it) }
     }
-
 
     fun likePostApi(post: PostData): Single<ObjectLikeResponse> {
         return vkApiClient.getAuthRetrofitClient()
@@ -151,7 +151,7 @@ class Repository @Inject constructor(
             }
     }
 
-    //У нас получается крайне урезанная версия фида. Во вконтакте можно разместить большое количество
+    //У нас получается несколько урезанная версия фида. Во вконтакте можно разместить большое количество
     //разнообразных типов постов. Например, может быть пост только с видео. Или пост, содержащий
     //только репост. Поэтому дальше большое количество постов мы будем исключать из выборки. Оставляем
     //только те посты, которые мы можем нормально отобразить
@@ -192,7 +192,7 @@ class Repository @Inject constructor(
                     postData.comments?.count ?: 0,
                     postData.reposts?.count ?: 0,
                     postData.views?.count ?: 0,
-                    POST_SOURCE_FEED
+                    ApplicationDatabase.POST_SOURCE_FEED
                 )
             )
         }
@@ -202,7 +202,8 @@ class Repository @Inject constructor(
 
     //post_details
     fun getPostCommentsFromApi(postId: Int, ownerId: Int): Single<List<CommentData>> {
-        return vkApiClient.getAuthRetrofitClient().getPostComments(TRUE_INT,POST_TYPE, postId, ownerId, EXTENDED_TRUE)
+        return vkApiClient.getAuthRetrofitClient()
+            .getPostComments(TRUE_INT, POST_TYPE, postId, ownerId, EXTENDED_TRUE)
             .flatMap { Single.just(transformPostCommentsResponse(it)) }
     }
 
@@ -215,7 +216,6 @@ class Repository @Inject constructor(
         return vkApiClient.getAuthRetrofitClient().getUserProfileInfo(USER_PROFILE_INFO_FIELDS)
             .flatMap { addUserPostsToProfileInfo(it) }
     }
-
 
     private fun addUserPostsToProfileInfo(userProfileInfoApiResponse: UserFullInfoResponse): Single<ArrayList<InfoRepresentationClass>> {
         return vkApiClient.getAuthRetrofitClient()
@@ -263,7 +263,7 @@ class Repository @Inject constructor(
                     postData.comments.count,
                     postData.reposts.count,
                     postData.views?.count ?: 0,
-                    POST_SOURCE_PROFILE
+                    ApplicationDatabase.POST_SOURCE_PROFILE
                 )
             )
         }
@@ -271,9 +271,6 @@ class Repository @Inject constructor(
     }
 
     private fun transformPostCommentsResponse(apiResponse: PostCommentsResponse): List<CommentData> {
-        Log.e("insiddderesp","herer");
-        Log.e("responsefix",apiResponse.response.count.toString());
-
         val commentsRawData = apiResponse.response.items
         val profilesRawData = apiResponse.response.profiles
         val finalData = ArrayList<CommentData>()
@@ -287,20 +284,24 @@ class Repository @Inject constructor(
                     profilesRawData.find { it.id == commentRawData.fromId }?.photo100 ?: "",
                     profilesRawData.find { it.id == commentRawData.fromId }?.firstName ?: "",
                     DateTime(commentRawData.date * 1000L),
-                    commentRawData.text?:"",
+                    commentRawData.text ?: "",
                     commentRawData.attachments?.get(0)?.photo?.sizes?.last()?.url ?: "",
-                    commentRawData.likes?.count ?:0,
-                    commentRawData.likes?.canLike == 0 ,
+                    commentRawData.likes?.count ?: 0,
+                    commentRawData.likes?.canLike == 0,
                 )
             )
         }
-        Log.e("finalDataCount", finalData.count().toString());
         return finalData
     }
 
     fun sendPostToOwnWall(message: String, attachments: String): Single<SendPostResponse> {
         return vkApiClient.getAuthRetrofitClient()
             .sendPostToOwnWall(message, attachments)
+    }
+
+    fun sendCommentToPost(message: String, postId: Int, ownerId: Int): Single<SendCommentResponse> {
+        return vkApiClient.getAuthRetrofitClient()
+            .sendCommentToPost(message, postId, ownerId)
     }
 
     companion object {

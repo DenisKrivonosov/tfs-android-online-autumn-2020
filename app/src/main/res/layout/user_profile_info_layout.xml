@@ -5,13 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
-    android:paddingBottom="20dp"
-    android:background="?attr/cardBackgroundColor">
+    android:background="?attr/cardBackgroundColor"
+    android:paddingBottom="20dp">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/userAvatar"
         android:layout_width="110dp"
         android:layout_height="110dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
         android:src="?attr/postLoadingViewColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,12 +25,13 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_marginTop="15dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginBottom="16dp"
         android:ellipsize="end"
         android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/userAvatar"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         tools:text="Человеек Пароход" />
 
     <TextView
@@ -37,11 +40,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="15dp"
+        android:layout_marginEnd="10dp"
         android:ellipsize="end"
         android:maxLines="1"
-        app:layout_constraintStart_toEndOf="@id/userAvatar"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/userAvatar"
         app:layout_constraintTop_toBottomOf="@id/userName"
         tools:text="Самый быстрый Человеек Пароход парозодович" />
 
@@ -68,20 +71,23 @@
     <TextView
         android:id="@+id/cityText"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
         android:text="@string/city"
         app:layout_constraintStart_toEndOf="@+id/cityIcon"
         app:layout_constraintTop_toBottomOf="@id/userAvatar" />
 
     <TextView
         android:id="@+id/userCity"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="60dp"
+        android:layout_marginEnd="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toEndOf="@+id/cityText"
         app:layout_constraintTop_toBottomOf="@id/userAvatar" />
@@ -111,9 +117,9 @@
     <TextView
         android:id="@+id/countryText"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_marginTop="15dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="18dp"
+        android:layout_marginTop="15dp"
         android:text="@string/country"
         app:layout_constraintStart_toEndOf="@+id/countryIcon"
         app:layout_constraintTop_toBottomOf="@id/cityIcon"
@@ -121,11 +127,14 @@
 
     <TextView
         android:id="@+id/userCountry"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="15dp"
-        android:layout_marginEnd="60dp"
+        android:layout_marginEnd="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toEndOf="@+id/countryText"
         app:layout_constraintTop_toBottomOf="@id/cityIcon" />
@@ -153,9 +162,9 @@
     <TextView
         android:id="@+id/educationUniversityText"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_marginTop="15dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="17dp"
+        android:layout_marginTop="15dp"
         android:text="@string/education_university"
         app:layout_constraintStart_toEndOf="@+id/educationIcon"
         app:layout_constraintTop_toBottomOf="@id/countryIcon"
@@ -163,14 +172,17 @@
 
     <TextView
         android:id="@+id/userEducationUniversity"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="15dp"
-        android:layout_marginEnd="60dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginEnd="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/educationUniversityText"
-        app:layout_constraintTop_toBottomOf="@id/countryIcon" />
+        app:layout_constraintTop_toBottomOf="@id/countryIcon"
+        app:layout_goneMarginEnd="10dp" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/educationFacultyLayoutGroup"
@@ -182,9 +194,9 @@
     <TextView
         android:id="@+id/educationFacultyText"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_marginTop="5dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="17dp"
+        android:layout_marginTop="5dp"
         android:text="@string/education_faculty"
         app:layout_constraintStart_toEndOf="@+id/educationIcon"
         app:layout_constraintTop_toBottomOf="@id/educationUniversityText"
@@ -192,14 +204,18 @@
 
     <TextView
         android:id="@+id/userEducationFaculty"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="5dp"
-        android:layout_marginEnd="60dp"
+        android:layout_marginEnd="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toEndOf="@+id/educationFacultyText"
-        app:layout_constraintTop_toBottomOf="@id/educationUniversityText" />
+        app:layout_constraintTop_toBottomOf="@id/educationUniversityText"
+        app:layout_goneMarginEnd="10dp" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/followersLayoutGroup"
@@ -216,16 +232,15 @@
         android:layout_marginTop="17dp"
         android:contentDescription="@string/followers"
         android:src="@drawable/user_profile_followers"
-        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/userEducationFaculty" />
 
     <TextView
         android:id="@+id/followersText"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:layout_marginTop="15dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
         android:text="@string/followers"
         app:layout_constraintStart_toEndOf="@+id/educationIcon"
         app:layout_constraintTop_toBottomOf="@id/userEducationFaculty"
@@ -233,11 +248,14 @@
 
     <TextView
         android:id="@+id/userFollowers"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
         android:layout_marginTop="15dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginEnd="15dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/educationUniversityText"
         app:layout_constraintTop_toBottomOf="@id/userEducationFaculty" />
 </androidx.constraintlayout.widget.ConstraintLayout>

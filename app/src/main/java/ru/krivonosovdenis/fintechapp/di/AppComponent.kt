@@ -7,7 +7,6 @@ import ru.krivonosovdenis.fintechapp.SessionManager
 import ru.krivonosovdenis.fintechapp.data.Repository
 import ru.krivonosovdenis.fintechapp.data.db.ApplicationDatabase
 import ru.krivonosovdenis.fintechapp.data.network.VkApiClient
-import ru.krivonosovdenis.fintechapp.presentation.mainactivity.MainActivity
 import javax.inject.Singleton
 
 @Component(modules = [AppModule::class])
@@ -17,8 +16,8 @@ interface AppComponent {
 
     fun providesVkApiClient(): VkApiClient
     fun providesApplicationDataBase(): ApplicationDatabase
-    fun providesRepository():Repository
-    fun providesSessionManager():SessionManager
-    fun providesConnectivityManager():ConnectivityManager
+    fun providesRepository(): Repository
+    fun providesSessionManager(): SessionManager
+    fun providesConnectivityManager(): ConnectivityManager
 
 }
