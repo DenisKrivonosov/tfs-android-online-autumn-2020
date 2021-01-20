@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory android:title="@string/inner_settings">
+        <SwitchPreferenceCompat
+            app:key="saveAppTheme"
+            app:summary="@string/save_app_theme_selection_summary"
+            app:title="@string/save_app_theme_selection" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:id="@+id/outerSettingsLayout"
+        android:title="@string/outer_settings"
+        app:key="outerSettingsLayout">
+        <Preference
+            android:id="@+id/outerSettings"
+            app:key="outerSettings"
+            app:summary="@string/open_app_system_settings_summary"
+            app:title="@string/open_app_system_settings" />
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

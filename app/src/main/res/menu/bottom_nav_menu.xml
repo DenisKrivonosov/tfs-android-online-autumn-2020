@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/actionAllPosts"
+        android:icon="@drawable/bottom_nav_news_icon"
+        android:title="@string/bottom_nav_news" />
+    <item
+        android:id="@+id/actionLikedPosts"
+        android:icon="@drawable/bottom_nav_news_liked"
+        android:title="@string/bottom_nav_news_liked" />
+    <item
+        android:id="@+id/actionUserProfile"
+        android:icon="@drawable/bottom_nav_profile_icon"
+        android:title="@string/bottom_nav_profile_tab" />
+</menu>

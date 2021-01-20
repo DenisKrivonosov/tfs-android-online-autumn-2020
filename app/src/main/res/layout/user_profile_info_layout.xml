@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:background="?attr/cardBackgroundColor"
+    android:paddingBottom="20dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/userAvatar"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:src="?attr/postLoadingViewColor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent" />
+
+    <TextView
+        android:id="@+id/userName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/userAvatar"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Человеек Пароход" />
+
+    <TextView
+        android:id="@+id/userStatus"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/userAvatar"
+        app:layout_constraintTop_toBottomOf="@id/userName"
+        tools:text="Самый быстрый Человеек Пароход парозодович" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/cityLayoutGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="cityIcon,cityText,userCity" />
+
+    <ImageView
+        android:id="@+id/cityIcon"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="17dp"
+        android:contentDescription="@string/city"
+        android:src="@drawable/user_profile_city"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/userAvatar" />
+
+    <TextView
+        android:id="@+id/cityText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/city"
+        app:layout_constraintStart_toEndOf="@+id/cityIcon"
+        app:layout_constraintTop_toBottomOf="@id/userAvatar" />
+
+    <TextView
+        android:id="@+id/userCity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/cityText"
+        app:layout_constraintTop_toBottomOf="@id/userAvatar" />
+
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/countryLayoutGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="countryIcon,countryText,userCountry" />
+
+    <ImageView
+        android:id="@+id/countryIcon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="160dp"
+        android:contentDescription="@string/country"
+        android:src="@drawable/user_profile_country"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cityIcon" />
+
+    <TextView
+        android:id="@+id/countryText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/country"
+        app:layout_constraintStart_toEndOf="@+id/countryIcon"
+        app:layout_constraintTop_toBottomOf="@id/cityIcon"
+        tools:layout_editor_absoluteY="130dp" />
+
+    <TextView
+        android:id="@+id/userCountry"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/countryText"
+        app:layout_constraintTop_toBottomOf="@id/cityIcon" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/educationUniversityLayoutGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="educationIcon,educationUniversityText,userEducationUniversity" />
+
+    <ImageView
+        android:id="@+id/educationIcon"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="160dp"
+        android:contentDescription="@string/education_university"
+        android:src="@drawable/user_profile_education"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/countryIcon" />
+
+    <TextView
+        android:id="@+id/educationUniversityText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/education_university"
+        app:layout_constraintStart_toEndOf="@+id/educationIcon"
+        app:layout_constraintTop_toBottomOf="@id/countryIcon"
+        tools:layout_editor_absoluteY="130dp" />
+
+    <TextView
+        android:id="@+id/userEducationUniversity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/educationUniversityText"
+        app:layout_constraintTop_toBottomOf="@id/countryIcon"
+        app:layout_goneMarginEnd="10dp" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/educationFacultyLayoutGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="educationFacultyText,userEducationFaculty" />
+
+    <TextView
+        android:id="@+id/educationFacultyText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/education_faculty"
+        app:layout_constraintStart_toEndOf="@+id/educationIcon"
+        app:layout_constraintTop_toBottomOf="@id/educationUniversityText"
+        tools:layout_editor_absoluteY="130dp" />
+
+    <TextView
+        android:id="@+id/userEducationFaculty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="10dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/educationFacultyText"
+        app:layout_constraintTop_toBottomOf="@id/educationUniversityText"
+        app:layout_goneMarginEnd="10dp" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/followersLayoutGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="followersIcon,followersText,userFollowers" />
+
+    <ImageView
+        android:id="@+id/followersIcon"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="17dp"
+        android:contentDescription="@string/followers"
+        android:src="@drawable/user_profile_followers"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/userEducationFaculty" />
+
+    <TextView
+        android:id="@+id/followersText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/followers"
+        app:layout_constraintStart_toEndOf="@+id/educationIcon"
+        app:layout_constraintTop_toBottomOf="@id/userEducationFaculty"
+        tools:layout_editor_absoluteY="130dp" />
+
+    <TextView
+        android:id="@+id/userFollowers"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/educationUniversityText"
+        app:layout_constraintTop_toBottomOf="@id/userEducationFaculty" />
+</androidx.constraintlayout.widget.ConstraintLayout>

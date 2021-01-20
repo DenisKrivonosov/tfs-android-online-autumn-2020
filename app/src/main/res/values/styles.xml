@@ -1,30 +1,26 @@
 <resources>
-    <!-- Base application theme. -->
-    <style name="AppThemeLight" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimaryLT</item>
-        <item name="colorOnPrimary">@color/colorOnPrimaryLT</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDarkLT</item>
-        <item name="android:colorBackground">@color/colorBackgroundLT</item>
-        <item name="colorAccent">@color/colorAccentLT</item>
-        <item name="titleTextColor">@color/titleTextColorLT</item>
-        <item name="subtitleTextColor">@color/subtitleTextColorLT</item>
-        <item name="android:textColor">@color/textColorPrimaryLT</item>
-        <item name="android:textColorPrimary">@color/textColorPrimaryLT</item>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="colorSurface">@color/colorCardBackground</item>
+        <item name="colorOnSurface">@color/textColorPrimary</item>
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="cardBackgroundColor">@color/colorCardBackground</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="titleTextColor">@color/titleTextColor</item>
+        <item name="subtitleTextColor">@color/subtitleTextColor</item>
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+        <item name="android:textColorHint">@color/hintTextColor</item>
+        <item name="postLoadingViewColor">@color/postsLoadingViewColor</item>
     </style>
 
-    <style name="AppThemeDark" parent="Theme.AppCompat.DayNight.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimaryDT</item>
-        <item name="colorOnPrimary">@color/colorOnPrimaryDT</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDarkDT</item>
-        <item name="android:colorBackground">@color/colorBackgroundDT</item>
-        <item name="colorAccent">@color/colorAccentDT</item>
-        <item name="titleTextColor">@color/titleTextColorDT</item>
-        <item name="subtitleTextColor">@color/subtitleTextColorDT</item>
-        <item name="android:textColor">@color/textColorPrimaryDT</item>
-        <item name="android:textColorPrimary">@color/textColorPrimaryDT</item>
-    </style>
+    <style name="AlertDialogStyle" parent="Theme.AppCompat.DayNight.Dialog.Alert" />
 
     <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
         <item name="cornerSize">50%</item>
